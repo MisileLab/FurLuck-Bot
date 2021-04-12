@@ -1,4 +1,6 @@
 # 펄럭 봇
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_shield)
+
 유저들의 아이디어로 만들어지는 봇
 
 ## 아이디어 제출이나 버그 제보를 하는 방법
@@ -15,3 +17,7 @@ Pull Request에다 해놓은 후 받아들여지면 /specialthanks에 도와준 
 리플 태그(Destination Tag) : 1005542586   
 비트코인 캐시 주소 : bitcoincash:qp6wx0dnklcwtcvl4pdwugcdp0rexerhr5g44c52eq   
 비트코인 캐시 업그레이드 전 주소 : 1Bf3cEf2rNKhT852w25baeWWfD1V8QbY1q
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_large)
