@@ -1,0 +1,4 @@
+numba
+discord
+py-cpuinfo
+psutil
