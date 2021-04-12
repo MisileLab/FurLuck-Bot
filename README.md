@@ -15,3 +15,6 @@ Pull Request에다 해놓은 후 받아들여지면 /specialthanks에 도와준 
 리플 태그(Destination Tag) : 1005542586   
 비트코인 캐시 주소 : bitcoincash:qp6wx0dnklcwtcvl4pdwugcdp0rexerhr5g44c52eq   
 비트코인 캐시 업그레이드 전 주소 : 1Bf3cEf2rNKhT852w25baeWWfD1V8QbY1q
+### 리포지토리 정보
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)
+
