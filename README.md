@@ -11,7 +11,7 @@ Pull Request에다 해놓은 후 받아들여지면 /specialthanks에 도와준 
 ### 무료 후원
 [유튜브 링크](https://www.youtube.com/channel/UCJpQZJtudbnTNjBayE832gg)
 ### 유료 후원
-리플 주소 : rDxfhNRgCDNDckm45zT5ayhKDC4Ljm7UoP\n
-리플 태그(Destination Tag) : 1005542586\n
-비트코인 캐시 주소 : bitcoincash:qp6wx0dnklcwtcvl4pdwugcdp0rexerhr5g44c52eq\n
+리플 주소 : rDxfhNRgCDNDckm45zT5ayhKDC4Ljm7UoP   
+리플 태그(Destination Tag) : 1005542586   
+비트코인 캐시 주소 : bitcoincash:qp6wx0dnklcwtcvl4pdwugcdp0rexerhr5g44c52eq   
 비트코인 캐시 업그레이드 전 주소 : 1Bf3cEf2rNKhT852w25baeWWfD1V8QbY1q
