@@ -9,6 +9,8 @@ on: [push, pull_request]
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./
 
     steps:
     - uses: actions/checkout@v2
