@@ -21,7 +21,6 @@ koreanbots 구문 제거 후 token.txt에 토큰 넣은 뒤 실행
 모듈 목록은 requirements.txt에 있음
 
 ### 리포지토리 정보
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)
-
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)   
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_large)
 
