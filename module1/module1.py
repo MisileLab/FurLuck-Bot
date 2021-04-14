@@ -1,8 +1,5 @@
 import time
 
-def getpercentage(used: int, all1: int):
-    return used / all1 * 100
-
 def getping():
     before = time.monotonic_ns()
     count = 1

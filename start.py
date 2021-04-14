@@ -1,23 +1,37 @@
 import discord
 from discord_slash import SlashCommand
+from discord_slash import manage_commands
 from discord.ext import commands
 import cpuinfo
 import psutil
 import module1.module1 as md1
-from discord.ext.commands import has_permissions, errors
+from discord.ext.commands import has_permissions
 import time
-# import koreanbots
+import koreanbots
 
-client = discord.Client()
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
-# Bot = koreanbots.Client(client, koreanbotstoken)
 
-Client = commands.Bot(command_prefix="/", intents=discord.Intents.all())
+Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
+Client1 = koreanbots.Client(Client, koreanbotstoken)
 slash = SlashCommand(client=Client, sync_commands=True)
 
 token = open('token.txt').read()
 
 devserver = [812339145942237204, 759260634096467969]
+
+dev = True
+
+@Client.event
+async def on_ready():
+    if dev is False:
+        await manage_commands.remove_all_commands(711236336308322304, token, devserver)
+    print("Ready!")
+
+@Client.event
+async def on_slash_command_error(ctx, error):
+    error1 = str(error)
+    if error1.find("You are missing") != 1 and error1.find("permission(s) to run this command.") != 1:
+        await ctx.send(f"<@{ctx.author.id}>님은 권한이 없는 것 같아요.")
 
 @Client.command(name="hellothisisverification")
 async def idontwantdevelopercommandinthiscommand(ctx):
@@ -33,7 +47,6 @@ async def _bot(ctx):
     embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
     embed1.add_field(name="램 전체 용량", value=str(round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
     embed1.add_field(name="램 사용 용량", value=str(round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 남은 용량", value=str(round(psutil.virtual_memory().free / (1024 * 1024 * 1024))) + "GB")
     embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(psutil.virtual_memory().percent))
     list1 = md1.getping()
     embed1.add_field(name="숫자 10000개 출력 속도(ms)", value=list1)
@@ -43,52 +56,40 @@ async def _bot(ctx):
 @slash.slash(name="kick", description="상대를 서버 밖으로 날리는 명령어")
 @has_permissions(kick_members=True)
 async def _kick(ctx, kickmember: discord.Member, reason=None):
-    errorhandling = await slash.on_slash_command_error(ctx, Exception(errors.MissingPermissions))
-    if errorhandling is not None:
-        await ctx.send(f"<@{ctx.author.id}>님의 권한이 없습니다.")
-    elif errorhandling is None:
-        try:
-            await kickmember.kick(reason=reason)
-        except discord.HTTPException:
-            await ctx.send("봇이 권한이 없는 것 같아요.")
-        else:
-            await ctx.send(f"<@{ctx.author.id}>님으로 인하여 <@{kickmember.id}>가 킥 당했습니다.")
+    try:
+        await kickmember.kick(reason=reason)
+    except discord.HTTPException:
+        await ctx.send("봇이 권한이 없는 것 같아요.")
+    else:
+        await ctx.send(f"<@{ctx.author.id}>님으로 인하여 <@{kickmember.id}>가 킥 당했습니다.")
 
 @slash.slash(name="ban", description="상대를 서버 밖으로 영원히 날리는 명령어")
 @has_permissions(ban_members=True)
 async def _ban(ctx, banmember: discord.Member, reason=None):
-    errorhandling = await slash.on_slash_command_error(ctx, Exception(errors.MissingPermissions))
-    if errorhandling is not None:
-        await ctx.send(f"<@{ctx.author.id}>님의 권한이 없습니다.")
-    elif errorhandling is None:
-        try:
-            await banmember.ban()
-        except discord.HTTPException:
-            await ctx.send("봇이 권한이 없는 것 같아요.")
+    try:
+        await banmember.ban()
+    except discord.HTTPException:
+        await ctx.send("봇이 권한이 없는 것 같아요.")
+    else:
+        await ctx.send(f"<@{ctx.author.id}>님으로 인하여 <@{banmember.id}>가 밴되었습니다.")
+        dm = await banmember.create_dm()
+        if reason is not None:
+            await dm.send(f"{reason}으로 인해 밴되었습니다. - by {ctx.author.name}")
         else:
-            await ctx.send(f"<@{ctx.author.id}>님으로 인하여 <@{banmember.id}>가 밴되었습니다.")
-            dm = await banmember.create_dm()
-            if reason is not None:
-                await dm.send(f"{reason}으로 인해 밴되었습니다. - by {ctx.author.name}")
-            else:
-                await dm.send(f"밴되었습니다. - by {ctx.author.name}")
+            await dm.send(f"밴되었습니다. - by {ctx.author.name}")
 
 @slash.slash(name="clean", description="채팅청소하는 엄청난 명령어")
 @has_permissions(manage_messages=True)
 async def _clean(ctx, amount):
-    errorhandling = await slash.on_slash_command_error(ctx, Exception(errors.MissingPermissions))
-    if errorhandling is not None:
-        await ctx.send(f"<@{ctx.author.id}>님은 권한이 없어요!")
-    elif errorhandling is None:
-        channel1 = ctx.channel
-        try:
-            await channel1.purge(limit=int(amount))
-        except discord.HTTPException:
-            await ctx.send("봇이 권한이 없는 것 같아요.")
-        else:
-            message1 = await ctx.send(f"<@{ctx.author.id}>님이 {str(amount)}만큼 채팅청소 했어요!")
-            time.sleep(3)
-            await message1.delete()
+    channel1 = ctx.channel
+    try:
+        await channel1.purge(limit=int(amount))
+    except discord.HTTPException:
+        await ctx.send("봇이 권한이 없는 것 같아요.")
+    else:
+        message1 = await ctx.send(f"<@{ctx.author.id}>님이 {str(amount)}만큼 채팅청소 했어요!")
+        time.sleep(3)
+        await message1.delete()
 
 @slash.slash(name="feedback", description="피드백을 줄 수 있는 명령어")
 async def _feedback(ctx):
@@ -106,5 +107,35 @@ async def _specialthanks(ctx):
     embed1.add_field(name="FurLuck", value="이 봇의 이미지를 쓰게 해준 펄럭")
     await ctx.send(embed=embed1)
 
+@slash.slash(name="mute", description="상대방을 입막습니다! 읍읍")
+@has_permissions(manage_messages=True)
+async def _mute(ctx, member:discord.Member, reason=None):
+    guild = ctx.guild
+    role1 = discord.utils.get(guild.roles, name='Muted')
+    if role1 is not None:
+        await member.add_roles(role1, reason=reason)
+        if reason is None:
+            await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
+        else:
+            await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
+    else:
+        perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
+        role1 = await guild.create_role(name="Muted", permissions=perms1)
+        await member.add_roles(role1, reason=reason)
+        if reason is None:
+            await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
+        else:
+            await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
+
+@slash.slash(name="unmute", description="상대방을 입 막지 않습니다. 뮤트 멈춰!")
+@has_permissions(manage_messages=True)
+async def _unmute(ctx, member:discord.Member, reason=None):
+    guild = ctx.guild
+    role1 = discord.utils.get(guild.roles, name='Muted')
+    await member.remove_roles(role1, reason=reason)
+    if reason is None:
+        await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!")
+    else:
+        await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 언뮤트하였습니다!")
 
 Client.run(token)
