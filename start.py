@@ -4,10 +4,10 @@ from discord_slash import manage_commands
 from discord.ext import commands
 import cpuinfo
 import psutil
-import module1.module1 as md1
 from discord.ext.commands import has_permissions
-import time
 import koreanbots
+import time
+from module1 import module1 as md1
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 
@@ -19,7 +19,7 @@ token = open('token.txt').read()
 
 devserver = [812339145942237204, 759260634096467969]
 
-dev = True
+dev = False
 
 @Client.event
 async def on_ready():
@@ -30,8 +30,41 @@ async def on_ready():
 @Client.event
 async def on_slash_command_error(ctx, error):
     error1 = str(error)
-    if error1.find("You are missing") != 1 and error1.find("permission(s) to run this command.") != 1:
+    if error1.find("You are missing") == 1 and error1.find("permission(s) to run this command.") == 1:
         await ctx.send(f"<@{ctx.author.id}>님은 권한이 없는 것 같아요.")
+    elif error1.find("we're now rate limited. retrying after") == 1:
+        await ctx.send("조금 이따가 다시 해보세요!")
+
+@Client.event
+async def on_member_join(member):
+    true_member_count = len([m for m in member.guild.members if not m.bot])
+    embed = discord.Embed(title="멤버 입장", description=f'{member.name}이 {member.guild.name}에 입장했어요!', color=0x00a352)
+    embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
+    embed.set_footer(text=md1.todaycalculate())
+    embed.set_thumbnail(url=member.avatar_url)
+    if member.guild.id == 635336036465246218:
+        welcomechannel = await Client.fetch_channel(749446018856386651)
+        await member.add_roles(member.guild.get_role(826962501097881620))
+        await welcomechannel.send(embed=embed)
+    else:
+        try:
+            channel = discord.utils.get(member.guild.channels, name="🔎인사")
+            await channel.send(embed=embed)
+        except discord.HTTPException:
+            pass
+
+@Client.event
+async def on_member_remove(member):
+    true_member_count = len([m for m in member.guild.members if not m.bot])
+    embed = discord.Embed(title="멤버 퇴장", description=f'{member.name}이 {member.guild.name}에서 퇴장했어요. ㅠㅠ', color=0xff4747)
+    embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
+    embed.set_footer(text=md1.todaycalculate())
+    embed.set_thumbnail(url=member.avatar_url)
+    try:
+        channel = discord.utils.get(member.guild.channels, name="🔎인사")
+        await channel.send(embed=embed)
+    except discord.HTTPException:
+        pass
 
 @Client.command(name="hellothisisverification")
 async def idontwantdevelopercommandinthiscommand(ctx):
@@ -39,6 +72,9 @@ async def idontwantdevelopercommandinthiscommand(ctx):
 
 @slash.slash(name="bot", description="봇의 정보를 알려주는 명령어")
 async def _bot(ctx):
+    before = time.monotonic()
+    message1 = await ctx.send("Ping Test")
+    ping = time.monotonic() - before
     cpuinfo1 = cpuinfo.get_cpu_info()
     embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
     embed1.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -48,10 +84,9 @@ async def _bot(ctx):
     embed1.add_field(name="램 전체 용량", value=str(round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
     embed1.add_field(name="램 사용 용량", value=str(round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
     embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(psutil.virtual_memory().percent))
-    list1 = md1.getping()
-    embed1.add_field(name="숫자 10000개 출력 속도(ms)", value=list1)
+    embed1.add_field(name="봇 핑(ms)", value=str(ping))
     embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
-    await ctx.send(embed=embed1)
+    await message1.edit(content=None, embed=embed1)
 
 @slash.slash(name="kick", description="상대를 서버 밖으로 날리는 명령어")
 @has_permissions(kick_members=True)
@@ -105,6 +140,7 @@ async def _specialthanks(ctx):
     embed1.add_field(name="Misile#2134", value="잘 버텨준 나")
     embed1.add_field(name="You", value="이 봇을 사용해준 너")
     embed1.add_field(name="FurLuck", value="이 봇의 이미지를 쓰게 해준 펄럭")
+    embed1.add_field(name="IceCreamHappy", value="기획자")
     await ctx.send(embed=embed1)
 
 @slash.slash(name="mute", description="상대방을 입막습니다! 읍읍")
@@ -137,5 +173,14 @@ async def _unmute(ctx, member:discord.Member, reason=None):
         await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!")
     else:
         await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 언뮤트하였습니다!")
+
+@slash.slash(name="calculate", description="계산을 할 수 있는 명령어")
+async def _calculate(ctx, calculate):
+    try:
+        result = eval(calculate)
+    except ValueError:
+        await ctx.send(f"<@{ctx.author.id}>님, 계산식이 틀린 것 같습니다")
+    else:
+        await ctx.send(f"<@{ctx.author.id}>님, 계산 결과가 {result}입니다.")
 
 Client.run(token)

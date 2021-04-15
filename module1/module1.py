@@ -1,11 +1,6 @@
-import time
+from datetime import datetime
 
-def getping():
-    before = time.monotonic_ns()
-    count = 1
-    for i in range(5000):
-        print(i)
-        print(count)
-        count = count + 1
-    time1 = time.monotonic_ns() - before
-    return time1 / 1000000
+def todaycalculate():
+    datetimetoday = datetime.today()
+    today2 = str(datetimetoday.year) + '년 ' + str(datetimetoday.month) + '월 ' + str(datetimetoday.day) + '일 ' + str(datetimetoday.hour) + '시 ' + str(datetimetoday.minute) + '분 ' + str(datetimetoday.second) + '초 '
+    return today2
