@@ -1,3 +1,4 @@
+import ast
 import discord
 from discord_slash import SlashCommand
 from discord_slash import manage_commands
@@ -17,7 +18,8 @@ slash = SlashCommand(client=Client, sync_commands=True)
 
 token = open('token.txt').read()
 
-devserver = [812339145942237204, 759260634096467969]
+devserver = [812339145942237204, 759260634096467969, 635336036465246218]
+icecreamhappydiscord = [635336036465246218]
 
 dev = False
 
@@ -34,6 +36,8 @@ async def on_slash_command_error(ctx, error):
         await ctx.send(f"<@{ctx.author.id}>님은 권한이 없는 것 같아요.")
     elif error1.find("we're now rate limited. retrying after") == 1:
         await ctx.send("조금 이따가 다시 해보세요!")
+    else:
+        print(error)
 
 @Client.event
 async def on_member_join(member):
@@ -49,8 +53,11 @@ async def on_member_join(member):
     else:
         try:
             channel = discord.utils.get(member.guild.channels, name="🔎인사")
-            await channel.send(embed=embed)
-        except discord.HTTPException:
+            if channel is None:
+                raise AttributeError
+            else:
+                await channel.send(embed=embed)
+        except AttributeError:
             pass
 
 @Client.event
@@ -131,6 +138,7 @@ async def _feedback(ctx):
     embed1 = discord.Embed(name="이 봇의 시스템 정보들", description="여러가지 링크들")
     embed1.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
+    embed1.add_field(name="Team Hope", value="[링크](https://teamhopekr.tk/discord)")
     await ctx.send(embed=embed1)
 
 @slash.slash(name="specialthanks", description="이걸 도와준 사람들을 위한 명령어")
@@ -177,10 +185,50 @@ async def _unmute(ctx, member:discord.Member, reason=None):
 @slash.slash(name="calculate", description="계산을 할 수 있는 명령어")
 async def _calculate(ctx, calculate):
     try:
-        result = eval(calculate)
+        result = ast.literal_eval(calculate)
     except ValueError:
         await ctx.send(f"<@{ctx.author.id}>님, 계산식이 틀린 것 같습니다")
     else:
         await ctx.send(f"<@{ctx.author.id}>님, 계산 결과가 {result}입니다.")
+
+@slash.slash(name="격리", description="격리하는 명령어", guild_ids=icecreamhappydiscord)
+async def _guckri(ctx, member:discord.Member, reason=None):
+    role1 = ctx.guild.get_role(802733890221375498)
+    await member.add_roles(role1, reason=reason)
+    if reason is None:
+        await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 격리하였습니다!")
+    else:
+        await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!")
+
+@slash.slash(name="격리해제", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord)
+async def _guckridisable(ctx, member:discord.Member, reason=None):
+    role1 = ctx.guild.get_role(802733890221375498)
+    await member.remove_roles(role1, reason=reason)
+    if reason is None:
+        await ctx.send(f"<@{ctx.author.id}>님이 <@{member.id}>님을 격리해제 하였습니다!")
+    else:
+        await ctx.send(f"<@{ctx.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
+
+@slash.slash(name="weather", description="날씨를 알려주는 명령어")
+async def _weather(ctx, position):
+    try:
+        weatherdata = md1.get_weather(position)
+    except ValueError:
+        await ctx.send("이름이 맞지 않는 것 같아요!")
+    else:
+        embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
+        embed1.set_thumbnail(url=weatherdata['weatherurl'])
+        embed1.add_field(name="현재 온도", value=weatherdata['temp'])
+        embed1.add_field(name="최고 온도", value=weatherdata['maxtemp'])
+        embed1.add_field(name="최저 온도", value=weatherdata['mintemp'])
+        embed1.add_field(name="체감 온도", value=weatherdata['sensibletemp'])
+        embed1.add_field(name="날씨 상황", value=weatherdata['cast'])
+        embed1.add_field(name="미세먼지 농도(μg/m3)", value=weatherdata['dust'])
+        embed1.add_field(name="미세먼지 위험 단계", value=weatherdata['dust_txt'])
+        embed1.add_field(name="초미세먼지 농도(μg/m3)", value=weatherdata['ultra_dust'])
+        embed1.add_field(name="초미세먼지 위험 단계", value=weatherdata['ultra_dust_txt'])
+        embed1.add_field(name="오존 농도(ppm)", value=weatherdata['ozone'])
+        embed1.add_field(name="오존 위험 단계", value=weatherdata['ozonetext'])
+        await ctx.send(embed=embed1)
 
 Client.run(token)

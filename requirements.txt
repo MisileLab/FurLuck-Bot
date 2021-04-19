@@ -1,5 +1,9 @@
-discord
-py-cpuinfo
-psutil
-koreanbots
-datetime
+requests==2.25.1
+DateTime==4.3
+selenium==3.141.0
+beautifulsoup4==4.9.3
+discord==1.0.1
+py-cpuinfo==8.0.0
+psutil==5.8.0
+koreanbots==0.2.3
+discord-py-slash-command
