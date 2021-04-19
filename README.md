@@ -17,9 +17,10 @@ Pull Request에다 해놓은 후 받아들여지면 /specialthanks에 도와준 
 비트코인 캐시 업그레이드 전 주소 : 1Bf3cEf2rNKhT852w25baeWWfD1V8QbY1q
 
 ## 만약 실행하고 싶다
-koreanbots 구문 제거 후 token.txt에 토큰 넣은 뒤 실행
-모듈 목록은 requirements.txt에 있음
-엣지 드라이버와 엣지 다운로드해야함
+koreanbots 구문 제거 후 token.txt에 토큰 넣은 뒤   
+requirements.txt에 있는 모듈들을 다운로드 받고   
+엣지 드라이버와 엣지 다운로드한 다음   
+bitlytoken.txt 만들고 bitly 링크 넣으면 실행 가능
 
 ### 리포지토리 정보
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)   

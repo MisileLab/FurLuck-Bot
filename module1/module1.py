@@ -1,7 +1,19 @@
 from datetime import datetime
 from selenium import webdriver
 from bs4 import BeautifulSoup
+from bitlyshortener import Shortener
 import requests
+
+count = 0
+tokens_pool2 = []
+with open('bitlytoken.txt') as f:
+    tokens_pool = f.readlines()
+    print(tokens_pool)
+for i in range(len(tokens_pool)):
+    print(i)
+    tokens_pool2.append(str(tokens_pool[count]).replace('\n', ''))
+    count = count + 1
+print(tokens_pool2)
 
 def todaycalculate():
     datetimetoday = datetime.today()
@@ -118,3 +130,8 @@ def remove_special_region(origin, tagname):
         except AttributeError:
             pass
     return origin
+
+def shortlink(link):
+    shortener = Shortener(tokens=tokens_pool2, max_cache_size=256)
+    link1 = shortener.shorten_urls(long_urls=link)
+    return link1

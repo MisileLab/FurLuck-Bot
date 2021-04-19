@@ -234,4 +234,10 @@ async def _weather(ctx, position):
         embed1.add_field(name="오존 위험 단계", value=weatherdata['ozonetext'])
         await ctx.send(embed=embed1)
 
+@slash.slash(name="bitly", description="링크를 길지 않게 만들어주는 명령어")
+async def _bitly(ctx, longurl):
+    shorturl = md1.shortlink([longurl])
+    shorturl2 = str(shorturl).replace("['", "").replace("']", "")
+    await ctx.send(f"<@{ctx.author.id}>님 링크가 {shorturl2} 로 변한것 같아요!")
+
 Client.run(token)

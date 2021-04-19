@@ -6,4 +6,4 @@ discord==1.0.1
 py-cpuinfo==8.0.0
 psutil==5.8.0
 koreanbots==0.2.3
-discord-py-slash-command
+bitlyshortener==0.5.1
