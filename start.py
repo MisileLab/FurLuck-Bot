@@ -21,7 +21,7 @@ token = open('token.txt').read()
 devserver = [812339145942237204, 759260634096467969, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 
-dev = False
+dev = True
 
 @Client.event
 async def on_ready():
@@ -69,8 +69,11 @@ async def on_member_remove(member):
     embed.set_thumbnail(url=member.avatar_url)
     try:
         channel = discord.utils.get(member.guild.channels, name="🔎인사")
-        await channel.send(embed=embed)
-    except discord.HTTPException:
+        if channel is None:
+            raise AttributeError
+        else:
+            await channel.send(embed=embed)
+    except discord.HTTPException or AttributeError:
         pass
 
 @Client.command(name="hellothisisverification")
