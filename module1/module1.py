@@ -106,7 +106,7 @@ def get_weather(position:str):
             "ozonetext":ozonetext,
             "mintemp":lowtemperature,
             "maxtemp":hightemperature,
-            "sensibletemp":sensibletemp,
+            "sensibletemp":str(sensibletemp) + "도",
             "weatherurl":str(weatherurl2[weatherurl-1]) + ".png"
         }
         return list1
