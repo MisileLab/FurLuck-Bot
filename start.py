@@ -73,7 +73,7 @@ async def on_member_remove(member):
             raise AttributeError
         else:
             await channel.send(embed=embed)
-    except discord.HTTPException or AttributeError:
+    except (discord.HTTPException, AttributeError):
         pass
 
 @Client.command(name="hellothisisverification")
