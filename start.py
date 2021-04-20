@@ -42,7 +42,7 @@ async def on_slash_command_error(ctx, error):
 @Client.event
 async def on_member_join(member):
     true_member_count = len([m for m in member.guild.members if not m.bot])
-    embed = discord.Embed(title="멤버 입장", description=f'{member.name}이 {member.guild.name}에 입장했어요!', color=0x00a352)
+    embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
     embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
@@ -63,7 +63,7 @@ async def on_member_join(member):
 @Client.event
 async def on_member_remove(member):
     true_member_count = len([m for m in member.guild.members if not m.bot])
-    embed = discord.Embed(title="멤버 퇴장", description=f'{member.name}이 {member.guild.name}에서 퇴장했어요. ㅠㅠ', color=0xff4747)
+    embed = discord.Embed(title="멤버 퇴장", description=f'{member.name}님이 {member.guild.name}에서 퇴장했어요. ㅠㅠ', color=0xff4747)
     embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
