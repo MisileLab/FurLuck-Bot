@@ -1,4 +1,3 @@
-import ast
 import discord
 from discord_slash import SlashCommand
 from discord_slash import manage_commands
@@ -9,6 +8,7 @@ from discord.ext.commands import has_permissions
 import koreanbots
 import time
 from module1 import module1 as md1
+import simpleeval
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 
@@ -188,7 +188,7 @@ async def _unmute(ctx, member:discord.Member, reason=None):
 @slash.slash(name="calculate", description="계산을 할 수 있는 명령어")
 async def _calculate(ctx, calculate):
     try:
-        result = ast.literal_eval(calculate)
+        result = simpleeval.simple_eval(calculate)
     except ValueError:
         await ctx.send(f"<@{ctx.author.id}>님, 계산식이 틀린 것 같습니다")
     else:
@@ -214,6 +214,7 @@ async def _guckridisable(ctx, member:discord.Member, reason=None):
 
 @slash.slash(name="weather", description="날씨를 알려주는 명령어")
 async def _weather(ctx, position):
+    message1 = await ctx.send("기다려주세요.")
     try:
         weatherdata = md1.get_weather(position)
     except ValueError:
@@ -232,7 +233,7 @@ async def _weather(ctx, position):
         embed1.add_field(name="초미세먼지 위험 단계", value=weatherdata['ultra_dust_txt'])
         embed1.add_field(name="오존 농도(ppm)", value=weatherdata['ozone'])
         embed1.add_field(name="오존 위험 단계", value=weatherdata['ozonetext'])
-        await ctx.send(embed=embed1)
+        await message1.edit(content="완료되었습니다!",embed=embed1)
 
 @slash.slash(name="bitly", description="링크를 길지 않게 만들어주는 명령어")
 async def _bitly(ctx, longurl):
