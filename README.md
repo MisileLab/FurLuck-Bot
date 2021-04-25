@@ -19,8 +19,15 @@ Pull Request에다 해놓은 후 받아들여지면 /specialthanks에 도와준 
 ## 만약 실행하고 싶다
 koreanbots 구문 제거 후 token.txt에 토큰 넣은 뒤   
 requirements.txt에 있는 모듈들을 다운로드 받고   
-엣지 드라이버와 엣지 다운로드한 다음   
-bitlytoken.txt 만들고 bitly 링크 넣으면 실행 가능
+엣지 드라이버와 엣지 다운로드 또는   
+크롬 드라이버와 크롬 다운로드 한 후   
+bitlytoken.txt 만들고 bitly 토큰 넣은 뒤
+MariaDB 만든 다음   
+pymysql.json 만들고
+```json
+ {"host":"host", "user":"user", "password":"password", "db":"db", "charset":"charset", "port":"port"}
+```
+여기에 호스트, 유저 등등 넣어서 하면 됨
 
 ### 리포지토리 정보
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)   

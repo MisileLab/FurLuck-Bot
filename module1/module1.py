@@ -3,6 +3,8 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from bitlyshortener import Shortener
 import requests
+import json
+import pymysql
 
 count = 0
 tokens_pool2 = []
@@ -15,6 +17,9 @@ for i in range(len(tokens_pool)):
     tokens_pool2.append(str(tokens_pool[count]).replace('\n', ''))
     count = count + 1
 print(tokens_pool2)
+
+mysqlconnect = open('pymysql.json', 'r').read()
+mysqlconnect = json.loads(mysqlconnect)
 
 def todaycalculate():
     datetimetoday = datetime.today()
@@ -142,3 +147,38 @@ def shortlink(link):
     shortener = Shortener(tokens=tokens_pool2, max_cache_size=256)
     link1 = shortener.shorten_urls(long_urls=link)
     return link1
+
+# noinspection PyTypeChecker
+def warn(memberid:int, amount:int, get:bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        result = i1
+        resultid = i1['id']
+        if resultid == memberid:
+            break
+    if result is None:
+        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%i, 1, 0)" % memberid
+        cursor.execute(sql)
+    if get is True:
+        pass
+    elif get is False:
+        sql = "UPDATE furluckbot1 SET warn = %i WHERE id = %i" % (amount, memberid)
+        cursor.execute(sql)
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        result = i1
+        resultid = i1['id']
+        if resultid == memberid:
+            break
+    mysql1.close()
+    return result
+
+

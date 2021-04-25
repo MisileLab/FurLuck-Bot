@@ -9,6 +9,7 @@ import koreanbots
 import time
 from module1 import module1 as md1
 import simpleeval
+import random
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 
@@ -28,16 +29,6 @@ async def on_ready():
     if dev is False:
         await manage_commands.remove_all_commands(711236336308322304, token, devserver)
     print("Ready!")
-
-@Client.event
-async def on_slash_command_error(ctx, error):
-    error1 = str(error)
-    if error1.find("You are missing") == 1 and error1.find("permission(s) to run this command.") == 1:
-        await ctx.send(f"<@{ctx.author.id}>님은 권한이 없는 것 같아요.")
-    elif error1.find("we're now rate limited. retrying after") == 1:
-        await ctx.send("조금 이따가 다시 해보세요!")
-    else:
-        print(error)
 
 @Client.event
 async def on_member_join(member):
@@ -141,7 +132,6 @@ async def _feedback(ctx):
     embed1 = discord.Embed(name="이 봇의 시스템 정보들", description="여러가지 링크들")
     embed1.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
-    embed1.add_field(name="Team Hope", value="[링크](https://teamhopekr.tk/discord)")
     await ctx.send(embed=embed1)
 
 @slash.slash(name="specialthanks", description="이걸 도와준 사람들을 위한 명령어")
@@ -151,7 +141,6 @@ async def _specialthanks(ctx):
     embed1.add_field(name="Misile#2134", value="잘 버텨준 나")
     embed1.add_field(name="You", value="이 봇을 사용해준 너")
     embed1.add_field(name="FurLuck", value="이 봇의 이미지를 쓰게 해준 펄럭")
-    embed1.add_field(name="IceCreamHappy", value="기획자")
     await ctx.send(embed=embed1)
 
 @slash.slash(name="mute", description="상대방을 입막습니다! 읍읍")
@@ -240,5 +229,32 @@ async def _bitly(ctx, longurl):
     shorturl = md1.shortlink([longurl])
     shorturl2 = str(shorturl).replace("['", "").replace("']", "")
     await ctx.send(f"<@{ctx.author.id}>님 링크가 {shorturl2} 로 변한것 같아요!")
+
+@slash.slash(name="random", description="랜덤으로 숫자를 굴려주는 명령어")
+async def _random(ctx, x:int, y:int):
+    await ctx.send(random.randint(x, y))
+
+@slash.slash(name="getwarn", description="주의를 보는 세상 간단한 명령어")
+async def _getwarn(ctx, member:discord.Member):
+    warndata = md1.warn(memberid=member.id, amount=0, get=True)
+    await ctx.send(f"{member.display_name}님의 주의 개수는 {warndata['warn']}개에요!")
+
+@slash.slash(name="warn", description="주의를 주는 세상 복잡한 명령어")
+async def _warn(ctx, member:discord.Member, amount:int, reason=None):
+    warndata = md1.warn(memberid=member.id, amount=0, get=True)
+    warndata = md1.warn(memberid=member.id, amount=warndata['warn'] + amount, get=False)
+    if reason is None:
+        await ctx.send(f"<@{member.id}>님은 <@{ctx.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+    elif reason is not None:
+        await ctx.send(f"<@{member.id}>님은 {reason}이라는 이유로 <@{ctx.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+
+@slash.slash(name="unwarn", description="주의를 빼는 세상 이상한 명령어")
+async def _warn(ctx, member:discord.Member, amount:int, reason=None):
+    warndata = md1.warn(memberid=member.id, amount=0, get=True)
+    warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
+    if reason is None:
+        await ctx.send(f"<@{member.id}>님은 <@{ctx.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+    elif reason is not None:
+        await ctx.send(f"<@{member.id}>님은 {reason}이라는 이유로 <@{ctx.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
 
 Client.run(token)
