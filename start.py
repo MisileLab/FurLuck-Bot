@@ -42,14 +42,14 @@ async def on_member_join(member):
         await member.add_roles(member.guild.get_role(826962501097881620))
         await welcomechannel.send(embed=embed)
     else:
+        getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
         try:
-            channel = discord.utils.get(member.guild.channels, name="🔎인사")
-            if channel is None:
-                raise AttributeError
-            else:
-                await channel.send(embed=embed)
-        except AttributeError:
+            channel = await Client.fetch_channel(getchannel["insaname"])
+        except Exception as e:
+            print(e)
             pass
+        else:
+            await channel.send(embed=embed)
 
 @Client.event
 async def on_member_remove(member):
@@ -58,14 +58,14 @@ async def on_member_remove(member):
     embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
+    getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
     try:
-        channel = discord.utils.get(member.guild.channels, name="🔎인사")
-        if channel is None:
-            raise AttributeError
-        else:
-            await channel.send(embed=embed)
-    except (discord.HTTPException, AttributeError):
+        channel = await Client.fetch_channel(getchannel["insaname"])
+    except Exception as e:
+        print(e)
         pass
+    else:
+        await channel.send(embed=embed)
 
 @Client.command(name="hellothisisverification")
 async def idontwantdevelopercommandinthiscommand(ctx):
@@ -239,6 +239,7 @@ async def _getwarn(ctx, member:discord.Member):
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     await ctx.send(f"{member.display_name}님의 주의 개수는 {warndata['warn']}개에요!")
 
+@has_permissions(administrator=True)
 @slash.slash(name="warn", description="주의를 주는 세상 복잡한 명령어")
 async def _warn(ctx, member:discord.Member, amount:int, reason=None):
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
@@ -248,6 +249,7 @@ async def _warn(ctx, member:discord.Member, amount:int, reason=None):
     elif reason is not None:
         await ctx.send(f"<@{member.id}>님은 {reason}이라는 이유로 <@{ctx.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
 
+@has_permissions(administrator=True)
 @slash.slash(name="unwarn", description="주의를 빼는 세상 이상한 명령어")
 async def _warn(ctx, member:discord.Member, amount:int, reason=None):
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
@@ -256,5 +258,11 @@ async def _warn(ctx, member:discord.Member, amount:int, reason=None):
         await ctx.send(f"<@{member.id}>님은 <@{ctx.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
     elif reason is not None:
         await ctx.send(f"<@{member.id}>님은 {reason}이라는 이유로 <@{ctx.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+
+@has_permissions(administrator=True)
+@slash.slash(name="hellochannel", description="인사채널을 설정하는 명령어")
+async def _hellochannel(ctx, channel:discord.TextChannel):
+    md1.sayhellotoyourmember(ctx.author.guild.id, channel.id, False)
+    await ctx.send(f"{channel.mention}으로 인사채널이 변경되었어요!")
 
 Client.run(token)

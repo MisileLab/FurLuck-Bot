@@ -181,4 +181,41 @@ def warn(memberid:int, amount:int, get:bool):
     mysql1.close()
     return result
 
-
+# noinspection PyTypeChecker
+def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM `serverfurluckbot`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        result = i1
+        resultid = i1['serverid']
+        if resultid == guildid:
+            break
+    if result is None:
+        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%i, %i)" % (guildid, channelid)
+        cursor.execute(sql)
+    if get is True:
+        pass
+    elif get is False:
+        sql = "UPDATE serverfurluckbot SET insaname = %i WHERE serverid = %i" % (channelid, guildid)
+        cursor.execute(sql)
+    sql = "SELECT * FROM `serverfurluckbot`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    try:
+        for i1 in resultcursor:
+            result = i1
+            resultid = i1['serverid']
+            if resultid == guildid:
+                break
+    except KeyError as e:
+        if get is True:
+            pass
+        elif get is False:
+            raise KeyError(e)
+    mysql1.close()
+    return result
