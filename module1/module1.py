@@ -51,6 +51,7 @@ def get_weather(position:str):
     browser.close()
     req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
     soup = BeautifulSoup(req.text, 'html.parser')
+    req.close()
     try:
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
         if todaytemperature is None:
@@ -118,7 +119,6 @@ def get_weather(position:str):
             "https://imgur.com/XMcWPZc",
             "https://imgur.com/9Kn7KCy"
         ]
-
         list1 = {
             "temp":todaytemperature,
             "cast":cast_txt,
