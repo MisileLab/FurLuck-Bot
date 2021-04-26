@@ -47,7 +47,6 @@ async def on_member_join(member):
             channel = await Client.fetch_channel(getchannel["insaname"])
         except Exception as e:
             print(e)
-            pass
         else:
             await channel.send(embed=embed)
 
@@ -251,7 +250,7 @@ async def _warn(ctx, member:discord.Member, amount:int, reason=None):
 
 @has_permissions(administrator=True)
 @slash.slash(name="unwarn", description="주의를 빼는 세상 이상한 명령어")
-async def _warn(ctx, member:discord.Member, amount:int, reason=None):
+async def _unwarn(ctx, member:discord.Member, amount:int, reason=None):
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
     if reason is None:
