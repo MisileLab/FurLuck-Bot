@@ -162,12 +162,12 @@ def warn(memberid:int, amount:int, get:bool):
         if resultid == memberid:
             break
     if result is None:
-        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%i, 1, 0)"
+        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%s, 1, 0)"
         cursor.execute(sql, memberid)
     if get is True:
         pass
     elif get is False:
-        sql = "UPDATE furluckbot1 SET warn = %i WHERE id = %i"
+        sql = "UPDATE furluckbot1 SET warn = %s WHERE id = %s"
         cursor.execute(sql, (amount, memberid))
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
@@ -189,17 +189,15 @@ def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
     resultcursor = cursor.fetchall()
     result = None
     for i1 in resultcursor:
-        result = i1
         resultid = i1['serverid']
         if resultid == guildid:
+            result = i1
             break
     if result is None:
-        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%i, %i)"
+        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%s, %s)"
         cursor.execute(sql, (guildid, channelid))
-    if get is True:
-        pass
-    elif get is False:
-        sql = "UPDATE serverfurluckbot SET insaname = %i WHERE serverid = %i"
+    if get is False:
+        sql = "UPDATE serverfurluckbot SET insaname = %s WHERE serverid = %s"
         cursor.execute(sql, (channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
@@ -207,9 +205,9 @@ def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
     result = None
     try:
         for i1 in resultcursor:
-            result = i1
             resultid = i1['serverid']
             if resultid == guildid:
+                result = i1
                 break
     except KeyError as e:
         if get is True:

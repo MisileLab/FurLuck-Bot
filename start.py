@@ -37,22 +37,16 @@ async def on_member_join(member):
     embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
-    if member.guild.id != 635336036465246218:
-        getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
-        try:
-            channel = await Client.fetch_channel(getchannel["insaname"])
-        except Exception as e:
-            print(e)
-        else:
-            await channel.send(embed=embed)
+    print(member.guild.id)
+    getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
+    try:
+        channel = await Client.fetch_channel(getchannel["insaname"])
+    except AttributeError:
+        pass
     else:
-        getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
-        try:
-            channel = await Client.fetch_channel(getchannel["insaname"])
-        except Exception as e:
-            print(e)
-        else:
-            await channel.send(embed=embed)
+        await channel.send(embed=embed)
+    if member.guild.id == 635336036465246218:
+        await member.add_roles(member.guild.get_role(826962501097881620))
 
 @Client.event
 async def on_member_remove(member):
