@@ -157,13 +157,12 @@ def warn(memberid:int, amount:int, get:bool):
     resultcursor = cursor.fetchall()
     result = None
     for i1 in resultcursor:
-        result = i1
         resultid = i1['id']
         if resultid == memberid:
+            result = i1
             break
     if result is None:
-        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%s, 1, 0)"
-        cursor.execute(sql, memberid)
+        insertmemberdataonce(cursor=cursor, memberid=memberid)
     if get is True:
         pass
     elif get is False:
@@ -174,9 +173,9 @@ def warn(memberid:int, amount:int, get:bool):
     resultcursor = cursor.fetchall()
     result = None
     for i1 in resultcursor:
-        result = i1
         resultid = i1['id']
         if resultid == memberid:
+            result = i1
             break
     mysql1.close()
     return result
@@ -216,3 +215,34 @@ def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
             raise KeyError(e)
     mysql1.close()
     return result
+
+# noinspection PyTypeChecker
+def helpingyou(memberid:int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result = i1
+            break
+    if result is None:
+        insertmemberdataonce(cursor, memberid)
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result = i1
+            break
+    mysql1.close()
+    return result
+
+def insertmemberdataonce(cursor, memberid:int):
+    sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
+    cursor.execute(sql, memberid)

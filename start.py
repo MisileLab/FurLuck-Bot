@@ -60,7 +60,6 @@ async def on_member_remove(member):
         channel = await Client.fetch_channel(getchannel["insaname"])
     except Exception as e:
         print(e)
-        pass
     else:
         await channel.send(embed=embed)
 
@@ -261,5 +260,26 @@ async def _unwarn(ctx, member:discord.Member, amount:int, reason=None):
 async def _hellochannel(ctx, channel:discord.TextChannel):
     md1.sayhellotoyourmember(ctx.author.guild.id, channel.id, False)
     await ctx.send(f"{channel.mention}으로 인사채널이 변경되었어요!")
+
+@slash.slash(name="helpingme", description="제작자가 직접 주는 호감도 확인용")
+async def _helpinghands(ctx):
+    helpingyouandme = md1.helpingyou(ctx.author.id)
+    if helpingyouandme is None:
+        await ctx.send("그 사람은 데이터가 없어요!")
+    else:
+        helpingrank = None
+        if ctx.author.id == 338902243476635650:
+            helpingrank = "나를 만들어 준 너"
+        elif helpingyouandme == 0:
+            helpingrank = "이용을 해주는 너"
+        elif 0 < helpingyouandme < 100:
+            helpingrank = "조금이라도 도와주는 너"
+        if helpingrank is None:
+            await ctx.send("오류가 난 것 같아요!")
+        else:
+            embedhelping = discord.Embed(title="호감도 현황", description=f"{ctx.author.name}님! 고마워요!")
+            embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab", icon_url="https://i.imgur.com/6y4X4aw.png")
+            embedhelping.add_field(name="호감도 칭호", value=helpingrank)
+            await ctx.send(embed=embedhelping)
 
 Client.run(token)
