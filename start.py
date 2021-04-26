@@ -9,7 +9,7 @@ import koreanbots
 import time
 from module1 import module1 as md1
 import simpleeval
-import random
+import secrets
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 
@@ -232,7 +232,7 @@ async def _bitly(ctx, longurl):
 
 @slash.slash(name="random", description="랜덤으로 숫자를 굴려주는 명령어")
 async def _random(ctx, x:int, y:int):
-    await ctx.send(random.randint(x, y))
+    await ctx.send(secrets.SystemRandom().randint(x, y))
 
 @slash.slash(name="getwarn", description="주의를 보는 세상 간단한 명령어")
 async def _getwarn(ctx, member:discord.Member):

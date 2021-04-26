@@ -162,13 +162,13 @@ def warn(memberid:int, amount:int, get:bool):
         if resultid == memberid:
             break
     if result is None:
-        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%i, 1, 0)" % memberid
-        cursor.execute(sql)
+        sql = "INSERT INTO `furluckbot1` (id, level1, warn) VALUES (%i, 1, 0)"
+        cursor.execute(sql, memberid)
     if get is True:
         pass
     elif get is False:
-        sql = "UPDATE furluckbot1 SET warn = %i WHERE id = %i" % (amount, memberid)
-        cursor.execute(sql)
+        sql = "UPDATE furluckbot1 SET warn = %i WHERE id = %i"
+        cursor.execute(sql, (amount, memberid))
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
@@ -185,8 +185,7 @@ def warn(memberid:int, amount:int, get:bool):
 def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
-    sql = "SELECT * FROM `serverfurluckbot`;"
-    cursor.execute(sql)
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     result = None
     for i1 in resultcursor:
@@ -195,13 +194,13 @@ def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
         if resultid == guildid:
             break
     if result is None:
-        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%i, %i)" % (guildid, channelid)
-        cursor.execute(sql)
+        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%i, %i)"
+        cursor.execute(sql, (guildid, channelid))
     if get is True:
         pass
     elif get is False:
-        sql = "UPDATE serverfurluckbot SET insaname = %i WHERE serverid = %i" % (channelid, guildid)
-        cursor.execute(sql)
+        sql = "UPDATE serverfurluckbot SET insaname = %i WHERE serverid = %i"
+        cursor.execute(sql, (channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
