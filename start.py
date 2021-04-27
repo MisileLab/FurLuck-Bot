@@ -256,10 +256,10 @@ async def _unwarn(ctx, member:discord.Member, amount:int, reason=None):
         await ctx.send(f"<@{member.id}>님은 {reason}이라는 이유로 <@{ctx.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
 
 @has_permissions(administrator=True)
-@slash.slash(name="hellochannel", description="인사채널을 설정하는 명령어")
+@slash.slash(name="hellochannel", description="인사 채널을 설정하는 명령어")
 async def _hellochannel(ctx, channel:discord.TextChannel):
     md1.sayhellotoyourmember(ctx.author.guild.id, channel.id, False)
-    await ctx.send(f"{channel.mention}으로 인사채널이 변경되었어요!")
+    await ctx.send(f"{channel.mention}으로 인사 채널이 변경되었어요!")
 
 @slash.slash(name="helpingme", description="제작자가 직접 주는 호감도 확인용")
 async def _helpinghands(ctx):
@@ -281,5 +281,27 @@ async def _helpinghands(ctx):
             embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab", icon_url="https://i.imgur.com/6y4X4aw.png")
             embedhelping.add_field(name="호감도 칭호", value=helpingrank)
             await ctx.send(embed=embedhelping)
+
+@slash.slash(name="noticeother", description="공지를 하는 명령어", guild_ids=devserver)
+async def _notice(ctx, description:str):
+    author = ctx.author
+    if author.id != 338902243476635650:
+        await ctx.send("이 명령어는 당신이 쓸 수 없어요!")
+    elif author.id == 338902243476635650:
+        embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
+        embednotice.set_footer(text="by MisileLab", icon_url=ctx.author.avatar_url)
+        getchannel = md1.noticeusingbot(ctx.author.guild.id, 0, True)
+        try:
+            channel = await Client.fetch_channel(getchannel["gongjiid"])
+            await channel.send(embed=embednotice)
+        except (AttributeError, discord.NotFound):
+            pass
+        await ctx.send("공지를 성공적으로 전달했어요!")
+
+@has_permissions(manage_messages=True, manage_channels=True)
+@slash.slash(name="setnotice", description="봇 공지 채널을 정하는 명령어", guild_ids=devserver)
+async def _setnotice(ctx, channel:discord.TextChannel):
+    md1.noticeusingbot(ctx.author.guild.id, channel.id, False)
+    await ctx.send(f"{channel.mention}으로 공지 채널이 변경되었어요!")
 
 Client.run(token)

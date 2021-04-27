@@ -193,8 +193,7 @@ def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
             result = i1
             break
     if result is None:
-        sql = "INSERT INTO `serverfurluckbot` (serverid, insaname) VALUES (%s, %s)"
-        cursor.execute(sql, (guildid, channelid))
+        insertserverdataonce(cursor, guildid)
     if get is False:
         sql = "UPDATE serverfurluckbot SET insaname = %s WHERE serverid = %s"
         cursor.execute(sql, (channelid, guildid))
@@ -243,6 +242,45 @@ def helpingyou(memberid:int):
     mysql1.close()
     return result
 
+# noinspection PyTypeChecker
+def noticeusingbot(guildid:int, channelid:int, get:bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        resultid = i1['serverid']
+        if resultid == guildid:
+            result = i1
+            break
+    if result is None:
+        insertserverdataonce(cursor, guildid)
+    if get is False:
+        sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
+        cursor.execute(sql, (channelid, guildid))
+    sql = "SELECT * FROM `serverfurluckbot`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    try:
+        for i1 in resultcursor:
+            resultid = i1['serverid']
+            if resultid == guildid:
+                result = i1
+                break
+    except KeyError as e:
+        if get is True:
+            pass
+        elif get is False:
+            raise KeyError(e)
+    mysql1.close()
+    return result
+
 def insertmemberdataonce(cursor, memberid:int):
     sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
     cursor.execute(sql, memberid)
+
+def insertserverdataonce(cursor, guildid:int):
+    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid) VALUES (%s, %s, %s)"
+    cursor.execute(sql, (guildid, 0, 0))
