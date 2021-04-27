@@ -248,13 +248,13 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
-    result = None
+    result1 = None
     for i1 in resultcursor:
         resultid = i1['serverid']
         if resultid == guildid:
-            result = i1
+            result1 = i1
             break
-    if result is None:
+    if result1 is None:
         insertserverdataonce(cursor, guildid)
     if get is False:
         sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
@@ -262,20 +262,8 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
-    result = None
-    try:
-        for i1 in resultcursor:
-            resultid = i1['serverid']
-            if resultid == guildid:
-                result = i1
-                break
-    except KeyError as e:
-        if get is True:
-            pass
-        elif get is False:
-            raise KeyError(e)
     mysql1.close()
-    return result
+    return resultcursor
 
 def insertmemberdataonce(cursor, memberid:int):
     sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"

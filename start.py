@@ -291,12 +291,15 @@ async def _notice(ctx, description:str):
         embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
         embednotice.set_footer(text="by MisileLab", icon_url=ctx.author.avatar_url)
         getchannel = md1.noticeusingbot(ctx.author.guild.id, 0, True)
-        try:
-            channel = await Client.fetch_channel(getchannel["gongjiid"])
-            await channel.send(embed=embednotice)
-        except (AttributeError, discord.NotFound):
-            pass
-        await ctx.send("공지를 성공적으로 전달했어요!")
+        message = await ctx.send("공지를 전달 중...")
+        for i1 in getchannel:
+            result = i1
+            try:
+                channel = await Client.fetch_channel(result["gongjiid"])
+                await channel.send(embed=embednotice)
+            except (AttributeError, discord.NotFound):
+                pass
+        await message.edit("공지를 성공적으로 전달했어요!")
 
 @has_permissions(manage_messages=True, manage_channels=True)
 @slash.slash(name="setnotice", description="봇 공지 채널을 정하는 명령어", guild_ids=devserver)
