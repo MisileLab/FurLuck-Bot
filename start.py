@@ -292,13 +292,12 @@ async def _notice(ctx, description:str):
         getchannel = md1.noticeusingbot(ctx.author.guild.id, 0, True)
         message = await ctx.send("공지를 전달 중...")
         for i1 in getchannel:
-            result = i1
             try:
-                channel = await Client.fetch_channel(result["gongjiid"])
+                channel = await Client.fetch_channel(i1["gongjiid"])
                 await channel.send(embed=embednotice)
             except (AttributeError, discord.NotFound):
                 pass
-        await message.edit("공지를 성공적으로 전달했어요!")
+        await message.edit(content="공지를 성공적으로 전달했어요!")
 
 @has_permissions(manage_messages=True, manage_channels=True)
 @slash.slash(name="setnotice", description="봇 공지 채널을 정하는 명령어")
