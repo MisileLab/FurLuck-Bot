@@ -1,6 +1,5 @@
 import discord
-from discord_slash import SlashCommand
-from discord_slash import manage_commands
+from discord_slash import SlashCommand, manage_commands
 from discord.ext import commands
 import cpuinfo
 import psutil
@@ -112,7 +111,7 @@ async def _ban(ctx, banmember: discord.Member, reason=None):
 
 @slash.slash(name="clean", description="채팅청소하는 엄청난 명령어")
 @has_permissions(manage_messages=True)
-async def _clean(ctx, amount):
+async def _clean(ctx, amount:int):
     channel1 = ctx.channel
     try:
         await channel1.purge(limit=int(amount))
@@ -282,7 +281,7 @@ async def _helpinghands(ctx):
             embedhelping.add_field(name="호감도 칭호", value=helpingrank)
             await ctx.send(embed=embedhelping)
 
-@slash.slash(name="noticeother", description="공지를 하는 명령어", guild_ids=devserver)
+@slash.slash(name="noticeother", description="공지를 하는 명령어")
 async def _notice(ctx, description:str):
     author = ctx.author
     if author.id != 338902243476635650:
@@ -302,9 +301,38 @@ async def _notice(ctx, description:str):
         await message.edit("공지를 성공적으로 전달했어요!")
 
 @has_permissions(manage_messages=True, manage_channels=True)
-@slash.slash(name="setnotice", description="봇 공지 채널을 정하는 명령어", guild_ids=devserver)
+@slash.slash(name="setnotice", description="봇 공지 채널을 정하는 명령어")
 async def _setnotice(ctx, channel:discord.TextChannel):
     md1.noticeusingbot(ctx.author.guild.id, channel.id, False)
     await ctx.send(f"{channel.mention}으로 공지 채널이 변경되었어요!")
+
+@slash.slash(name="mining", description="How to 얻는다")
+async def _mining(ctx):
+    md1.miningmoney(ctx.author.id)
+    random1 = secrets.SystemRandom().randint(1, 20)
+    if random1 != 1:
+        await ctx.send(f"<@{ctx.author.id}>님에게 돈을 줬어요.")
+    elif random1 == 1:
+        await ctx.send(f"<@{ctx.author.id}>님에게 돈을 줬어요. ㅠㅠ")
+
+@slash.slash(name='getmoney', description='자신의 돈을 확인하는 명령어')
+async def _getmoney(ctx):
+    getmoney = md1.getmoney(ctx.author.id)
+    await ctx.send(f"<@{ctx.author.id}>님의 돈 : {getmoney['level1']}원")
+
+@slash.slash(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님")
+async def _dobak(ctx, money:int):
+    try:
+        md1.dobakmoney(ctx.author.id, money)
+    except md1.FailedDobak:
+        await ctx.send(f"<@{ctx.author.id}>님이 도박에서 실패했어요. ㅠㅠ")
+    except md1.DontHaveMoney:
+        await ctx.send(f"<@{ctx.author.id}>님의 돈이 부족해요!")
+    else:
+        await ctx.send(f"<@{ctx.author.id}>님이 도박에 성공했어요!")
+
+@slash.slash(name="getcoin", description="무슨 코인을 팔고 있는?")
+async def _getcoin(ctx):
+    await ctx.send("DM으로 주면 됨 팔고 있는 코인 : 0.00001 [MisileCoin](https://kovan.etherscan.io/token/0x285797e3848d6f5b88c704d8a45c73b2aefbf4d8?a=0x2d1a71b134fbbc3033cf080cf3e4e45dd0dbf485) = 9천만원")
 
 Client.run(token)

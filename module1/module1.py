@@ -5,6 +5,8 @@ from bitlyshortener import Shortener
 import requests
 import json
 import pymysql
+import secrets
+import time
 
 count = 0
 tokens_pool2 = []
@@ -266,9 +268,119 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     return resultcursor
 
 def insertmemberdataonce(cursor, memberid:int):
-    sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
+    sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme, cooltimemoney) VALUES (%s, 1, 0, 0, 0)"
     cursor.execute(sql, memberid)
 
 def insertserverdataonce(cursor, guildid:int):
     sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid) VALUES (%s, %s, %s)"
     cursor.execute(sql, (guildid, 0, 0))
+
+class DontHaveMoney(Exception):
+    def __init__(self):
+        super().__init__('사용자의 돈이 없습니다.')
+
+class FailedDobak(Exception):
+    def __init__(self):
+        super().__init__('도박에서 실패했습니다.')
+
+# noinspection PyTypeChecker
+def getmoney(memberid:int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `furluckbot1`;")
+    resultcursor = cursor.fetchall()
+    result1 = None
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result1 = i1
+            break
+    if result1 is None:
+        insertmemberdataonce(cursor, memberid)
+        sql = "SELECT * FROM `furluckbot1`;"
+        cursor.execute(sql)
+        resultcursor = cursor.fetchall()
+        for i1 in resultcursor:
+            resultid = i1['id']
+            if resultid == memberid:
+                result1 = i1
+                break
+    mysql1.close()
+    return result1
+
+# noinspection PyTypeChecker
+def dobakmoney(memberid:int, money:int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `furluckbot1`;")
+    resultcursor = cursor.fetchall()
+    result1 = None
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result1 = i1
+            break
+    if result1 is None:
+        insertmemberdataonce(cursor, memberid)
+        sql = "SELECT * FROM `furluckbot1`;"
+        cursor.execute(sql)
+        resultcursor = cursor.fetchall()
+        for i1 in resultcursor:
+            resultid = i1['id']
+            if resultid == memberid:
+                result1 = i1
+                break
+    if result1['level1'] < money:
+        raise DontHaveMoney
+    random1 = secrets.SystemRandom().randint(1, 2)
+    if random1 == 1:
+        money1 = result1['level1'] - money
+        sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
+        cursor.execute(sql, (money1, memberid))
+        raise FailedDobak
+    money1 = result1['level1'] + money
+    sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
+    cursor.execute(sql, (money1, memberid))
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result1 = i1
+            break
+    mysql1.close()
+    return result1
+
+# noinspection PyTypeChecker
+def miningmoney(memberid:int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    sql = "SELECT * FROM `furluckbot1`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result1 = None
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result1 = i1
+            break
+    if result1 is None:
+        insertmemberdataonce(cursor, memberid)
+        sql = "SELECT * FROM `furluckbot1`;"
+        cursor.execute(sql)
+        resultcursor = cursor.fetchall()
+        for i1 in resultcursor:
+            resultid = i1['id']
+            if resultid == memberid:
+                result1 = i1
+                break
+    sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
+    cursor.execute(sql, (result1['level1'] + 3000, memberid))
+    for i1 in resultcursor:
+        resultid = i1['id']
+        if resultid == memberid:
+            result1 = i1
+            break
+    mysql1.close()
+    return result1
