@@ -184,43 +184,6 @@ def warn(memberid:int, amount:int, get:bool):
     return result
 
 # noinspection PyTypeChecker
-def sayhellotoyourmember(guildid:int, channelid:int, get:bool):
-    """get이 True면 guildid만 가지고 mysql에서 채널을 가져오고,
-        get이 False면 guildid와 channelid로 mysql에 데이터를 넣음"""
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
-    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM `serverfurluckbot`;")
-    resultcursor = cursor.fetchall()
-    result = None
-    for i1 in resultcursor:
-        resultid = i1['serverid']
-        if resultid == guildid:
-            result = i1
-            break
-    if result is None:
-        insertserverdataonce(cursor, guildid)
-    if get is False:
-        sql = "UPDATE serverfurluckbot SET insaname = %s WHERE serverid = %s"
-        cursor.execute(sql, (channelid, guildid))
-    sql = "SELECT * FROM `serverfurluckbot`;"
-    cursor.execute(sql)
-    resultcursor = cursor.fetchall()
-    result = None
-    try:
-        for i1 in resultcursor:
-            resultid = i1['serverid']
-            if resultid == guildid:
-                result = i1
-                break
-    except KeyError as e:
-        if get is True:
-            pass
-        elif get is False:
-            raise KeyError(e)
-    mysql1.close()
-    return result
-
-# noinspection PyTypeChecker
 def helpingyou(memberid:int):
     """mysql 데이터 직접 조정, 이 함수는 데이터만 가져옴"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
@@ -248,30 +211,6 @@ def helpingyou(memberid:int):
     mysql1.close()
     return result
 
-# noinspection PyTypeChecker
-def noticeusingbot(guildid:int, channelid:int, get:bool):
-    """인사채널과 동일"""
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
-    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
-    cursor.execute("SELECT * FROM `serverfurluckbot`;")
-    resultcursor = cursor.fetchall()
-    result1 = None
-    for i1 in resultcursor:
-        resultid = i1['serverid']
-        if resultid == guildid:
-            result1 = i1
-            break
-    if result1 is None:
-        insertserverdataonce(cursor, guildid)
-    if get is False:
-        sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
-        cursor.execute(sql, (channelid, guildid))
-    sql = "SELECT * FROM `serverfurluckbot`;"
-    cursor.execute(sql)
-    resultcursor = cursor.fetchall()
-    mysql1.close()
-    return resultcursor
-
 def insertmemberdataonce(cursor, memberid:int):
     """멤버 데이터가 없을 때 넣는 데이터"""
     sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
@@ -279,18 +218,14 @@ def insertmemberdataonce(cursor, memberid:int):
 
 def insertserverdataonce(cursor, guildid:int):
     """길드 데이터가 없을 때 넣는 데이터"""
-    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid) VALUES (%s, %s, %s)"
-    cursor.execute(sql, (guildid, 0, 0))
+    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid) VALUES (%s, %s, %s, %s)"
+    cursor.execute(sql, (guildid, 0, 0, 0))
 
 class DontHaveMoney(Exception):
     """돈이 없을 때 발생하는 에러"""
-    def __init__(self):
-        super().__init__('사용자의 돈이 없습니다.')
 
 class FailedDobak(Exception):
     """도박 실패했을 때 발생하는 에러"""
-    def __init__(self):
-        super().__init__('도박에서 실패했습니다.')
 
 # noinspection PyTypeChecker
 def getmoney(memberid:int):
@@ -396,3 +331,68 @@ def miningmoney(memberid:int):
             break
     mysql1.close()
     return result1
+
+# noinspection PyTypeChecker
+def serverdata(mode:str, guildid:int, channelid:int, get:bool):
+    """서버데이터 관리에 사용됨"""
+    print(mode)
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
+    resultcursor = cursor.fetchall()
+    result = None
+    for i1 in resultcursor:
+        resultid = i1['serverid']
+        if resultid == guildid:
+            result = i1
+            break
+    if result is None:
+        insertserverdataonce(cursor, guildid)
+    if get is False:
+        if mode != "logid":
+            sql = "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s"
+            cursor.execute(sql, (mode, channelid, guildid))
+        else:
+            sql = "UPDATE serverfurluckbot SET logid = %s WHERE serverid = %s"
+            cursor.execute(sql, (channelid, guildid))
+    sql = "SELECT * FROM `serverfurluckbot`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    result = None
+    try:
+        for i1 in resultcursor:
+            resultid = i1['serverid']
+            if resultid == guildid:
+                result = i1
+                break
+    except KeyError as e:
+        if get is True:
+            pass
+        elif get is False:
+            raise KeyError(e)
+    mysql1.close()
+    return result
+
+# noinspection PyTypeChecker
+def noticeusingbot(guildid:int, channelid:int, get:bool):
+    """공지 채널에 관련된 함수"""
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
+    resultcursor = cursor.fetchall()
+    result1 = None
+    for i1 in resultcursor:
+        resultid = i1['serverid']
+        if resultid == guildid:
+            result1 = i1
+            break
+    if result1 is None:
+        insertserverdataonce(cursor, guildid)
+    if get is False:
+        sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
+        cursor.execute(sql, (channelid, guildid))
+    sql = "SELECT * FROM `serverfurluckbot`;"
+    cursor.execute(sql)
+    resultcursor = cursor.fetchall()
+    mysql1.close()
+    return resultcursor

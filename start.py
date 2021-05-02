@@ -21,7 +21,7 @@ token = open('token.txt').read()
 devserver = [812339145942237204, 759260634096467969, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 
-dev = True
+dev = False
 
 @Client.event
 async def on_ready():
@@ -37,7 +37,7 @@ async def on_member_join(member):
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
     print(member.guild.id)
-    getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
+    getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
     except AttributeError:
@@ -54,13 +54,43 @@ async def on_member_remove(member):
     embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
-    getchannel = md1.sayhellotoyourmember(member.guild.id, 123, True)
+    getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
     except Exception as e:
         print(e)
     else:
         await channel.send(embed=embed)
+
+@Client.event
+async def on_message_delete(message):
+    embed1 = discord.Embed(name="메시지가 삭제되었어요!")
+    embed1.add_field(name="삭제된 메시지의 내용", value=message.content, inline=False)
+    embed1.add_field(name="삭제된 메시지를 보낸 사람", value=f"<@{message.author.id}>", inline=False)
+    embed1.add_field(name="삭제된 메시지가 보내진 채널", value=message.channel.mention, inline=False)
+    embed1.set_footer(text=md1.todaycalculate())
+    getchannel = md1.serverdata("logid", message.guild.id, 123, True)
+    try:
+        channel = await Client.fetch_channel(getchannel["logid"])
+    except AttributeError or discord.errors.HTTPException:
+        pass
+    else:
+        await channel.send(embed=embed1)
+
+@Client.event
+async def on_message_edit(before, after):
+    embed1 = discord.Embed(name="메시지가 변경되었어요!")
+    embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
+    embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
+    embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
+    embed1.set_footer(text=md1.todaycalculate())
+    getchannel = md1.serverdata("logid", after.guild.id, 123, True)
+    try:
+        channel = await Client.fetch_channel(getchannel["logid"])
+    except AttributeError or discord.errors.HTTPException:
+        pass
+    else:
+        await channel.send(embed=embed1)
 
 @Client.command(name="hellothisisverification")
 async def idontwantdevelopercommandinthiscommand(ctx):
@@ -257,7 +287,7 @@ async def _unwarn(ctx, member:discord.Member, amount:int, reason=None):
 @has_permissions(administrator=True)
 @slash.slash(name="hellochannel", description="인사 채널을 설정하는 명령어")
 async def _hellochannel(ctx, channel:discord.TextChannel):
-    md1.sayhellotoyourmember(ctx.author.guild.id, channel.id, False)
+    md1.serverdata("insaname", ctx.author.guild.id, channel.id, False)
     await ctx.send(f"{channel.mention}으로 인사 채널이 변경되었어요!")
 
 @slash.slash(name="helpingme", description="제작자가 직접 주는 호감도 확인용")
@@ -334,4 +364,8 @@ async def _dobak(ctx, money:int):
 async def _getcoin(ctx):
     await ctx.send("DM으로 주면 됨 팔고 있는 코인 : 0.00001 [MisileCoin](https://kovan.etherscan.io/token/0x285797e3848d6f5b88c704d8a45c73b2aefbf4d8?a=0x2d1a71b134fbbc3033cf080cf3e4e45dd0dbf485) = 9천만원")
 
+@slash.slash(name="log", description="로그 채널을 지정하는 재밌는 명령어")
+async def _log(ctx, channel:discord.TextChannel):
+    md1.serverdata('logid', ctx.author.guild.id, channel.id, False)
+    await ctx.send(f"로그 채널이 {channel.mention}으로 지정되었어요!")
 Client.run(token)
