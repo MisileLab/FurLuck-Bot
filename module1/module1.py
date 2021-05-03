@@ -23,13 +23,11 @@ mysqlconnect = open('pymysql.json', 'r').read()
 mysqlconnect = json.loads(mysqlconnect)
 
 def todaycalculate():
-    """현재 시간을 년월일 시간 분 초 format으로 변환해줌"""
     datetimetoday = datetime.today()
     today2 = str(datetimetoday.year) + '년 ' + str(datetimetoday.month) + '월 ' + str(datetimetoday.day) + '일 ' + str(datetimetoday.hour) + '시 ' + str(datetimetoday.minute) + '분 ' + str(datetimetoday.second) + '초 '
     return today2
 
 def get_weather(position:str):
-    """네이버 날씨를 크롤링해서 날씨 및 사진을 가져옴"""
     try:
         browser = webdriver.Edge()
     except Exception as e:
@@ -185,7 +183,6 @@ def warn(memberid:int, amount:int, get:bool):
 
 # noinspection PyTypeChecker
 def helpingyou(memberid:int):
-    """mysql 데이터 직접 조정, 이 함수는 데이터만 가져옴"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
@@ -212,24 +209,20 @@ def helpingyou(memberid:int):
     return result
 
 def insertmemberdataonce(cursor, memberid:int):
-    """멤버 데이터가 없을 때 넣는 데이터"""
     sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
     cursor.execute(sql, memberid)
 
 def insertserverdataonce(cursor, guildid:int):
-    """길드 데이터가 없을 때 넣는 데이터"""
     sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid) VALUES (%s, %s, %s, %s)"
     cursor.execute(sql, (guildid, 0, 0, 0))
 
 class DontHaveMoney(Exception):
-    """돈이 없을 때 발생하는 에러"""
+    print("Exception : DontHaveMoney")
 
 class FailedDobak(Exception):
-    """도박 실패했을 때 발생하는 에러"""
+    print("Exception : FailedDobak")
 
-# noinspection PyTypeChecker
 def getmoney(memberid:int):
-    """자기 돈을 확인하는 함수"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
@@ -253,9 +246,7 @@ def getmoney(memberid:int):
     mysql1.close()
     return result1
 
-# noinspection PyTypeChecker
 def dobakmoney(memberid:int, money:int):
-    """도박 함수"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
@@ -298,9 +289,7 @@ def dobakmoney(memberid:int, money:int):
     mysql1.close()
     return result1
 
-# noinspection PyTypeChecker
 def miningmoney(memberid:int):
-    """돈을 얻는 함수"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
@@ -332,9 +321,7 @@ def miningmoney(memberid:int):
     mysql1.close()
     return result1
 
-# noinspection PyTypeChecker
 def serverdata(mode:str, guildid:int, channelid:int, get:bool):
-    """서버데이터 관리에 사용됨"""
     print(mode)
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
@@ -373,9 +360,7 @@ def serverdata(mode:str, guildid:int, channelid:int, get:bool):
     mysql1.close()
     return result
 
-# noinspection PyTypeChecker
 def noticeusingbot(guildid:int, channelid:int, get:bool):
-    """공지 채널에 관련된 함수"""
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")

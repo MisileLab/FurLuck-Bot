@@ -21,7 +21,7 @@ token = open('token.txt').read()
 devserver = [812339145942237204, 759260634096467969, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 
-dev = False
+dev = True
 
 @Client.event
 async def on_ready():
@@ -72,7 +72,7 @@ async def on_message_delete(message):
     getchannel = md1.serverdata("logid", message.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["logid"])
-    except AttributeError or discord.errors.HTTPException:
+    except (AttributeError, discord.errors.HTTPException):
         pass
     else:
         await channel.send(embed=embed1)
@@ -87,7 +87,7 @@ async def on_message_edit(before, after):
     getchannel = md1.serverdata("logid", after.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["logid"])
-    except AttributeError or discord.errors.HTTPException:
+    except (AttributeError, discord.errors.HTTPException):
         pass
     else:
         await channel.send(embed=embed1)
@@ -368,4 +368,5 @@ async def _getcoin(ctx):
 async def _log(ctx, channel:discord.TextChannel):
     md1.serverdata('logid', ctx.author.guild.id, channel.id, False)
     await ctx.send(f"로그 채널이 {channel.mention}으로 지정되었어요!")
+
 Client.run(token)
