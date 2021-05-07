@@ -369,7 +369,7 @@ async def _log(ctx, channel:discord.TextChannel):
     md1.serverdata('logid', ctx.author.guild.id, channel.id, False)
     await ctx.send(f"로그 채널이 {channel.mention}으로 지정되었어요!")
 
-@slash.slash(name="serverinfo", description="서버 정보를 알려주는 명령어", guild_ids=devserver)
+@slash.slash(name="serverinfo", description="서버 정보를 알려주는 명령어")
 async def _serverinfo(ctx, guildid=None):
     message: discord.Message = await ctx.send("서버의 정보를 찾고 있어요!")
     if guildid is None:
@@ -392,7 +392,7 @@ async def _serverinfo(ctx, guildid=None):
         embed1.set_footer(text=md1.todaycalculate())
         await message.edit(embed=embed1, content=None)
 
-@slash.slash(name="userinfo", description="유저의 정보를 알려주는 명령어", guild_ids=devserver)
+@slash.slash(name="userinfo", description="유저의 정보를 알려주는 명령어")
 async def _userinfo(ctx, userid=None):
     message: discord.Message = await ctx.send("유저를 찾는 중이에요!")
     if userid is None:
