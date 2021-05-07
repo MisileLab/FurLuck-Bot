@@ -40,7 +40,7 @@ async def on_member_join(member):
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
-    except AttributeError:
+    except (AttributeError, discord.HTTPException, discord.NotFound):
         pass
     else:
         await channel.send(embed=embed)
@@ -57,8 +57,8 @@ async def on_member_remove(member):
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
-    except Exception as e:
-        print(e)
+    except (AttributeError, discord.HTTPException, discord.NotFound):
+        pass
     else:
         await channel.send(embed=embed)
 
@@ -72,7 +72,7 @@ async def on_message_delete(message):
     getchannel = md1.serverdata("logid", message.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["logid"])
-    except (AttributeError, discord.errors.HTTPException):
+    except (AttributeError, discord.HTTPException, discord.NotFound):
         pass
     else:
         await channel.send(embed=embed1)
@@ -368,5 +368,50 @@ async def _getcoin(ctx):
 async def _log(ctx, channel:discord.TextChannel):
     md1.serverdata('logid', ctx.author.guild.id, channel.id, False)
     await ctx.send(f"로그 채널이 {channel.mention}으로 지정되었어요!")
+
+@slash.slash(name="serverinfo", description="서버 정보를 알려주는 명령어", guild_ids=devserver)
+async def _serverinfo(ctx, guildid=None):
+    message: discord.Message = await ctx.send("서버의 정보를 찾고 있어요!")
+    if guildid is None:
+        guildid = ctx.author.guild.id
+    try:
+        guildid = int(guildid)
+        guild: discord.Guild = Client.get_guild(guildid)
+        if guild is None:
+            raise AttributeError
+    except (AttributeError, discord.errors.HTTPException, ValueError):
+        await message.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
+    else:
+        embed1 = discord.Embed(name="서버의 정보", description=f"{guild.name}의 정보에요!")
+        embed1.add_field(name="길드의 부스트 티어", value=guild.premium_tier)
+        embed1.add_field(name="길드의 부스트 개수", value=f"{guild.premium_subscription_count}개")
+        embed1.add_field(name="길드 멤버 수(봇 포함)", value=f"{len(guild.members)}명")
+        embed1.add_field(name="실제 길드 멤버 수", value=f"{len([m for m in guild.members if not m.bot])}명")
+        embed1.set_thumbnail(url=guild.icon_url)
+        embed1.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed1.set_footer(text=md1.todaycalculate())
+        await message.edit(embed=embed1, content=None)
+
+@slash.slash(name="userinfo", description="유저의 정보를 알려주는 명령어", guild_ids=devserver)
+async def _userinfo(ctx, userid=None):
+    message: discord.Message = await ctx.send("유저를 찾는 중이에요!")
+    if userid is None:
+        userid = ctx.author.id
+    try:
+        user1: discord.User = Client.get_user(int(userid))
+        if user1 is None:
+            raise AttributeError
+    except (AttributeError, discord.errors.HTTPException, ValueError):
+        await message.edit(content="그 서버는 잘못된 유저거나 제가 알 수 없는 유저인 것 같아요!")
+    else:
+        embed1 = discord.Embed(name="유저의 정보", description=f"{user1.name}의 정보에요!")
+        embed1.set_thumbnail(url=user1.avatar_url)
+        embed1.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+        embed1.set_footer(text=md1.todaycalculate())
+        embed1.add_field(name="봇 여부", value=str(user1.bot))
+        embed1.add_field(name="시스템 계정 여부", value=str(user1.system))
+        embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
+        await message.edit(content=None, embed=embed1)
+
 
 Client.run(token)
