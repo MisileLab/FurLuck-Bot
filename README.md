@@ -1,5 +1,5 @@
 # 펄럭 봇
-유저들의 아이디어로 만들어지는 봇
+유저들의 아이디어로 만들어지는 봇   
 [![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)
 
 ## 아이디어 제출이나 버그 제보를 하는 방법
