@@ -1,6 +1,5 @@
 # 펄럭 봇
-유저들의 아이디어로 만들어지는 봇   
-[![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)
+유저들의 아이디어로 만들어지는 봇
 
 ## 아이디어 제출이나 버그 제보를 하는 방법
 Issue에다 해주시면 됩니다.
@@ -31,5 +30,6 @@ pymysql.json 만들고
 여기에 호스트, 유저 등등 넣어서 하면 됨
 
 ### 리포지토리 정보
+[![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)   
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_large)
