@@ -24,6 +24,7 @@ requirements.txt에 있는 모듈들을 다운로드 받고
 크롬 드라이버와 크롬 다운로드 한 후   
 bitlytoken.txt 만들고 bitly 토큰 넣은 뒤
 MariaDB 만든 다음   
+google api key를 googleapikey.txt에 넣은 다음   
 pymysql.json 만들고
 ```json
  {"host":"host", "user":"user", "password":"password", "db":"db", "charset":"charset", "port":"port"}

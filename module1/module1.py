@@ -1,11 +1,12 @@
-from datetime import datetime
-from selenium import webdriver
-from bs4 import BeautifulSoup
-from bitlyshortener import Shortener
-import requests
 import json
-import pymysql
 import secrets
+from datetime import datetime
+import pymysql
+import requests
+from bitlyshortener import Shortener
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from ast import literal_eval
 
 count = 0
 tokens_pool2 = []
@@ -21,6 +22,7 @@ print(tokens_pool2)
 
 mysqlconnect = open('pymysql.json', 'r').read()
 mysqlconnect = json.loads(mysqlconnect)
+apikey = open('googleapikey.txt', 'r').read()
 
 def todaycalculate():
     datetimetoday = datetime.today()
@@ -385,3 +387,19 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     resultcursor = cursor.fetchall()
     mysql1.close()
     return resultcursor
+
+# noinspection PySimplifyBooleanCheck
+def youtubedownloadmusic(music):
+    result = requests.get(f"https://www.googleapis.com/youtube/v3/search?part=id&key={apikey}&type=video&q={music}&maxResults=1")
+    result2 = result.content.decode()
+    result2 = literal_eval(result2)
+    resultcontentitems: list = result2['items']
+    if result.status_code != 200:
+        return result.status_code
+    else:
+        if resultcontentitems == []:
+            return None
+        else:
+            itemsid: dict = resultcontentitems[0]
+            itemsid2: dict = itemsid['id']
+            return itemsid2['videoId']

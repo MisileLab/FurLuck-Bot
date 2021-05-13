@@ -1,5 +1,6 @@
+import os
 import discord
-from discord_slash import SlashCommand, manage_commands
+from discord_slash import SlashCommand, manage_commands, SlashContext
 from discord.ext import commands
 import cpuinfo
 import psutil
@@ -9,6 +10,8 @@ import time
 from module1 import module1 as md1
 import simpleeval
 import secrets
+import youtube_dl
+import ffmpeg
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 
@@ -17,11 +20,12 @@ Client1 = koreanbots.Client(Client, koreanbotstoken)
 slash = SlashCommand(client=Client, sync_commands=True)
 
 token = open('token.txt').read()
+googleapikey = open('googleapikey.txt').read()
 
 devserver = [812339145942237204, 759260634096467969, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 
-dev = True
+dev = False
 
 @Client.event
 async def on_ready():
@@ -232,7 +236,7 @@ async def _weather(ctx, position):
     try:
         weatherdata = md1.get_weather(position)
     except ValueError:
-        await ctx.send("이름이 맞지 않는 것 같아요!")
+        await message1.edit(content="이름이 맞지 않는 것 같아요!")
     else:
         embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
         embed1.set_thumbnail(url=weatherdata['weatherurl'])
@@ -413,5 +417,81 @@ async def _userinfo(ctx, userid=None):
         embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
         await message.edit(content=None, embed=embed1)
 
+@slash.slash(name="play", description="음악을 틀어주는 명령어", guild_ids=devserver)
+async def _play(ctx: SlashContext, music:str):
+    correct = False
+    message = await ctx.send("잠시만 기다려주세요!")
+    if ctx.author.voice is None:
+        await message.edit(content="음성 채널에 들어가주세요!")
+    else:
+        await message.edit(content="지금 음악을 틀기 위한 준비를 하고 있어요!")
+        voicechannel: discord.VoiceChannel = ctx.author.voice.channel
+        voiceclient: discord.VoiceClient = await voicechannel.connect()
+        print("0")
+        print(correct)
+        if os.path.isfile(f"song{ctx.author.id}.mp3") is True:
+            try:
+                os.remove(f"song{ctx.author.id}.mp3")
+                print("test")
+            except PermissionError:
+                await message.edit(content="음악을 틀고 있는 것 같아요!")
+            else:
+                correct = True
+        else:
+            correct = True
+        if correct is True:
+            print("1")
+            ydl_option = {
+                "format": "bestaudio/best",
+                "postprocessor": [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "aac",
+                    "preferredquailty": "192"
+                }]
+            }
+            with youtube_dl.YoutubeDL(ydl_option) as ydl:
+                correct = False
+                try:
+                    ydl.download([music])
+                except (youtube_dl.utils.UnavailableVideoError, youtube_dl.utils.DownloadError):
+                    result = md1.youtubedownloadmusic(music)
+                    print(result)
+                    if result is None:
+                        await message.edit(content="그런 음악이 없는 것 같아요!")
+                    else:
+                        print([f'https://youtube.com/watch?v={result}'])
+                        try:
+                            ydl.download([f"https://youtube.com/watch?v={result}"])
+                        except (youtube_dl.utils.UnavailableVideoError, AttributeError, youtube_dl.DownloadError) as e:
+                            print(e)
+                            await message.edit(content="에러가 난거 같아요!")
+                        else:
+                            correct = True
+                            print("2")
+                else:
+                    correct = True
+                    print("3")
+                if correct is True:
+                    for file in os.listdir("./"):
+                        if file.endswith('.webm'):
+                            os.rename(file, f'song{ctx.author.id}.webm')
+                            break
+                    for file in os.listdir("./"):
+                        if file.endswith('.m4a'):
+                            os.rename(file, f'song{ctx.author.id}.m4a')
+                            break
+                    try:
+                        stream = ffmpeg.input(f'song{ctx.author.id}.webm')
+                        stream = ffmpeg.output(stream, f'song{ctx.author.id}.mp3')
+                        ffmpeg.run(stream)
+                        os.remove(f'song{ctx.author_id}.webm')
+                    except ffmpeg._run.Error:
+                        stream = ffmpeg.input(f'song{ctx.author.id}.m4a')
+                        stream = ffmpeg.output(stream, f'song{ctx.author.id}.mp3')
+                        ffmpeg.run(stream)
+                        os.remove(f'song{ctx.author_id}.m4a')
+                    await message.edit(content="음악을 틀고 있어요!")
+                    music1 = discord.FFmpegOpusAudio(source=f'song{ctx.author.id}.mp3')
+                    voiceclient.play(source=music1)
 
 Client.run(token)
