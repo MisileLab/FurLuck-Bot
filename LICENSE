@@ -1,7 +1,7 @@
-# MisileLab License V1.0
-## You can
-Include file with this license in project.
-## You can't
-Inclue file with this license in other license project. (Exclude MIT, Apache, AGPL, LGPL, GPL license)
-## Condition
-You need to give author information to other like this. ex) {Project or File Name} by {author}
+MisileLab License V1.0
+You can
+  Include file with this license in project.
+You can't
+  Inclue file with this license in other license project. (Exclude MIT, Apache, AGPL, LGPL, GPL license)
+Condition
+  You need to give author information to other like this. ex) {Project or File Name} by {author}
