@@ -35,3 +35,4 @@ pymysql.json 만들고
 [![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ee14eb657fa949878096e052166f5c08)](https://www.codacy.com/gh/MisileLab/FurLuck-Bot/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MisileLab/FurLuck-Bot&amp;utm_campaign=Badge_Grade)   
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_large)
+[What i doing?](https://trello.com/b/Fk7EU6Hc/furluck-bot)
