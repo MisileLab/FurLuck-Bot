@@ -32,7 +32,7 @@ pymysql.json 만들고
 여기에 호스트, 유저 등등 넣어서 하면 됨
 
 ### 리포지토리 정보
-[![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)
+[![Upload Python Package](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml/badge.svg)](https://github.com/MisileLab/FurLuck-Bot/actions/workflows/python-publish.yml)   
 [![CodeFactor](https://www.codefactor.io/repository/github/misilelab/furluck-bot/badge)](https://www.codefactor.io/repository/github/misilelab/furluck-bot)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FMisileLab%2FFurLuck-Bot?ref=badge_large)   
 [What am i doing?](https://trello.com/b/Fk7EU6Hc/furluck-bot)
