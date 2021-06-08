@@ -1,23 +1,28 @@
 import json
 import secrets
 from datetime import datetime
+import discord
+from dislash.interactions import *
 import pymysql
 import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from ast import literal_eval
+import os
+import youtube_dl
+import ffmpeg
 
-count = 0
 tokens_pool2 = []
+musicqueue = {}
+musicqueueyes = {}
 
 with open('bitlytoken.txt') as f:
     tokens_pool = f.readlines()
     print(tokens_pool)
 for i in range(len(tokens_pool)):
     print(i)
-    tokens_pool2.append(str(tokens_pool[count]).replace('\n', ''))
-    count = count + 1
+    tokens_pool2.append(str(tokens_pool[i]).replace('\n', ''))
 print(tokens_pool2)
 
 mysqlconnect = open('pymysql.json', 'r').read()
@@ -250,7 +255,7 @@ def getmoney(memberid:int):
                 result1 = i1
                 break
     mysql1.close()
-    return result1
+    return result1['level1']
 
 def dobakmoney(memberid:int, money:int):
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
@@ -328,7 +333,6 @@ def miningmoney(memberid:int):
     return result1
 
 def serverdata(mode:str, guildid:int, channelid:int, get:bool):
-    print(mode)
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
@@ -394,12 +398,91 @@ def youtubedownloadmusic(music):
     result2 = result.content.decode()
     result2 = literal_eval(result2)
     resultcontentitems: list = result2['items']
-    if result.status_code != 200:
-        return result.status_code
-    else:
-        if resultcontentitems == []:
-            return None
-        else:
-            itemsid: dict = resultcontentitems[0]
-            itemsid2: dict = itemsid['id']
-            return itemsid2['videoId']
+    if result.status_code != 200 or resultcontentitems == []:
+        return None
+    itemsid: dict = resultcontentitems[0]
+    itemsid2: dict = itemsid['id']
+    return itemsid2['videoId']
+
+async def playvoiceclient(inter:Interaction, music, get:bool, voiceclient=None, authorid=None, message=None, yes=False):
+    if get is False:
+        await inter.reply("잠시만 기다려주세요!")
+    if authorid is None:
+        authorid = inter.author.id
+    if inter.author.voice is None:
+        await inter.edit("음성 채널에 들어가주세요!")
+    correct = False
+    try:
+        musicqueue[authorid]
+    except KeyError:
+        musicqueue[authorid] = []
+    try:
+        musicqueueyes[authorid]
+    except KeyError:
+        musicqueueyes[authorid] = 0
+    if yes is True:
+        musicqueueyes[authorid] = 0
+    if get is False:
+        musicqueuelist: list = musicqueue[authorid]
+        musicqueuelist.append(music)
+    musicqueuelist: list = musicqueue[authorid]
+    voicechannel: discord.VoiceChannel = inter.author.voice.channel
+    if musicqueueyes[authorid] == 1:
+        if not musicqueuelist:
+            if voiceclient is None:
+                voiceclient: discord.VoiceClient = await voicechannel.connect()
+            if os.path.isfile(f"song{authorid}.mp3") is True:
+                try:
+                    os.remove(f"song{authorid}.mp3")
+                except PermissionError:
+                    pass
+                else:
+                    correct = True
+            else:
+                correct = True
+            if correct is True:
+                ydl_option = {
+                    "format": "bestaudio/best",
+                    "postprocessor": [{
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": "aac",
+                        "preferredquailty": "192"
+                    }]
+                }
+                with youtube_dl.YoutubeDL(ydl_option) as ydl:
+                    correct = False
+                    try:
+                        ydl.download([music])
+                    except (youtube_dl.utils.UnavailableVideoError, youtube_dl.utils.DownloadError):
+                        result = youtubedownloadmusic(music)
+                        if result is None:
+                            await message.edit(content="그런 음악이 없는 것 같아요!")
+                        else:
+                            try:
+                                ydl.download([f"https://youtube.com/watch?v={result}"])
+                            except (youtube_dl.utils.UnavailableVideoError, AttributeError, youtube_dl.DownloadError):
+                                await message.edit(content="에러가 난거 같아요!")
+                            else:
+                                correct = True
+                    else:
+                        correct = True
+                    if correct is True:
+                        for file in os.listdir("./"):
+                            if file.endswith('.webm'):
+                                os.rename(file, f'song{authorid}.webm')
+                                break
+                            elif file.endswith('.m4a'):
+                                os.rename(file, f'song{authorid}.m4a')
+                                break
+                        try:
+                            stream = ffmpeg.input(f'song{authorid}.webm')
+                            stream = ffmpeg.output(stream, f'song{authorid}.mp3')
+                            ffmpeg.run(stream)
+                            os.remove(f'song{authorid}.webm')
+                        except ffmpeg._run.Error:
+                            stream = ffmpeg.input(f'song{authorid}.m4a')
+                            stream = ffmpeg.output(stream, f'song{authorid}.mp3')
+                            ffmpeg.run(stream)
+                            os.remove(f'song{authorid}.m4a')
+                        music1 = discord.FFmpegOpusAudio(source=f'song{authorid}.mp3')
+                        voiceclient.play(source=music1, after=await playvoiceclient(inter, music, get=True, voiceclient=voiceclient, message=message, yes=True))
