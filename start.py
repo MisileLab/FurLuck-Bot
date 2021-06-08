@@ -133,7 +133,10 @@ async def _bot(inter: Interaction):
     embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
     await inter.edit(content=None, embed=embed1)
 
-@slash.command(name="kick", description="상대를 서버 밖으로 날리는 명령어", options=md2.getoption([{'name':'member','description':'킥할 사람','required':True,'type':Type.USER},{'name':'reason','description':'왜 킥함?','required':False,'Type':Type.STRING}]))
+kickoption = md2.NewOptionList()
+kickoption.make_option(name="member", description="킥할 사람", required=True, type=Type.USER)
+kickoption.make_option(name="reason", description="왜 킥함?", required=False, type=Type.STRING)
+@slash.command(name="kick", description="상대를 서버 밖으로 날리는 명령어", options=kickoption)
 @slash_commands.has_guild_permissions(kick_members=True)
 @slash_commands.bot_has_guild_permissions(kick_members=True)
 async def _kick(inter:Interaction):
@@ -142,11 +145,14 @@ async def _kick(inter:Interaction):
     await kickmember.kick(reason=reason)
     await inter.reply(f"<@{inter.author.id}>님으로 인하여 <@{kickmember.id}>가 킥 당했습니다.")
 
-@slash.command(name="ban", description="상대를 서버 밖으로 영원히 날리는 명령어", option=md2.getoption([{'name':'member','description':'밴할 사람', 'required':True,'type':Type.USER},{'name':'reason','description':'왜 밴함?','type':Type.STRING}]))
+banoption = md2.NewOptionList()
+banoption.make_option(name="member", description="밴할 멤버", required=True, type=Type.USER)
+banoption.make_option(name="reason", description="왜 밴함", required=False, type=Type.STRING)
+@slash.command(name="ban", description="상대를 서버 밖으로 영원히 날리는 명령어", options=banoption)
 @slash_commands.has_guild_permissions(ban_members=True)
 @slash_commands.bot_has_guild_permissions(ban_members=True)
 async def _ban(inter:Interaction):
-    banmember: discord.Member = inter.get('banmember')
+    banmember: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
     await banmember.ban()
     await inter.reply(f"<@{inter.author.id}>님으로 인하여 <@{banmember.id}>가 밴되었습니다.")
@@ -156,7 +162,9 @@ async def _ban(inter:Interaction):
     else:
         await dm.send(f"밴되었습니다. - by {inter.author.name}")
 
-@slash.command(name="clean", description="채팅청소하는 엄청난 명령어", option=md2.getoption([{'name':'amount','description':'메시지를 지울 개수', 'type':Type.INTEGER, 'required':True}]))
+cleanoption = md2.NewOptionList()
+cleanoption.make_option(name="amount", description="채팅청소하는 수", required=False, type=Type.INTEGER)
+@slash.command(name="clean", description="채팅청소하는 엄청난 명령어", options=cleanoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
 @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _clean(inter:Interaction):
@@ -183,7 +191,10 @@ async def _specialthanks(inter:Interaction):
     embed1.add_field(name="FurLuck", value="이 봇의 이미지를 쓰게 해준 펄럭")
     await inter.reply(embed=embed1)
 
-@slash.command(name="mute", description="상대방을 입막습니다! 읍읍", options=md2.getoption([{'name':'member','description':'뮤트할 사람','required':True,'type':Type.USER},{'name':'reason','description':'왜 뮤트함?','required':False,'Type':Type.STRING}]))
+muteoption = md2.NewOptionList()
+muteoption.make_option(name="member", description="뮤트할 사람", required=True, type=Type.USER)
+muteoption.make_option(name="reason", description="왜 뮤트함?", required=False, type=Type.STRING)
+@slash.command(name="mute", description="상대방을 입막습니다! 읍읍", options=muteoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
 @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _mute(inter:Interaction):
@@ -206,7 +217,10 @@ async def _mute(inter:Interaction):
         else:
             await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
 
-@slash.command(name="unmute", description="상대방을 입 막지 않습니다. 뮤트 멈춰!", options=md2.getoption([{'name':'member','description':'언뮤트할 사람','required':True,'type':Type.USER},{'name':'reason','description':'왜 언뮤트함?','required':False,'Type':Type.STRING}]))
+unmuteoption = md2.NewOptionList()
+unmuteoption.make_option(name="member", description="언뮤트할 사람", required=True, type=Type.USER)
+unmuteoption.make_option(name="reason", description="왜 언뮤트함?", required=False, type=Type.STRING)
+@slash.command(name="unmute", description="상대방을 입 막지 않습니다. 뮤트 멈춰!", options=unmuteoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
 @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _unmute(inter:Interaction):
@@ -220,7 +234,9 @@ async def _unmute(inter:Interaction):
     else:
         await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 언뮤트하였습니다!")
 
-@slash.command(name="calculate", description="계산을 할 수 있는 명령어", options=md2.getoption([{'name':'calculate','description':'계산할 공식','type':Type.STRING,'required':True}]))
+calculateoption = md2.NewOptionList()
+calculateoption.make_option(name="calculate", description="계산할 식", required=True, type=Type.STRING)
+@slash.command(name="calculate", description="계산을 할 수 있는 명령어", options=calculateoption)
 async def _calculate(inter:Interaction):
     calculate = inter.get('calculate')
     try:
@@ -232,7 +248,10 @@ async def _calculate(inter:Interaction):
     else:
         await inter.reply(f"<@{inter.author.id}>님, 계산 결과가 {result}입니다.")
 
-@slash.command(name="격리", description="격리하는 명령어", guild_ids=icecreamhappydiscord, options=md2.getoption([{'name':'member', 'description':'격리할 멤버', 'type':Type.USER, 'required':True},{'name':'reason', 'description':'왜?', 'type':Type.USER, 'required':False}]))
+guckrioption = md2.NewOptionList()
+guckrioption.make_option(name="member", description="격리할 사람", required=True, type=Type.USER)
+guckrioption.make_option(name="reason", description="격리하는 이유", required=False, type=Type.STRING)
+@slash.command(name="격리", description="격리하는 명령어", guild_ids=icecreamhappydiscord, options=guckrioption)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckri(inter: Interaction):
@@ -245,7 +264,10 @@ async def _guckri(inter: Interaction):
     else:
         await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!")
 
-@slash.command(name="격리해제", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=md2.getoption([{'name':'member', 'description':'격리하지 않을 멤버', 'type':Type.USER, 'required':True},{'name':'reason', 'description':'왜?', 'type':Type.USER, 'required':False}]))
+guckridisableoption = md2.NewOptionList()
+guckridisableoption.make_option(name="member", description="격리 해제할 멤버", required=True, type=Type.USER)
+guckridisableoption.make_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
+@slash.command(name="격리해제", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=guckridisableoption)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckridisable(inter:Interaction):
@@ -258,10 +280,12 @@ async def _guckridisable(inter:Interaction):
     else:
         await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
 
-@slash.command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=md2.getoption([{'name':'position','description':'어디 날씨를 원함?','type':Type.STRING,'required':True}]))
+weatheroption = md2.NewOptionList()
+weatheroption.make_option(name="position", description="날씨를 알고 싶은 장소", required=False, type=Type.STRING)
+@slash.command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=weatheroption)
 async def _weather(inter:Interaction):
     await inter.reply("기다려주세요.")
-    position = inter.get('position')
+    position = inter.get('position', None)
     try:
         weatherdata = md1.get_weather(position)
     except ValueError:
@@ -282,22 +306,29 @@ async def _weather(inter:Interaction):
         embed1.add_field(name="오존 위험 단계", value=weatherdata['ozonetext'])
         await inter.edit(content="완료되었습니다!",embed=embed1)
 
-@slash.command(name="bitly", description="링크를 길지 않게 만들어주는 명령어", options=md2.getoption([{'name':'url','description':'길지 않게 만들 링크','required':True,'type':Type.STRING}]))
+bitlyoption = md2.NewOptionList()
+bitlyoption.make_option(name="url", description="길지 않게 만들 링크", required=True, type=Type.STRING)
+@slash.command(name="bitly", description="링크를 길지 않게 만들어주는 명령어", options=bitlyoption)
 async def _bitly(inter:Interaction):
     longurl = inter.get('url')
     shorturl = md1.shortlink([longurl])
     shorturl2 = str(shorturl).replace("['", "").replace("']", "")
     await inter.reply(f"<@{inter.author.id}>님 링크가 {shorturl2} 로 변한것 같아요!")
 
-@slash.command(name="random", description="랜덤으로 숫자를 굴려주는 명령어", options=md2.getoption([{'name':'min','description':'최소','type':Type.INTEGER,'required':True},{'name':'max','description':'최대','type':Type.INTEGER,'required':True}]))
+randomoption = md2.NewOptionList()
+randomoption.make_option(name="min", description="최소 숫자", required=True, type=Type.INTEGER)
+randomoption.make_option(name="max", description="최대 숫자", required=True, type=Type.INTEGER)
+@slash.command(name="random", description="랜덤으로 숫자를 굴려주는 명령어", options=randomoption)
 async def _random(inter:Interaction):
     x = inter.get('min')
     y = inter.get('max')
     await inter.reply(secrets.SystemRandom().randint(x, y))
 
-@slash.command(name="getwarn", description="주의를 보는 세상 간단한 명령어", options=md2.getoption([{'name':'member','description':'누구의 주의를 볼 계획','type':Type.USER,'required':True}]))
+getwarnoption = md2.NewOptionList()
+getwarnoption.make_option(name="member", description="누구의 주의를 볼거임?", type=Type.USER, required=False)
+@slash.command(name="getwarn", description="주의를 보는 세상 간단한 명령어", options=getwarnoption)
 async def _getwarn(inter:Interaction):
-    member: discord.Member = inter.get('member')
+    member: discord.Member = inter.get('member', inter.author.id)
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     await inter.reply(f"{member.display_name}님의 주의 개수는 {warndata['warn']}개에요!")
 
@@ -307,7 +338,7 @@ warnoption.make_option(name="reason", description="주의를 주는 이유", req
 warnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
-@slash.command(name="warn", description="주의를 주는 세상 복잡한 명령어", option=warnoption)
+@slash.command(name="warn", description="주의를 주는 세상 복잡한 명령어", options=warnoption)
 async def _warn(inter:Interaction):
     member = inter.get('member')
     reason = inter.get('reason', None)
@@ -325,8 +356,11 @@ unwarnoption.make_option(name="reason", description="주의를 주는 이유", r
 unwarnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
-@slash.command(name="unwarn", description="주의를 빼는 세상 이상한 명령어", option=unwarnoption)
-async def _unwarn(inter:Interaction, member:discord.Member, amount:int, reason=None):
+@slash.command(name="unwarn", description="주의를 빼는 세상 이상한 명령어", options=unwarnoption)
+async def _unwarn(inter:Interaction):
+    member = inter.get('member')
+    reason = inter.get('reason', None)
+    amount = inter.get('amount')
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
     if reason is None:
@@ -338,7 +372,7 @@ hellochannel = md2.NewOptionList()
 hellochannel.make_option(name="channel", description="인사 채널 (꼭 텍스트 채널이어야 함)", required=True, type=Type.CHANNEL)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
-@slash.command(name="hellochannel", description="인사 채널을 설정하는 명령어", option=hellochannel)
+@slash.command(name="hellochannel", description="인사 채널을 설정하는 명령어", options=hellochannel)
 async def _hellochannel(inter:Interaction):
     channel = inter.get("channel")
     if type(channel) is discord.TextChannel:
@@ -347,7 +381,7 @@ async def _hellochannel(inter:Interaction):
 
 userchannel = md2.NewOptionList()
 userchannel.make_option(name="user", description="호감도를 확인할 유저", required=False, type=Type.USER)
-@slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", option=userchannel)
+@slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel)
 async def _helpinghands(inter:Interaction):
     user = inter.get("user", None)
     if user is None:
@@ -373,7 +407,7 @@ async def _helpinghands(inter:Interaction):
 
 noticeother = md2.NewOptionList()
 noticeother.make_option(name="description", description="설명", required=True, type=Type.STRING)
-@slash.command(name="noticeother", description="공지를 하는 명령어", option=noticeother)
+@slash.command(name="noticeother", description="공지를 하는 명령어", options=noticeother)
 async def _notice(inter:Interaction, description:str):
     author = inter.author
     if author.id != 338902243476635650:
@@ -395,7 +429,7 @@ setnotice = md2.NewOptionList()
 setnotice.make_option(name="channel", description="봇 공지 채널", required=True, type=Type.CHANNEL)
 @slash_commands.has_guild_permissions(manage_messages=True, manage_channels=True)
 @slash_commands.bot_has_guild_permissions(manage_messages=True, manage_channels=True)
-@slash.command(name="setnotice", description="봇 공지 채널을 정하는 명령어", option=setnotice)
+@slash.command(name="setnotice", description="봇 공지 채널을 정하는 명령어", options=setnotice)
 async def _setnotice(inter:Interaction):
     channel = inter.get("setnotice")
     md1.noticeusingbot(inter.author.guild.id, channel.id, False)
@@ -418,7 +452,7 @@ async def _getmoney(inter:Interaction):
 
 dobak = md2.NewOptionList()
 dobak.make_option(name="money", description="도박할 돈", required=True, type=Type.INTEGER)
-@slash.command(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님", option=dobak)
+@slash.command(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님", options=dobak)
 async def _dobak(inter:Interaction, money:int):
     try:
         md1.dobakmoney(inter.author.id, money)
@@ -469,7 +503,7 @@ async def _serverinfo(inter:Interaction):
 
 userinfo = md2.NewOptionList()
 userinfo.make_option(name="serverid", description="서버 ID", type=Type.INTEGER, required=False)
-@slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", option=userinfo)
+@slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo)
 async def _userinfo(inter:Interaction):
     userid = inter.get("serverid")
     await inter.reply("유저를 찾는 중이에요!")
