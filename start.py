@@ -94,7 +94,7 @@ async def on_message_edit(before, after):
     if after.author.bot is False:
         try:
             after.attachments[0].url
-        except TypeError:
+        except IndexError:
             pass
         else:
             if after.attachments[0].url is not None:
