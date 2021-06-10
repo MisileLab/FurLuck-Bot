@@ -156,8 +156,11 @@ def remove_special_region(origin, tagname):
     return origin
 
 def shortlink(link):
+    link2 = link
+    if not isinstance(link, list):
+        link2 = [link]
     shortener = Shortener(tokens=tokens_pool2, max_cache_size=256)
-    link1 = shortener.shorten_urls(long_urls=link)
+    link1 = shortener.shorten_urls(long_urls=link2)
     return link1
 
 # noinspection PyTypeChecker
@@ -406,7 +409,13 @@ def youtubedownloadmusic(music):
 
 async def playvoiceclient(inter:Interaction, music, get:bool, voiceclient=None, authorid=None, message=None, yes=False):
     if get is False:
-        await inter.reply("잠시만 기다려주세요!")
+        try:
+            await inter.reply("잠시만 기다려주세요!")
+        except discord.Forbidden:
+            try:
+                await inter.edit("잠시만 기다려주세요!")
+            except discord.Forbidden:
+                await inter.channel.send("잠시만 기다려주세요!")
     if authorid is None:
         authorid = inter.author.id
     if inter.author.voice is None:
