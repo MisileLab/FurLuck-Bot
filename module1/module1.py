@@ -407,19 +407,14 @@ def youtubedownloadmusic(music):
     itemsid2: dict = itemsid['id']
     return itemsid2['videoId']
 
-async def playvoiceclient(inter:Interaction, music, get:bool, voiceclient=None, authorid=None, message=None, yes=False):
-    if get is False:
-        try:
-            await inter.reply("잠시만 기다려주세요!")
-        except discord.Forbidden:
-            try:
-                await inter.edit("잠시만 기다려주세요!")
-            except discord.Forbidden:
-                await inter.channel.send("잠시만 기다려주세요!")
+async def playvoiceclient(inter: SlashInteraction, music, get: bool, voiceclient=None, authorid=None, message=None, yes=False):
+    await inter.reply(type=5) # Loading state
+    if not get:
+        await inter.edit(content="잠시만 기다려주세요!")
     if authorid is None:
         authorid = inter.author.id
     if inter.author.voice is None:
-        await inter.edit("음성 채널에 들어가주세요!")
+        await inter.edit(content="음성 채널에 들어가주세요!")
     correct = False
     try:
         musicqueue[authorid]
@@ -465,12 +460,12 @@ async def playvoiceclient(inter:Interaction, music, get:bool, voiceclient=None, 
                     except (youtube_dl.utils.UnavailableVideoError, youtube_dl.utils.DownloadError):
                         result = youtubedownloadmusic(music)
                         if result is None:
-                            await message.edit(content="그런 음악이 없는 것 같아요!")
+                            await inter.edit(content="그런 음악이 없는 것 같아요!")
                         else:
                             try:
                                 ydl.download([f"https://youtube.com/watch?v={result}"])
                             except (youtube_dl.utils.UnavailableVideoError, AttributeError, youtube_dl.DownloadError):
-                                await message.edit(content="에러가 난거 같아요!")
+                                await inter.edit(content="에러가 난거 같아요!")
                             else:
                                 correct = True
                     else:
