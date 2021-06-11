@@ -7,7 +7,7 @@ import time
 from module1 import module1 as md1
 import simpleeval
 import secrets
-from dislash import slash_commands, Type
+from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle
 from dislash.interactions import Interaction
 from module1 import module2 as md2
 
@@ -186,14 +186,24 @@ async def _feedback(inter:Interaction):
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
     await inter.reply(embed=embed1)
 
-@slash.command(name="specialthanks", description="이걸 도와준 사람들을 위한 명령어")
+@slash.command(name="specialthanks", description="Thank you for helping me")
 async def _specialthanks(inter:Interaction):
-    embed1 = discord.Embed(name="도와준 사람", description="고마워요!")
+    row = ActionRow(Button(
+        style=ButtonStyle.green,
+        label="Click Please",
+        custom_id="buttonhelping"
+    ))
+    embed1 = discord.Embed(name="Helping hands", description="Thank you")
     embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-    embed1.add_field(name="Misile#2134", value="잘 버텨준 나")
-    embed1.add_field(name="You", value="이 봇을 사용해준 너")
-    embed1.add_field(name="FurLuck", value="이 봇의 이미지를 쓰게 해준 펄럭")
-    await inter.reply(embed=embed1)
+    embed1.add_field(name="Misile#2134", value="Written by me")
+    embed1.add_field(name="You", value="Using my bot")
+    embed1.add_field(name="FurLuck", value="This bot image author")
+    msg = await inter.reply(embed=embed1, components=[row])
+    await msg.wait_for_button_click()
+    embed2 = discord.Embed(name="Helping hands", description="Thank you")
+    embed2.add_field(name="EQUENOS", value="Github Pull request #1, dislash.py developer")
+    await inter.edit(embed=embed2)
+
 
 muteoption = md2.NewOptionList()
 muteoption.make_option(name="member", description="뮤트할 사람", required=True, type=Type.USER)
