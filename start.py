@@ -142,7 +142,7 @@ kickoption.make_option(name="member", description="킥할 사람", required=True
 kickoption.make_option(name="reason", description="왜 킥함?", required=False, type=Type.STRING)
 @slash.command(name="kick", description="상대를 서버 밖으로 날리는 명령어", options=kickoption)
 @slash_commands.has_guild_permissions(kick_members=True)
-@slash_commands.bot_has_guild_permissions(kick_members=True)
+# @slash_commands.bot_has_guild_permissions(kick_members=True)
 async def _kick(inter:Interaction):
     kickmember = inter.get('member')
     reason = inter.get('reason', None)
@@ -154,7 +154,7 @@ banoption.make_option(name="member", description="밴할 멤버", required=True,
 banoption.make_option(name="reason", description="왜 밴함", required=False, type=Type.STRING)
 @slash.command(name="ban", description="상대를 서버 밖으로 영원히 날리는 명령어", options=banoption)
 @slash_commands.has_guild_permissions(ban_members=True)
-@slash_commands.bot_has_guild_permissions(ban_members=True)
+# @slash_commands.bot_has_guild_permissions(ban_members=True)
 async def _ban(inter:Interaction):
     banmember: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
@@ -170,7 +170,7 @@ cleanoption = md2.NewOptionList()
 cleanoption.make_option(name="amount", description="채팅청소하는 수", required=False, type=Type.INTEGER)
 @slash.command(name="clean", description="채팅청소하는 엄청난 명령어", options=cleanoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
-@slash_commands.bot_has_guild_permissions(manage_messages=True)
+# @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _clean(inter:Interaction):
     amount: int = inter.get('amount')
     channel1 = inter.channel
@@ -210,7 +210,7 @@ muteoption.make_option(name="member", description="뮤트할 사람", required=T
 muteoption.make_option(name="reason", description="왜 뮤트함?", required=False, type=Type.STRING)
 @slash.command(name="mute", description="상대방을 입막습니다! 읍읍", options=muteoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
-@slash_commands.bot_has_guild_permissions(manage_messages=True)
+# @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _mute(inter:Interaction):
     member: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
@@ -236,7 +236,7 @@ unmuteoption.make_option(name="member", description="언뮤트할 사람", requi
 unmuteoption.make_option(name="reason", description="왜 언뮤트함?", required=False, type=Type.STRING)
 @slash.command(name="unmute", description="상대방을 입 막지 않습니다. 뮤트 멈춰!", options=unmuteoption)
 @slash_commands.has_guild_permissions(manage_messages=True)
-@slash_commands.bot_has_guild_permissions(manage_messages=True)
+# @slash_commands.bot_has_guild_permissions(manage_messages=True)
 async def _unmute(inter:Interaction):
     member: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
@@ -267,7 +267,7 @@ guckrioption.make_option(name="member", description="격리할 사람", required
 guckrioption.make_option(name="reason", description="격리하는 이유", required=False, type=Type.STRING)
 @slash.command(name="격리", description="격리하는 명령어", guild_ids=icecreamhappydiscord, options=guckrioption)
 @slash_commands.has_guild_permissions(administrator=True)
-@slash_commands.bot_has_guild_permissions(administrator=True)
+# @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckri(inter: Interaction):
     member = inter.get('member')
     reason = inter.get('reason', None)
@@ -283,7 +283,7 @@ guckridisableoption.make_option(name="member", description="격리 해제할 멤
 guckridisableoption.make_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
 @slash.command(name="격리해제", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=guckridisableoption)
 @slash_commands.has_guild_permissions(administrator=True)
-@slash_commands.bot_has_guild_permissions(administrator=True)
+# @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckridisable(inter:Interaction):
     member = inter.get('member')
     reason = inter.get('reason', None)
@@ -351,7 +351,7 @@ warnoption.make_option(name="member", description="주의를 줄 사람", requir
 warnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 warnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
 @slash_commands.has_guild_permissions(administrator=True)
-@slash_commands.bot_has_guild_permissions(administrator=True)
+# @slash_commands.bot_has_guild_permissions(administrator=True)
 @slash.command(name="warn", description="주의를 주는 세상 복잡한 명령어", options=warnoption)
 async def _warn(inter:Interaction):
     member = inter.get('member')
@@ -369,7 +369,7 @@ unwarnoption.make_option(name="member", description="주의를 줄 사람", requ
 unwarnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 unwarnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
 @slash_commands.has_guild_permissions(administrator=True)
-@slash_commands.bot_has_guild_permissions(administrator=True)
+# @slash_commands.bot_has_guild_permissions(administrator=True)
 @slash.command(name="unwarn", description="주의를 빼는 세상 이상한 명령어", options=unwarnoption)
 async def _unwarn(inter:Interaction):
     member = inter.get('member')
@@ -385,7 +385,7 @@ async def _unwarn(inter:Interaction):
 hellochannel = md2.NewOptionList()
 hellochannel.make_option(name="channel", description="인사 채널 (꼭 텍스트 채널이어야 함)", required=True, type=Type.CHANNEL)
 @slash_commands.has_guild_permissions(administrator=True)
-@slash_commands.bot_has_guild_permissions(administrator=True)
+# @slash_commands.bot_has_guild_permissions(administrator=True)
 @slash.command(name="hellochannel", description="인사 채널을 설정하는 명령어", options=hellochannel)
 async def _hellochannel(inter:Interaction):
     channel = inter.get("channel")
@@ -442,7 +442,7 @@ async def _notice(inter:Interaction, description:str):
 setnotice = md2.NewOptionList()
 setnotice.make_option(name="channel", description="봇 공지 채널", required=True, type=Type.CHANNEL)
 @slash_commands.has_guild_permissions(manage_messages=True, manage_channels=True)
-@slash_commands.bot_has_guild_permissions(manage_messages=True, manage_channels=True)
+# @slash_commands.bot_has_guild_permissions(manage_messages=True, manage_channels=True)
 @slash.command(name="setnotice", description="봇 공지 채널을 정하는 명령어", options=setnotice)
 async def _setnotice(inter:Interaction):
     channel = inter.get("setnotice")
