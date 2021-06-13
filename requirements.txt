@@ -12,4 +12,4 @@ simpleeval~=0.9.10
 youtube_dl
 ffmpeg-python
 PyNaCl
-dislash.py
+dislash.py==1.0.16
