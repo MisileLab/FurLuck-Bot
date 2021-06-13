@@ -408,7 +408,7 @@ def youtubedownloadmusic(music):
     return itemsid2['videoId']
 
 async def playvoiceclient(inter: SlashInteraction, music, get: bool, voiceclient=None, authorid=None, message=None, yes=False):
-    await inter.reply(type=5) # Loading state
+    await inter.reply(type=5)  # Loading state
     if not get:
         await inter.edit(content="잠시만 기다려주세요!")
     if authorid is None:
