@@ -35,7 +35,8 @@ async def on_ready():
 
 
 @Client.event
-async def on_command_error(error):
+async def on_command_error(ctx, error):
+    _ctx = ctx
     if isinstance(error, ignore_error):
         pass
 
@@ -238,6 +239,11 @@ async def _specialthanks(inter: SlashInteraction):
         embed2 = discord.Embed(name="Helping hands", description="Thank you")
         embed2.add_field(name="EQUENOS", value="Make github pull requests, dislash.py developer")
         await inter.edit(embed=embed2, components=[])
+
+    # noinspection PyShadowingNames
+    @clicklistener.timeout
+    async def timeout(inter: SlashInteraction):
+        await inter.edit(embed=embed1, components=[])
 
 
 muteoption = md2.NewOptionList()
@@ -636,16 +642,6 @@ async def _userinfo(inter: SlashInteraction):
         embed1.add_field(name="시스템 계정 여부", value=str(user1.system))
         embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
         await inter.edit(content=None, embed=embed1)
-
-
-musicinfo = md2.NewOptionList()
-musicinfo.make_option(name="music", description="음악 링크나 검색어", type=Type.STRING, required=True)
-
-
-@slash.command(name="play", description="음악을 틀어주는 명령어", guild_ids=devserver, options=musicinfo)
-async def _play(inter: SlashInteraction):
-    music = inter.get("music")
-    await md1.playvoiceclient(inter, music, get=True)
 
 
 Client.run(token)

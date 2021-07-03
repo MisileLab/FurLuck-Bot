@@ -8,7 +8,3 @@ class NewOptionList:
         option = Option(name=name, description=description, required=required, type=type)
         self.option.append(option)
         return self.option
-
-    @property
-    def getoption(self, getnumber:int=0):
-        return self.option[getnumber]
