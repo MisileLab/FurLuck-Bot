@@ -569,13 +569,6 @@ async def _dobak(inter: SlashInteraction, money: int):
     else:
         await inter.reply(f"<@{inter.author.id}>님이 도박에 성공했어요!")
 
-
-@slash.command(name="getcoin", description="무슨 코인을 팔고 있는?")
-async def _getcoin(inter: SlashInteraction):
-    await inter.reply(
-        "DM으로 주면 됨 팔고 있는 코인 : 0.00001 [MisileCoin](https://kovan.etherscan.io/token/0x285797e3848d6f5b88c704d8a45c73b2aefbf4d8?a=0x2d1a71b134fbbc3033cf080cf3e4e45dd0dbf485) = 9천만원")
-
-
 logoption = md2.NewOptionList()
 logoption.make_option(name="channel", description="로그 채널", type=Type.CHANNEL, required=True)
 
