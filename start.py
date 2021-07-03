@@ -257,7 +257,7 @@ async def _mute(inter: SlashInteraction):
     member: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
     guild = inter.guild
-    role1 = discord.utils.get(guild.roles, name='Muted')
+    role1 = discord.utils.get(guild.roles, name='뮤트')
     if role1 is not None:
         await member.add_roles(role1, reason=reason)
         if reason is None:
@@ -355,7 +355,7 @@ weatheroption.make_option(name="position", description="날씨를 알고 싶은 
 
 @slash.command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=weatheroption)
 async def _weather(inter: SlashInteraction):
-    await inter.reply("기다려주세요.")
+    await inter.reply(type=5)
     position = inter.get('position', None)
     try:
         weatherdata = md1.get_weather(position)
