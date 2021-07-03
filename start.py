@@ -13,7 +13,6 @@ from module1 import module2 as md2
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 token = open('token.txt').read()
-googleapikey = open('googleapikey.txt').read()
 
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
 Client1 = koreanbots.Client(Client, koreanbotstoken)

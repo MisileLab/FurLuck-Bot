@@ -21,7 +21,6 @@ print(tokens_pool2)
 
 mysqlconnect = open('pymysql.json', 'r').read()
 mysqlconnect = json.loads(mysqlconnect)
-apikey = open('googleapikey.txt', 'r').read()
 
 def todaycalculate():
     datetimetoday = datetime.today()
