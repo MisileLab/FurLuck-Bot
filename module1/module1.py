@@ -1,17 +1,11 @@
 import json
 import secrets
 from datetime import datetime
-import discord
-from dislash.interactions import *
 import pymysql
 import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from ast import literal_eval
-import os
-import youtube_dl
-import ffmpeg
 
 tokens_pool2 = []
 musicqueue = {}
