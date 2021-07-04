@@ -31,6 +31,118 @@ def makeformat(datetime1):
     today2 = str(datetime1.year) + '년 ' + str(datetime1.month) + '월 ' + str(datetime1.day) + '일 ' + str(datetime1.hour) + '시 ' + str(datetime1.minute) + '분 ' + str(datetime1.second) + '초 '
     return today2
 
+class Weather:
+    def __init__(self, detectdict:dict):
+        self.temp = detectdict['temp']
+        self.cast = detectdict['cast']
+        self.dust = detectdict['dust']
+        self.dust_txt = detectdict['dust_txt']
+        self.ultra_dust = detectdict['ultra_dust']
+        self.ultra_dust_txt = detectdict['ultra_dust_txt']
+        self.ozone = detectdict['ozone']
+        self.ozonetext = detectdict['ozonetext']
+        self.mintemp = detectdict['mintemp']
+        self.maxtemp = detectdict['maxtemp']
+        self.sensibletemp = detectdict['sensibletemp']
+        self.weatherimage = detectdict['weatherurl']
+
+    @property
+    def temp(self):
+        return self.temp
+
+    @property
+    def cast(self):
+        return self.cast
+
+    @property
+    def dust(self):
+        return self.dust
+
+    @property
+    def dust_txt(self):
+        return self.dust_txt
+
+    @property
+    def ultra_dust(self):
+        return self.ultra_dust
+
+    @property
+    def ultra_dust_txt(self):
+        return self.ultra_dust_txt
+
+    @property
+    def ozone(self):
+        return self.ozone
+
+    @property
+    def ozonetext(self):
+        return self.ozonetext
+
+    @property
+    def mintemp(self):
+        return self.mintemp
+
+    @property
+    def maxtemp(self):
+        return self.maxtemp
+
+    @property
+    def sensibletemp(self):
+        return self.sensibletemp
+
+    @property
+    def weatherimage(self):
+        return self.weatherimage
+
+    @temp.setter
+    def temp(self, value):
+        self._temp = value
+
+    @weatherimage.setter
+    def weatherimage(self, value):
+        self._weatherimage = value
+
+    @sensibletemp.setter
+    def sensibletemp(self, value):
+        self._sensibletemp = value
+
+    @maxtemp.setter
+    def maxtemp(self, value):
+        self._maxtemp = value
+
+    @mintemp.setter
+    def mintemp(self, value):
+        self._mintemp = value
+
+    @ozonetext.setter
+    def ozonetext(self, value):
+        self._ozonetext = value
+
+    @ozone.setter
+    def ozone(self, value):
+        self._ozone = value
+
+    @ultra_dust_txt.setter
+    def ultra_dust_txt(self, value):
+        self._ultra_dust_txt = value
+
+    @ultra_dust.setter
+    def ultra_dust(self, value):
+        self._ultra_dust = value
+
+    @dust_txt.setter
+    def dust_txt(self, value):
+        self._dust_txt = value
+
+    @dust.setter
+    def dust(self, value):
+        self._dust = value
+
+    @cast.setter
+    def cast(self, value):
+        self._cast = value
+
+
 def get_weather(position:str):
     try:
         browser = webdriver.Edge()
@@ -124,7 +236,7 @@ def get_weather(position:str):
             "https://imgur.com/XMcWPZc",
             "https://imgur.com/9Kn7KCy"
         ]
-        list1 = {
+        dict1 = {
             "temp":todaytemperature,
             "cast":cast_txt,
             "dust":misaemungi.replace("㎍/㎥", ""),
@@ -138,7 +250,7 @@ def get_weather(position:str):
             "sensibletemp":str(sensibletemp) + "도",
             "weatherurl":str(weatherurl2[weatherurl-1]) + ".png"
         }
-        return list1
+        return Weather(dict1)
 
 def remove_special_region(origin, tagname):
     for x in origin(tagname):
