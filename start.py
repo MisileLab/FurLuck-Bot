@@ -316,7 +316,7 @@ guckrioption.make_option(name="member", description="격리할 사람", required
 guckrioption.make_option(name="reason", description="격리하는 이유", required=False, type=Type.STRING)
 
 
-@slash.command(name="격리", description="격리하는 명령어", guild_ids=icecreamhappydiscord, options=guckrioption)
+@slash.command(name="guckri", description="격리하는 명령어", guild_ids=icecreamhappydiscord, options=guckrioption)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckri(inter: SlashInteraction):
@@ -335,7 +335,7 @@ guckridisableoption.make_option(name="member", description="격리 해제할 멤
 guckridisableoption.make_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
 
 
-@slash.command(name="격리해제", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=guckridisableoption)
+@slash.command(name="notguckri", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=guckridisableoption)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckridisable(inter: SlashInteraction):
