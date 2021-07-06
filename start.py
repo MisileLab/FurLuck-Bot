@@ -414,8 +414,8 @@ async def _getwarn(inter: SlashInteraction):
 
 warnoption = md1.NewOptionList()
 warnoption.make_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
-warnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 warnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
+warnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 
 
 @slash_commands.has_guild_permissions(administrator=True)
@@ -436,8 +436,8 @@ async def _warn(inter: SlashInteraction):
 
 unwarnoption = md1.NewOptionList()
 unwarnoption.make_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
-unwarnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 unwarnoption.make_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
+unwarnoption.make_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
 
 
 @slash_commands.has_guild_permissions(administrator=True)
