@@ -580,7 +580,7 @@ async def _log(inter: SlashInteraction):
 
 
 serverinfo = md1.NewOptionList()
-serverinfo.make_option(name="serverid", description="서버 ID", type=Type.INTEGER, required=False)
+serverinfo.make_option(name="serverid", description="서버 ID", type=Type.STRING, required=False)
 
 
 @slash.command(name="serverinfo", description="서버 정보를 알려주는 명령어", options=serverinfo.options)
@@ -609,7 +609,7 @@ async def _serverinfo(inter: SlashInteraction):
 
 
 userinfo = md1.NewOptionList()
-userinfo.make_option(name="serverid", description="서버 ID", type=Type.INTEGER, required=False)
+userinfo.make_option(name="userid", description="유저 ID", type=Type.STRING, required=False)
 
 
 @slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo.options)
