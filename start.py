@@ -265,12 +265,12 @@ async def _mute(inter: SlashInteraction):
             await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
     else:
         perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
-        role1 = await guild.create_role(name="Muted", permissions=perms1)
+        role1 = await guild.create_role(name="뮤트", permissions=perms1)
         await member.add_roles(role1, reason=reason)
         if reason is None:
             await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
         else:
-            await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
+            await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
 
 
 unmuteoption = md1.NewOptionList()
@@ -290,7 +290,7 @@ async def _unmute(inter: SlashInteraction):
     if reason is None:
         await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!")
     else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 언뮤트하였습니다!")
+        await inter.reply(f"<@{inter.author.id}님이 {reason}>이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!")
 
 
 calculateoption = md1.NewOptionList()
