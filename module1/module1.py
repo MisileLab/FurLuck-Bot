@@ -6,6 +6,7 @@ import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from dislash import Option
 
 tokens_pool2 = []
 musicqueue = {}
@@ -499,3 +500,16 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     resultcursor = cursor.fetchall()
     mysql1.close()
     return resultcursor
+
+class NewOptionList:
+    def __init__(self):
+        self.option = []
+
+    def make_option(self, name, description, required:bool, type):
+        option = Option(name=name, description=description, required=required, type=type)
+        self.option.append(option)
+        return self.option
+
+    @property
+    def options(self):
+        return self.option
