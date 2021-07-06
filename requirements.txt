@@ -10,5 +10,4 @@ koreanbots~=0.2.3
 simpleeval~=0.9.10
 youtube_dl
 ffmpeg-python
-PyNaCl
 dislash.py~=1.2.3
