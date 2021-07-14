@@ -650,6 +650,6 @@ async def _createvote(inter:SlashInteraction):
     component = md1.NewActionRow()
     component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
     component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
-    await inter.edit(embed=embed, components=component)
+    await inter.edit(embed=embed, components=component.components)
 
 Client.run(token)
