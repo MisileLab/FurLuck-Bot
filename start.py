@@ -44,14 +44,17 @@ async def on_slash_command_error(inter, error):
     if isinstance(error, ignore_error):
         pass
 
-    if isinstance(error, slash_commands.MissingPermissions):
+    elif isinstance(error, slash_commands.MissingPermissions):
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
-    if isinstance(error, slash_commands.BotMissingPermissions):
+    elif isinstance(error, slash_commands.BotMissingPermissions):
         await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
-    if isinstance(error, slash_commands.CommandOnCooldown):
+    elif isinstance(error, slash_commands.CommandOnCooldown):
         await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
+
+    else:
+        print(error)
 
 
 @Client.event

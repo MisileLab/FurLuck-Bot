@@ -523,4 +523,4 @@ class NewActionRow:
 
     @property
     def components(self):
-        return self.component
+        return [self.component]
