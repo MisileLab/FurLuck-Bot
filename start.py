@@ -642,6 +642,8 @@ createvoteoption.make_option(name="name", description="투표 이름", required=
 createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
 
 @slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
+@commands.guild_only()
+@commands.cooldown(10, 600)
 async def _createvote(inter:SlashInteraction):
     await inter.reply(type=5)
     name = inter.get("name")
