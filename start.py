@@ -14,7 +14,7 @@ koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 token = open('token.txt').read()
 
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
-Client1 = koreanbots.Client(Client, koreanbotstoken)
+Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
 slash = slash_commands.SlashClient(Client)
 
 devserver = [812339145942237204, 635336036465246218]
@@ -643,7 +643,7 @@ async def _createvote(inter:SlashInteraction):
     await inter.reply(type=5)
     name = inter.get("name")
     description = inter.get("description", None)
-    embed = discord.Embed(name=name, description=description)
+    embed = discord.Embed(title=name, description=description)
     component = md1.NewActionRow()
     component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
     component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
