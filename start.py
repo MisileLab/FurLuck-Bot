@@ -17,7 +17,7 @@ Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_co
 Client1 = koreanbots.Client(Client, koreanbotstoken)
 slash = slash_commands.SlashClient(Client)
 
-devserver = [812339145942237204, 759260634096467969, 635336036465246218]
+devserver = [812339145942237204, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 ignore_error = commands.CommandNotFound, discord.HTTPException
 
@@ -634,5 +634,19 @@ async def _userinfo(inter: SlashInteraction):
         embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
         await inter.edit(content=None, embed=embed1)
 
+createvoteoption = md1.NewOptionList()
+createvoteoption.make_option(name="name", description="투표 이름", required=True, type=Type.STRING)
+createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
+
+@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
+async def _createvote(inter:SlashInteraction):
+    await inter.reply(type=5)
+    name = inter.get("name")
+    description = inter.get("description", None)
+    embed = discord.Embed(name=name, description=description)
+    component = md1.NewActionRow()
+    component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
+    component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
+    await inter.edit(embed=embed, components=component)
 
 Client.run(token)

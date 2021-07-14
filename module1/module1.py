@@ -6,7 +6,7 @@ import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from dislash import Option
+from dislash import Option, Type, ActionRow, ButtonStyle
 
 tokens_pool2 = []
 musicqueue = {}
@@ -337,10 +337,10 @@ def insertserverdataonce(cursor, guildid:int):
     cursor.execute(sql, (guildid, 0, 0, 0))
 
 class DontHaveMoney(Exception):
-    print("Exception : DontHaveMoney")
+    pass
 
 class FailedDobak(Exception):
-    print("Exception : FailedDobak")
+    pass
 
 def getmoney(memberid:int):
     mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
@@ -505,7 +505,7 @@ class NewOptionList:
     def __init__(self):
         self.option = []
 
-    def make_option(self, name, description, required:bool, type):
+    def make_option(self, name:str, description:str, required:bool, type:Type):
         option = Option(name=name, description=description, required=required, type=type)
         self.option.append(option)
         return self.option
@@ -513,3 +513,14 @@ class NewOptionList:
     @property
     def options(self):
         return self.option
+
+class NewActionRow:
+    def __init__(self):
+        self.component = ActionRow()
+
+    def add_button(self, style:ButtonStyle, name:str, custom_id:str):
+        self.component.add_button(style=style, label=name, custom_id=custom_id)
+
+    @property
+    def components(self):
+        return self.component
