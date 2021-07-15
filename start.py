@@ -655,7 +655,6 @@ async def _createvote(inter:SlashInteraction):
     component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
     component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
     votelol = md1.Vote()
-
     msg = await inter.edit(embed=embed, components=component.components)
     on_click: ClickListener = msg.create_click_listener(timeout=timeout)
 
@@ -673,12 +672,12 @@ async def _createvote(inter:SlashInteraction):
 
     # noinspection PyShadowingNames
     @on_click.timeout
-    async def _timeout(inter):
+    async def _timeout():
         result = votelol.close()
         trueopinion = result['true']
         falseopinion = result['false']
         embed.add_field(name="O", value=trueopinion)
         embed.add_field(name="X", value=falseopinion)
-        await inter.edit(embed=embed, components=None)
+        await inter.edit(embed=embed, components=[])
 
 Client.run(token)

@@ -1,13 +1,13 @@
 import json
 import secrets
 from datetime import datetime
-import pymysql
 import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from dislash import Option, Type, ActionRow, ButtonStyle
 import hashlib
+import pymysql
 
 tokens_pool2 = []
 musicqueue = {}
@@ -26,15 +26,18 @@ mysqlconnect = json.loads(mysqlconnect)
 
 def todaycalculate():
     datetimetoday = datetime.today()
-    today2 = str(datetimetoday.year) + '년 ' + str(datetimetoday.month) + '월 ' + str(datetimetoday.day) + '일 ' + str(datetimetoday.hour) + '시 ' + str(datetimetoday.minute) + '분 ' + str(datetimetoday.second) + '초 '
+    today2 = str(datetimetoday.year) + '년 ' + str(datetimetoday.month) + '월 ' + str(datetimetoday.day) + '일 ' + str(
+        datetimetoday.hour) + '시 ' + str(datetimetoday.minute) + '분 ' + str(datetimetoday.second) + '초 '
     return today2
 
 def makeformat(datetime1):
-    today2 = str(datetime1.year) + '년 ' + str(datetime1.month) + '월 ' + str(datetime1.day) + '일 ' + str(datetime1.hour) + '시 ' + str(datetime1.minute) + '분 ' + str(datetime1.second) + '초 '
+    today2 = str(datetime1.year) + '년 ' + str(datetime1.month) + '월 ' + str(datetime1.day) + '일 ' + str(
+        datetime1.hour) + '시 ' + str(datetime1.minute) + '분 ' + str(datetime1.second) + '초 '
     return today2
 
+
 class Weather:
-    def __init__(self, detectdict:dict):
+    def __init__(self, detectdict: dict):
         self.temp = detectdict['temp']
         self.cast = detectdict['cast']
         self.dust = detectdict['dust']
@@ -145,7 +148,7 @@ class Weather:
         self._cast = value
 
 
-def get_weather(position:str):
+def get_weather(position: str):
     try:
         browser = webdriver.Edge()
     except Exception as e:
@@ -160,13 +163,16 @@ def get_weather(position:str):
         browser = webdriver.Chrome('chromedriver', options=options)
     browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
     try:
-        browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property("background-image")
+        browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
+            "background-image")
     except Exception as e:
         print(e)
         browser.close()
         raise ValueError
     else:
-        weatherurl = int(str(browserfindelement).replace('url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',"").replace('.svg")', ""))
+        weatherurl = int(str(browserfindelement).replace(
+            'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
+            "").replace('.svg")', ""))
     browser.close()
     req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
     soup = BeautifulSoup(req.text, 'html.parser')
@@ -182,8 +188,12 @@ def get_weather(position:str):
         raise ValueError
     else:
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',class_='num').text) + '도'
-        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',class_='num').text) + '도'
+        lowtemperature = str(
+            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
+                                                                                                             class_='num').text) + '도'
+        hightemperature = str(
+            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',
+                                                                                                             class_='num').text) + '도'
         infolist = soup.find('ul', class_='info_list')
         cast_txt = infolist.find('p', class_='cast_txt').text
         misaemungi = soup.find('dl', class_='indicator').find_all('dd')[0].find('span', class_='num').text
@@ -239,20 +249,21 @@ def get_weather(position:str):
             "https://imgur.com/9Kn7KCy"
         ]
         dict1 = {
-            "temp":todaytemperature,
-            "cast":cast_txt,
-            "dust":misaemungi.replace("㎍/㎥", ""),
-            "dust_txt":misaemungitext,
-            "ultra_dust":chomisaemungi.replace("㎍/㎥", ""),
-            "ultra_dust_txt":chomisaemungitext,
-            "ozone":ozone.replace("ppm", ""),
-            "ozonetext":ozonetext,
-            "mintemp":lowtemperature,
-            "maxtemp":hightemperature,
-            "sensibletemp":str(sensibletemp) + "도",
-            "weatherurl":str(weatherurl2[weatherurl-1]) + ".png"
+            "temp": todaytemperature,
+            "cast": cast_txt,
+            "dust": misaemungi.replace("㎍/㎥", ""),
+            "dust_txt": misaemungitext,
+            "ultra_dust": chomisaemungi.replace("㎍/㎥", ""),
+            "ultra_dust_txt": chomisaemungitext,
+            "ozone": ozone.replace("ppm", ""),
+            "ozonetext": ozonetext,
+            "mintemp": lowtemperature,
+            "maxtemp": hightemperature,
+            "sensibletemp": str(sensibletemp) + "도",
+            "weatherurl": str(weatherurl2[weatherurl - 1]) + ".png"
         }
         return Weather(dict1)
+
 
 def remove_special_region(origin, tagname):
     for x in origin(tagname):
@@ -262,6 +273,7 @@ def remove_special_region(origin, tagname):
             pass
     return origin
 
+
 def shortlink(link):
     link2 = link
     if not isinstance(link, list):
@@ -270,9 +282,12 @@ def shortlink(link):
     link1 = shortener.shorten_urls(long_urls=link2)
     return link1
 
+
 # noinspection PyTypeChecker
-def warn(memberid:int, amount:int, get:bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+def warn(memberid: int, amount: int, get: bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
@@ -302,9 +317,12 @@ def warn(memberid:int, amount:int, get:bool):
     mysql1.close()
     return result
 
+
 # noinspection PyTypeChecker
-def helpingyou(memberid:int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+def helpingyou(memberid: int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
@@ -329,22 +347,29 @@ def helpingyou(memberid:int):
     mysql1.close()
     return result
 
-def insertmemberdataonce(cursor, memberid:int):
+
+def insertmemberdataonce(cursor, memberid: int):
     sql = "INSERT INTO `furluckbot1` (id, level1, warn, helpingme) VALUES (%s, 1, 0, 0)"
     cursor.execute(sql, memberid)
 
-def insertserverdataonce(cursor, guildid:int):
+
+def insertserverdataonce(cursor, guildid: int):
     sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid) VALUES (%s, %s, %s, %s)"
     cursor.execute(sql, (guildid, 0, 0, 0))
+
 
 class DontHaveMoney(Exception):
     pass
 
+
 class FailedDobak(Exception):
     pass
 
-def getmoney(memberid:int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+
+def getmoney(memberid: int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
@@ -367,8 +392,11 @@ def getmoney(memberid:int):
     mysql1.close()
     return result1['level1']
 
-def dobakmoney(memberid:int, money:int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+
+def dobakmoney(memberid: int, money: int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
@@ -410,8 +438,11 @@ def dobakmoney(memberid:int, money:int):
     mysql1.close()
     return result1
 
-def miningmoney(memberid:int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+
+def miningmoney(memberid: int):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
@@ -442,8 +473,11 @@ def miningmoney(memberid:int):
     mysql1.close()
     return result1
 
-def serverdata(mode:str, guildid:int, channelid:int, get:bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+
+def serverdata(mode: str, guildid: int, channelid: int, get: bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
@@ -480,8 +514,11 @@ def serverdata(mode:str, guildid:int, channelid:int, get:bool):
     mysql1.close()
     return result
 
-def noticeusingbot(guildid:int, channelid:int, get:bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"], autocommit=True)
+
+def noticeusingbot(guildid: int, channelid: int, get: bool):
+    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                             autocommit=True)
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
@@ -502,11 +539,12 @@ def noticeusingbot(guildid:int, channelid:int, get:bool):
     mysql1.close()
     return resultcursor
 
+
 class NewOptionList:
     def __init__(self):
         self.option = []
 
-    def make_option(self, name:str, description:str, required:bool, type:Type):
+    def make_option(self, name: str, description: str, required: bool, type: Type):
         option = Option(name=name, description=description, required=required, type=type)
         self.option.append(option)
         return self.option
@@ -515,39 +553,46 @@ class NewOptionList:
     def options(self):
         return self.option
 
+
 class NewActionRow:
     def __init__(self):
         self.component = ActionRow()
 
-    def add_button(self, style:ButtonStyle, name:str, custom_id:str):
+    def add_button(self, style: ButtonStyle, name: str, custom_id: str):
         self.component.add_button(style=style, label=name, custom_id=custom_id)
 
     @property
     def components(self):
         return [self.component]
 
+
 class Vote:
     def __init__(self):
         self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
-        self.mysql = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+        self.mysql = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"],
+                                     host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"],
+                                     port=mysqlconnect["port"], autocommit=True)
         self.cursor = self.mysql.cursor(pymysql.cursors.DictCursor)
         self.cursor.execute("SELECT * FROM `votes`")
         resultcursor = self.cursor.fetchall()
         for i1 in resultcursor:
-            print(i1)
             resultid = i1['voteid']
             if resultid == self.voteid:
-                self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
-        self.cursor.execute("INSERT INTO `votes` (voteid, result1, bot) VALUES (%s, %s, %s)", (self.voteid, 1233, self.voteid))
+                self.voteid = hashlib.sha512(
+                    str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
+        self.cursor.execute("INSERT INTO `votes` (voteid, result1, bot) VALUES (%s, %s, %s)",
+                            (self.voteid, 1233, self.voteid))
 
-    def add_vote(self, opinion:bool, interid:int):
+    def add_vote(self, opinion: bool, interid: int):
         if opinion is True:
-            self.cursor.execute("INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `votes` VALUES voteid=%s, bot=%s, result1=%s", (self.voteid, interid, 0, self.voteid, interid, 0))
+            self.cursor.execute(
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 0))
         elif opinion is False:
-            self.cursor.execute("INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `votes` VALUES voteid=%s, bot=%s, result1=%s", (self.voteid, interid, 1, self.voteid, interid, 1))
+            self.cursor.execute(
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 1))
 
     def close(self):
-        self.cursor.execute("SELECT * FROM `votes` WHERE voteid = (voteid) VALUES (%s)", self.voteid)
+        self.cursor.execute("SELECT * FROM `votes` WHERE voteid = %s", self.voteid)
         resultcursor = self.cursor.fetchall()
         trueopinion = 0
         falseopinion = 0
@@ -558,6 +603,6 @@ class Vote:
                 trueopinion = trueopinion + 1
             elif bot != self.voteid and resultid == 1:
                 falseopinion = falseopinion + 1
-        self.cursor.execute("DELETE FROM `votes` WHERE voteid = (%s)", self.voteid)
-        return {"true":trueopinion, "false":falseopinion}
-
+        self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
+        self.cursor.close()
+        return {"true": trueopinion, "false": falseopinion}
