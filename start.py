@@ -54,7 +54,7 @@ async def on_slash_command_error(inter, error):
         await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
 
     else:
-        print(error)
+        raise error
 
 
 @Client.event
@@ -640,6 +640,7 @@ async def _userinfo(inter: SlashInteraction):
 createvoteoption = md1.NewOptionList()
 createvoteoption.make_option(name="name", description="투표 이름", required=True, type=Type.STRING)
 createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
+createvoteoption.make_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
 
 @slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
 @commands.guild_only()
@@ -648,10 +649,36 @@ async def _createvote(inter:SlashInteraction):
     await inter.reply(type=5)
     name = inter.get("name")
     description = inter.get("description", None)
+    timeout = inter.get('timeout', '3600')
     embed = discord.Embed(title=name, description=description)
     component = md1.NewActionRow()
     component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
     component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
-    await inter.edit(embed=embed, components=component.components)
+    votelol = md1.Vote()
+
+    msg = await inter.edit(embed=embed, components=component.components)
+    on_click: ClickListener = msg.create_click_listener(timeout=timeout)
+
+    # noinspection PyShadowingNames
+    @on_click.matching_id('accept')
+    async def _accept(inter):
+        votelol.add_vote(True, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.matching_id('deny')
+    async def _deny(inter):
+        votelol.add_vote(False, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.timeout
+    async def _timeout(inter):
+        result = votelol.close()
+        trueopinion = result['true']
+        falseopinion = result['false']
+        embed.add_field(name="O", value=trueopinion)
+        embed.add_field(name="X", value=falseopinion)
+        await inter.edit(embed=embed, components=None)
 
 Client.run(token)

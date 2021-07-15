@@ -7,6 +7,7 @@ from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from dislash import Option, Type, ActionRow, ButtonStyle
+import hashlib
 
 tokens_pool2 = []
 musicqueue = {}
@@ -524,3 +525,39 @@ class NewActionRow:
     @property
     def components(self):
         return [self.component]
+
+class Vote:
+    def __init__(self):
+        self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
+        self.mysql = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],autocommit=True)
+        self.cursor = self.mysql.cursor(pymysql.cursors.DictCursor)
+        self.cursor.execute("SELECT * FROM `votes`")
+        resultcursor = self.cursor.fetchall()
+        for i1 in resultcursor:
+            print(i1)
+            resultid = i1['voteid']
+            if resultid == self.voteid:
+                self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
+        self.cursor.execute("INSERT INTO `votes` (voteid, result1, bot) VALUES (%s, %s, %s)", (self.voteid, 1233, self.voteid))
+
+    def add_vote(self, opinion:bool, interid:int):
+        if opinion is True:
+            self.cursor.execute("INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `votes` VALUES voteid=%s, bot=%s, result1=%s", (self.voteid, interid, 0, self.voteid, interid, 0))
+        elif opinion is False:
+            self.cursor.execute("INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE `votes` VALUES voteid=%s, bot=%s, result1=%s", (self.voteid, interid, 1, self.voteid, interid, 1))
+
+    def close(self):
+        self.cursor.execute("SELECT * FROM `votes` WHERE voteid = (voteid) VALUES (%s)", self.voteid)
+        resultcursor = self.cursor.fetchall()
+        trueopinion = 0
+        falseopinion = 0
+        for i1 in resultcursor:
+            resultid = i1['result1']
+            bot = i1['bot']
+            if bot != self.voteid and resultid == 0:
+                trueopinion = trueopinion + 1
+            elif bot != self.voteid and resultid == 1:
+                falseopinion = falseopinion + 1
+        self.cursor.execute("DELETE FROM `votes` WHERE voteid = (%s)", self.voteid)
+        return {"true":trueopinion, "false":falseopinion}
+
