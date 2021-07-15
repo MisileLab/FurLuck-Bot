@@ -14,10 +14,10 @@ koreanbotstoken = open("koreanbotstoken.txt", "r").read()
 token = open('token.txt').read()
 
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
-Client1 = koreanbots.Client(Client, koreanbotstoken)
+Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
 slash = slash_commands.SlashClient(Client)
 
-devserver = [812339145942237204, 759260634096467969, 635336036465246218]
+devserver = [812339145942237204, 635336036465246218]
 icecreamhappydiscord = [635336036465246218]
 ignore_error = commands.CommandNotFound, discord.HTTPException
 
@@ -35,8 +35,6 @@ async def on_ready():
 @Client.event
 async def on_command_error(ctx, error):
     _ctx = ctx
-    if isinstance(error, ignore_error):
-        pass
 
 
 @slash.event
@@ -44,14 +42,17 @@ async def on_slash_command_error(inter, error):
     if isinstance(error, ignore_error):
         pass
 
-    if isinstance(error, slash_commands.MissingPermissions):
+    elif isinstance(error, slash_commands.MissingPermissions):
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
-    if isinstance(error, slash_commands.BotMissingPermissions):
+    elif isinstance(error, slash_commands.BotMissingPermissions):
         await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
-    if isinstance(error, slash_commands.CommandOnCooldown):
+    elif isinstance(error, slash_commands.CommandOnCooldown):
         await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
+
+    else:
+        raise error
 
 
 @Client.event
@@ -107,25 +108,26 @@ async def on_message_delete(message):
 
 @Client.event
 async def on_message_edit(before, after):
-    if after.author.bot is False:
-        try:
-            after.attachments[0].url
-        except IndexError:
-            pass
-        else:
-            if after.attachments[0].url is not None:
-                embed1 = discord.Embed(name="메시지가 변경되었어요!")
-                embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
-                embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
-                embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
-                embed1.set_footer(text=md1.todaycalculate())
-                getchannel = md1.serverdata("logid", after.guild.id, 123, True)
-                try:
-                    channel = await Client.fetch_channel(getchannel["logid"])
-                except (AttributeError, discord.errors.HTTPException):
-                    pass
-                else:
-                    await channel.send(embed=embed1)
+    if after.author.bot is not False:
+        return
+    try:
+        after.attachments[0].url
+    except IndexError:
+        pass
+    else:
+        if after.attachments[0].url is not None:
+            embed1 = discord.Embed(name="메시지가 변경되었어요!")
+            embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
+            embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
+            embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
+            embed1.set_footer(text=md1.todaycalculate())
+            getchannel = md1.serverdata("logid", after.guild.id, 123, True)
+            try:
+                channel = await Client.fetch_channel(getchannel["logid"])
+            except (AttributeError, discord.errors.HTTPException):
+                pass
+            else:
+                await channel.send(embed=embed1)
 
 
 @Client.command(name="hellothisisverification")
@@ -429,7 +431,7 @@ async def _warn(inter: SlashInteraction):
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] + amount, get=False)
     if reason is None:
         await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    elif reason is not None:
+    else:
         await inter.reply(
             f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
 
@@ -451,7 +453,7 @@ async def _unwarn(inter: SlashInteraction):
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
     if reason is None:
         await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    elif reason is not None:
+    else:
         await inter.reply(
             f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
 
@@ -509,7 +511,7 @@ async def _notice(inter: SlashInteraction, description: str):
     author = inter.author
     if author.id != 338902243476635650:
         await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-    elif author.id == 338902243476635650:
+    else:
         embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
         embednotice.set_footer(text="by MisileLab", icon_url=inter.author.avatar_url)
         getchannel = md1.noticeusingbot(inter.author.guild.id, 0, True)
@@ -543,7 +545,7 @@ async def _mining(inter: SlashInteraction):
     random1 = secrets.SystemRandom().randint(1, 20)
     if random1 != 1:
         await inter.reply(f"<@{inter.author.id}>님에게 돈을 줬어요.")
-    elif random1 == 1:
+    else:
         await inter.reply(f"<@{inter.author.id}>님에게 돈을 줬어요. ㅠㅠ")
 
 
@@ -634,5 +636,47 @@ async def _userinfo(inter: SlashInteraction):
         embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
         await inter.edit(content=None, embed=embed1)
 
+createvoteoption = md1.NewOptionList()
+createvoteoption.make_option(name="name", description="투표 이름", required=True, type=Type.STRING)
+createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
+createvoteoption.make_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
+
+@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
+@commands.guild_only()
+@commands.cooldown(10, 600)
+async def _createvote(inter:SlashInteraction):
+    await inter.reply(type=5)
+    name = inter.get("name")
+    description = inter.get("description", None)
+    timeout = inter.get('timeout', '3600')
+    embed = discord.Embed(title=name, description=description)
+    component = md1.NewActionRow()
+    component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
+    component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
+    votelol = md1.Vote()
+    msg = await inter.edit(embed=embed, components=component.components)
+    on_click: ClickListener = msg.create_click_listener(timeout=timeout)
+
+    # noinspection PyShadowingNames
+    @on_click.matching_id('accept')
+    async def _accept(inter):
+        votelol.add_vote(True, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.matching_id('deny')
+    async def _deny(inter):
+        votelol.add_vote(False, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.timeout
+    async def _timeout():
+        result = votelol.close()
+        trueopinion = result['true']
+        falseopinion = result['false']
+        embed.add_field(name="O", value=trueopinion)
+        embed.add_field(name="X", value=falseopinion)
+        await inter.edit(embed=embed, components=[])
 
 Client.run(token)
