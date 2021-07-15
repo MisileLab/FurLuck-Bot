@@ -26,14 +26,36 @@ mysqlconnect = json.loads(mysqlconnect)
 
 def todaycalculate():
     datetimetoday = datetime.today()
-    today2 = str(datetimetoday.year) + '년 ' + str(datetimetoday.month) + '월 ' + str(datetimetoday.day) + '일 ' + str(
-        datetimetoday.hour) + '시 ' + str(datetimetoday.minute) + '분 ' + str(datetimetoday.second) + '초 '
-    return today2
+    return (
+        str(datetimetoday.year)
+        + '년 '
+        + str(datetimetoday.month)
+        + '월 '
+        + str(datetimetoday.day)
+        + '일 '
+        + str(datetimetoday.hour)
+        + '시 '
+        + str(datetimetoday.minute)
+        + '분 '
+        + str(datetimetoday.second)
+        + '초 '
+    )
 
 def makeformat(datetime1):
-    today2 = str(datetime1.year) + '년 ' + str(datetime1.month) + '월 ' + str(datetime1.day) + '일 ' + str(
-        datetime1.hour) + '시 ' + str(datetime1.minute) + '분 ' + str(datetime1.second) + '초 '
-    return today2
+    return (
+        str(datetime1.year)
+        + '년 '
+        + str(datetime1.month)
+        + '월 '
+        + str(datetime1.day)
+        + '일 '
+        + str(datetime1.hour)
+        + '시 '
+        + str(datetime1.minute)
+        + '분 '
+        + str(datetime1.second)
+        + '초 '
+    )
 
 
 class Weather:
@@ -279,8 +301,7 @@ def shortlink(link):
     if not isinstance(link, list):
         link2 = [link]
     shortener = Shortener(tokens=tokens_pool2, max_cache_size=256)
-    link1 = shortener.shorten_urls(long_urls=link2)
-    return link1
+    return shortener.shorten_urls(long_urls=link2)
 
 
 # noinspection PyTypeChecker
@@ -300,9 +321,7 @@ def warn(memberid: int, amount: int, get: bool):
             break
     if result is None:
         insertmemberdataonce(cursor=cursor, memberid=memberid)
-    if get is True:
-        pass
-    elif get is False:
+    if not get:
         sql = "UPDATE furluckbot1 SET warn = %s WHERE id = %s"
         cursor.execute(sql, (amount, memberid))
     sql = "SELECT * FROM `furluckbot1`;"
@@ -507,9 +526,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
                 result = i1
                 break
     except KeyError as e:
-        if get is True:
-            pass
-        elif get is False:
+        if not get:
             raise KeyError(e)
     mysql1.close()
     return result
@@ -530,7 +547,7 @@ def noticeusingbot(guildid: int, channelid: int, get: bool):
             break
     if result1 is None:
         insertserverdataonce(cursor, guildid)
-    if get is False:
+    if not get:
         sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
         cursor.execute(sql, (channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
@@ -584,10 +601,10 @@ class Vote:
                             (self.voteid, 1233, self.voteid))
 
     def add_vote(self, opinion: bool, interid: int):
-        if opinion is True:
+        if opinion:
             self.cursor.execute(
                 "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 0))
-        elif opinion is False:
+        else:
             self.cursor.execute(
                 "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 1))
 
@@ -599,10 +616,11 @@ class Vote:
         for i1 in resultcursor:
             resultid = i1['result1']
             bot = i1['bot']
-            if bot != self.voteid and resultid == 0:
-                trueopinion = trueopinion + 1
-            elif bot != self.voteid and resultid == 1:
-                falseopinion = falseopinion + 1
+            if bot != self.voteid:
+                if resultid == 0:
+                    trueopinion += 1
+                elif resultid == 1:
+                    falseopinion += 1
         self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
