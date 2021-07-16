@@ -603,20 +603,21 @@ class Vote:
     def add_vote(self, opinion: bool, interid: int):
         if opinion:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 0))
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, self.voteid + str(interid), 0, self.voteid + str(interid), 0))
         else:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, interid, 0, interid, 1))
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
 
     def close(self):
-        self.cursor.execute("SELECT * FROM `votes` WHERE voteid = %s", self.voteid)
+        self.cursor.execute('SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
         resultcursor = self.cursor.fetchall()
         trueopinion = 0
         falseopinion = 0
         for i1 in resultcursor:
             resultid = i1['result1']
+            voteid = i1['voteid']
             bot = i1['bot']
-            if bot != self.voteid:
+            if bot != self.voteid and voteid == self.voteid:
                 if resultid == 0:
                     trueopinion += 1
                 elif resultid == 1:
