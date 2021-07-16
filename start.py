@@ -644,7 +644,7 @@ createvoteoption.make_option(name="name", description="투표 이름", required=
 createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
 createvoteoption.make_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
 
-@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
+@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options)
 @commands.guild_only()
 @commands.cooldown(10, 600)
 async def _createvote(inter:SlashInteraction):
