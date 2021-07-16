@@ -33,8 +33,8 @@ async def on_ready():
 
 
 @Client.event
-async def on_command_error(ctx, error):
-    _ctx = ctx
+async def on_command_error():
+    pass
 
 
 @slash.event
