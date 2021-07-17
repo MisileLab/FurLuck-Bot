@@ -33,8 +33,12 @@ async def on_ready():
 
 
 @Client.event
-async def on_command_error():
-    pass
+async def on_command_error(error):
+    if isinstance(error, ignore_error):
+        pass
+
+    else:
+        raise error
 
 
 @slash.event
@@ -336,7 +340,8 @@ guckridisableoption.make_option(name="member", description="격리 해제할 멤
 guckridisableoption.make_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
 
 
-@slash.command(name="notguckri", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord, options=guckridisableoption.options)
+@slash.command(name="notguckri", description="격리해제하는 명령어", guild_ids=icecreamhappydiscord,
+               options=guckridisableoption.options)
 @slash_commands.has_guild_permissions(administrator=True)
 @slash_commands.bot_has_guild_permissions(administrator=True)
 async def _guckridisable(inter: SlashInteraction):
@@ -570,6 +575,7 @@ async def _dobak(inter: SlashInteraction, money: int):
     else:
         await inter.reply(f"<@{inter.author.id}>님이 도박에 성공했어요!")
 
+
 logoption = md1.NewOptionList()
 logoption.make_option(name="channel", description="로그 채널", type=Type.CHANNEL, required=True)
 
@@ -636,15 +642,17 @@ async def _userinfo(inter: SlashInteraction):
         embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
         await inter.edit(content=None, embed=embed1)
 
+
 createvoteoption = md1.NewOptionList()
 createvoteoption.make_option(name="name", description="투표 이름", required=True, type=Type.STRING)
 createvoteoption.make_option(name="description", description="설명", required=False, type=Type.STRING)
 createvoteoption.make_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
 
+
 @slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
 @commands.guild_only()
 @commands.cooldown(10, 600)
-async def _createvote(inter:SlashInteraction):
+async def _createvote(inter: SlashInteraction):
     await inter.reply(type=5)
     name = inter.get("name")
     description = inter.get("description", None)
@@ -678,5 +686,39 @@ async def _createvote(inter:SlashInteraction):
         embed.add_field(name="O", value=trueopinion)
         embed.add_field(name="X", value=falseopinion)
         await inter.edit(embed=embed, components=[])
+
+
+# noinspection PyUnusedLocal
+@slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
+@commands.guild_only()
+async def _hypixel(inter):
+    pass
+
+
+playeroption = md1.NewOptionList()
+playeroption.make_option(name="name", description="플레이어의 이름", required=True, type=Type.STRING)
+
+
+# noinspection PyBroadException
+@_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
+                      guild_ids=devserver)
+async def _player(inter: SlashInteraction):
+    name = inter.get_option("player").options.get("name").value
+    try:
+        response: md1.Information = md1.HypixelAPI(playername=name).get_information()
+    except md1.UsernameNotValid:
+        await inter.reply("유저의 이름이 알맞지 않습니다.")
+    except Exception as e:
+        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        raise e
+    else:
+        if response is False:
+            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다. Key Limit을 초과했을 확률이 높습니다.")
+        else:
+            embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
+            embed.add_field(name="랭크", value=response.rank)
+            embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
+            await inter.reply(embed=embed)
+
 
 Client.run(token)

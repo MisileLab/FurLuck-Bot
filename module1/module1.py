@@ -8,6 +8,8 @@ from selenium import webdriver
 from dislash import Option, Type, ActionRow, ButtonStyle
 import hashlib
 import pymysql
+from dotenv import dotenv_values
+import pytz
 
 tokens_pool2 = []
 musicqueue = {}
@@ -23,6 +25,13 @@ print(tokens_pool2)
 
 mysqlconnect = open('pymysql.json', 'r').read()
 mysqlconnect = json.loads(mysqlconnect)
+
+config = dotenv_values(".env")
+hypixel_api_key = config['hypixelapi']
+
+def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
+    utc_datetime = datetime.utcfromtimestamp(utc_ms_ts / 1000.)
+    return utc_datetime.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone(tz_info))
 
 def todaycalculate():
     datetimetoday = datetime.today()
@@ -625,3 +634,58 @@ class Vote:
         self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
+
+class Information:
+    def __init__(self, dict1: dict):
+        try:
+            self.rank1 = dict1['rank']
+        except KeyError:
+            self.rank1 = 'None'
+        self.packagerank1 = dict1['newPackageRank']
+        self.name1 = dict1['displayname']
+        self.firstlogin1 = dict1['firstLogin']
+        self.lastlogin1 = dict1['lastLogin']
+        self.lastlogout1 = dict1['lastLogout']
+
+    @property
+    def rank(self):
+        return self.rank1
+
+    @property
+    def packagerank(self):
+        return self.packagerank1
+
+    @property
+    def name(self):
+        return self.name1
+
+    @property
+    def firtslogin(self):
+        return self.firstlogin1
+
+    @property
+    def lastlogin(self):
+        return self.lastlogin1
+
+    @property
+    def lastlogout(self):
+        return self.lastlogout1
+
+class UsernameNotValid(Exception):
+    pass
+
+class HypixelAPI:
+    def __init__(self, playername):
+        response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{playername}")
+        if response.status_code == 204:
+            raise UsernameNotValid("username is not valid:",playername)
+        responsecontent = json.loads(response.content)
+        self.id = responsecontent['id']
+
+    def get_information(self):
+        params = {'key': hypixel_api_key, 'uuid': self.id}
+        response = requests.get(f"https://api.hypixel.net/player", params=params)
+        if response.status_code != 200:
+            return False
+        else:
+            return Information(json.loads(response.content)['player'])
