@@ -33,6 +33,10 @@ def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
     utc_datetime = datetime.utcfromtimestamp(utc_ms_ts / 1000.)
     return utc_datetime.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone(tz_info))
 
+def unix_to_datetime(unixtime):
+    date = datetime.fromtimestamp(unixtime)
+    return date
+
 def todaycalculate():
     datetimetoday = datetime.today()
     return (
@@ -643,9 +647,9 @@ class Information:
             self.rank1 = 'None'
         self.packagerank1 = dict1['newPackageRank']
         self.name1 = dict1['displayname']
-        self.firstlogin1 = dict1['firstLogin']
-        self.lastlogin1 = dict1['lastLogin']
-        self.lastlogout1 = dict1['lastLogout']
+        self.firstlogin1 = makeformat(unix_to_datetime(dict1['firstLogin']))
+        self.lastlogin1 = makeformat(unix_to_datetime(dict1['lastLogin']))
+        self.lastlogout1 = makeformat(unix_to_datetime(dict1['lastLogout']))
 
     @property
     def rank(self):
@@ -660,7 +664,7 @@ class Information:
         return self.name1
 
     @property
-    def firtslogin(self):
+    def firstlogin(self):
         return self.firstlogin1
 
     @property

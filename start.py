@@ -718,6 +718,9 @@ async def _player(inter: SlashInteraction):
             embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
             embed.add_field(name="랭크", value=response.rank)
             embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
+            embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
+            embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
+            embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
             await inter.reply(embed=embed)
 
 
