@@ -35,9 +35,7 @@ async def on_ready():
 # noinspection PyUnusedLocal
 @Client.event
 async def on_command_error(error):
-    if isinstance(error, ignore_error):
-        pass
-    else:
+    if not isinstance(error, ignore_error):
         raise error
 
 

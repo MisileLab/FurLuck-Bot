@@ -34,8 +34,7 @@ def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
     return utc_datetime.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone(tz_info))
 
 def unix_to_datetime(unixtime):
-    date = datetime.fromtimestamp(unixtime / 1000)
-    return date
+    return datetime.fromtimestamp(unixtime / 1000)
 
 def todaycalculate():
     datetimetoday = datetime.today()
