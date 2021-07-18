@@ -32,8 +32,9 @@ async def on_ready():
     print("Slash Client Ready!")
 
 
+# noinspection PyUnusedLocal
 @Client.event
-async def on_command_error(error):
+async def on_command_error(inter, error):
     if isinstance(error, ignore_error):
         pass
 
