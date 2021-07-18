@@ -37,7 +37,6 @@ async def on_ready():
 async def on_command_error(inter, error):
     if isinstance(error, ignore_error):
         pass
-
     else:
         raise error
 
@@ -650,7 +649,7 @@ createvoteoption.make_option(name="description", description="설명", required=
 createvoteoption.make_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
 
 
-@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options, guild_ids=devserver)
+@slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options)
 @commands.guild_only()
 @commands.cooldown(10, 600)
 async def _createvote(inter: SlashInteraction):
