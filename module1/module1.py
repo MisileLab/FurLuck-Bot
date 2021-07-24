@@ -187,15 +187,22 @@ def get_weather(position: str):
     try:
         browser = webdriver.Edge()
     except Exception as e:
-        print(e)
-        options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('window-size=1920x1080')
-        options.add_argument("disable-gpu")
-        print("Chrome")
-        browser = webdriver.Chrome('chromedriver', options=options)
+        try:
+            print(e)
+            options = webdriver.ChromeOptions()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('window-size=1920x1080')
+            options.add_argument("disable-gpu")
+            print("Chrome")
+            browser = webdriver.Chrome('chromedriver', options=options)
+        except Exception as e:
+            print(e)
+            options = webdriver.ChromeOptions()
+            options.add_argument('window-size=1920x1080')
+            print('Chrome but not headless')
+            browser = webdriver.Chrome('chromedriver', options=options)
     browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
     try:
         browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
