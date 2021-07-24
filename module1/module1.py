@@ -72,114 +72,66 @@ def makeformat(datetime1):
 
 class Weather:
     def __init__(self, detectdict: dict):
-        self.temp = detectdict['temp']
-        self.cast = detectdict['cast']
-        self.dust = detectdict['dust']
-        self.dust_txt = detectdict['dust_txt']
-        self.ultra_dust = detectdict['ultra_dust']
-        self.ultra_dust_txt = detectdict['ultra_dust_txt']
-        self.ozone = detectdict['ozone']
-        self.ozonetext = detectdict['ozonetext']
-        self.mintemp = detectdict['mintemp']
-        self.maxtemp = detectdict['maxtemp']
-        self.sensibletemp = detectdict['sensibletemp']
-        self.weatherimage = detectdict['weatherurl']
+        self.temp1 = detectdict['temp']
+        self.cast1 = detectdict['cast']
+        self.dust1 = detectdict['dust']
+        self.dust_txt1 = detectdict['dust_txt']
+        self.ultra_dust1 = detectdict['ultra_dust']
+        self.ultra_dust_txt1 = detectdict['ultra_dust_txt']
+        self.ozone1 = detectdict['ozone']
+        self.ozonetext1 = detectdict['ozonetext']
+        self.mintemp1 = detectdict['mintemp']
+        self.maxtemp1 = detectdict['maxtemp']
+        self.sensibletemp1 = detectdict['sensibletemp']
+        self.weatherimage1 = detectdict['weatherurl']
 
     @property
     def temp(self):
-        return self.temp
+        return self.temp1
 
     @property
     def cast(self):
-        return self.cast
+        return self.cast1
 
     @property
     def dust(self):
-        return self.dust
+        return self.dust1
 
     @property
     def dust_txt(self):
-        return self.dust_txt
+        return self.dust_txt1
 
     @property
     def ultra_dust(self):
-        return self.ultra_dust
+        return self.ultra_dust1
 
     @property
     def ultra_dust_txt(self):
-        return self.ultra_dust_txt
+        return self.ultra_dust_txt1
 
     @property
     def ozone(self):
-        return self.ozone
+        return self.ozone1
 
     @property
     def ozonetext(self):
-        return self.ozonetext
+        return self.ozonetext1
 
     @property
     def mintemp(self):
-        return self.mintemp
+        return self.mintemp1
 
     @property
     def maxtemp(self):
-        return self.maxtemp
+        return self.maxtemp1
 
     @property
     def sensibletemp(self):
-        return self.sensibletemp
+        return self.sensibletemp1
 
     @property
     def weatherimage(self):
-        return self.weatherimage
-
-    @temp.setter
-    def temp(self, value):
-        self._temp = value
-
-    @weatherimage.setter
-    def weatherimage(self, value):
-        self._weatherimage = value
-
-    @sensibletemp.setter
-    def sensibletemp(self, value):
-        self._sensibletemp = value
-
-    @maxtemp.setter
-    def maxtemp(self, value):
-        self._maxtemp = value
-
-    @mintemp.setter
-    def mintemp(self, value):
-        self._mintemp = value
-
-    @ozonetext.setter
-    def ozonetext(self, value):
-        self._ozonetext = value
-
-    @ozone.setter
-    def ozone(self, value):
-        self._ozone = value
-
-    @ultra_dust_txt.setter
-    def ultra_dust_txt(self, value):
-        self._ultra_dust_txt = value
-
-    @ultra_dust.setter
-    def ultra_dust(self, value):
-        self._ultra_dust = value
-
-    @dust_txt.setter
-    def dust_txt(self, value):
-        self._dust_txt = value
-
-    @dust.setter
-    def dust(self, value):
-        self._dust = value
-
-    @cast.setter
-    def cast(self, value):
-        self._cast = value
+        return self.weatherimage1
 
 
 def get_weather(position: str):
