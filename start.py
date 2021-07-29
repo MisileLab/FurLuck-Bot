@@ -214,6 +214,7 @@ async def _feedback(inter: SlashInteraction):
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
     await inter.reply(embed=embed1)
 
+@slash.command(name="youtube", description="미사일의 유튜브들")
 
 @slash.command(name="specialthanks", description="Thank you for helping me")
 async def _specialthanks(inter: SlashInteraction):
@@ -240,6 +241,8 @@ async def _specialthanks(inter: SlashInteraction):
     async def buttonhelping(inter: SlashInteraction):
         embed2 = discord.Embed(name="Helping hands", description="Thank you")
         embed2.add_field(name="EQUENOS", value="Make github pull requests, dislash.py developer")
+        embed2.add_field(name="Rapptz", value="discord.py developer")
+        embed2.add_field(name="Python Developers", value="Python is good ~~(Except Speed)~~")
         await inter.edit(embed=embed2, components=[])
 
     # noinspection PyShadowingNames
