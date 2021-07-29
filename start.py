@@ -214,8 +214,6 @@ async def _feedback(inter: SlashInteraction):
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
     await inter.reply(embed=embed1)
 
-@slash.command(name="youtube", description="미사일의 유튜브들")
-
 @slash.command(name="specialthanks", description="Thank you for helping me")
 async def _specialthanks(inter: SlashInteraction):
     row = ActionRow(Button(
