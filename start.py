@@ -7,7 +7,7 @@ import time
 from module1 import module1 as md1
 import simpleeval
 import secrets
-from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
+from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener, SelectMenu
 from dislash.interactions import SlashInteraction
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
@@ -214,6 +214,7 @@ async def _feedback(inter: SlashInteraction):
     embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
     await inter.reply(embed=embed1)
 
+
 @slash.command(name="specialthanks", description="Thank you for helping me")
 async def _specialthanks(inter: SlashInteraction):
     row = ActionRow(Button(
@@ -267,7 +268,7 @@ async def _mute(inter: SlashInteraction):
         if reason is None:
             await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
         else:
-            await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 뮤트하였습니다!")
+            await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
     else:
         perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
         role1 = await guild.create_role(name="뮤트", permissions=perms1)
@@ -295,7 +296,7 @@ async def _unmute(inter: SlashInteraction):
     if reason is None:
         await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!")
     else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}>이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!")
+        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!")
 
 
 calculateoption = md1.NewOptionList()
@@ -702,9 +703,41 @@ playeroption.make_option(name="name", description="플레이어의 이름", requ
 @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
                       guild_ids=devserver)
 async def _player(inter: SlashInteraction):
-    name = inter.get_option("player").options.get("name").value
+    name = inter.get("name")
     try:
         response: md1.Information = md1.HypixelAPI(playername=name).get_information()
+        response2: bool or None = md1.HypixelAPI(playername=name).get_online(response)
+    except md1.UsernameNotValid:
+        await inter.reply("유저의 이름이 알맞지 않습니다.")
+    except Exception as e:
+        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        raise e
+    else:
+        if response is False or response2 is None:
+            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다. Key Limit을 초과했을 확률이 높습니다.")
+        else:
+            if response2:
+                responseonline = "온라인"
+            elif response2 is not True:
+                responseonline = "오프라인"
+            else:
+                responseonline = None
+            embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
+            embed.add_field(name="랭크", value=response.rank)
+            embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
+            embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
+            embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
+            embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
+            embed.add_field(name="현재 온라인 여부", value=str(responseonline))
+            await inter.reply(embed=embed)
+
+
+@_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options,
+                      guild_ids=devserver)
+async def _hypixelrankhistory(inter: SlashInteraction):
+    name = inter.get(name="name")
+    try:
+        response = md1.HypixelAPI(playername=name).get_rankhistory()
     except md1.UsernameNotValid:
         await inter.reply("유저의 이름이 알맞지 않습니다.")
     except Exception as e:
@@ -714,13 +747,26 @@ async def _player(inter: SlashInteraction):
         if response is False:
             await inter.reply("서버 안에서 알 수 없는 에러가 났습니다. Key Limit을 초과했을 확률이 높습니다.")
         else:
-            embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
-            embed.add_field(name="랭크", value=response.rank)
-            embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
-            embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
-            embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
-            embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
-            await inter.reply(embed=embed)
+            components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.")
+            for key in response.keys():
+                components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
+            msg = await inter.reply(f"{name}의 랭크 기록입니다.", components=components)
+
+            # noinspection PyShadowingNames
+            def check(inter):
+                if inter.author == inter.author:
+                    return True
+
+            inter = await msg.wait_for_dropdown(check)
+            # noinspection PyUnresolvedReferences
+            labels = [option.label for option in inter.select_menu.selected_options]
+            embed = discord.Embed(name=f"{name}의 랭크 기록", description=f"{str(labels).replace('[', '').replace(']', '')}")
+            for i in labels:
+                for key, value in response.items():
+                    if i == key:
+                        value1 = f"deafult={value.regular}, vip={value.vip}, vip_plus={value.vip_plus}, mvp={value.mvp}, mvp_plus={value.mvp_plus}"
+                        embed.add_field(name=key, value=value1)
+            await inter.edit(embed=embed, components=[])
 
 
 Client.run(token)

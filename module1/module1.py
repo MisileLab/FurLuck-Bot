@@ -29,44 +29,48 @@ mysqlconnect = json.loads(mysqlconnect)
 config = dotenv_values(".env")
 hypixel_api_key = config['hypixelapi']
 
+
 def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
     utc_datetime = datetime.utcfromtimestamp(utc_ms_ts / 1000.)
     return utc_datetime.replace(tzinfo=pytz.timezone('UTC')).astimezone(pytz.timezone(tz_info))
 
+
 def unix_to_datetime(unixtime):
     return datetime.fromtimestamp(unixtime / 1000)
+
 
 def todaycalculate():
     datetimetoday = datetime.today()
     return (
-        str(datetimetoday.year)
-        + '년 '
-        + str(datetimetoday.month)
-        + '월 '
-        + str(datetimetoday.day)
-        + '일 '
-        + str(datetimetoday.hour)
-        + '시 '
-        + str(datetimetoday.minute)
-        + '분 '
-        + str(datetimetoday.second)
-        + '초 '
+            str(datetimetoday.year)
+            + '년 '
+            + str(datetimetoday.month)
+            + '월 '
+            + str(datetimetoday.day)
+            + '일 '
+            + str(datetimetoday.hour)
+            + '시 '
+            + str(datetimetoday.minute)
+            + '분 '
+            + str(datetimetoday.second)
+            + '초 '
     )
+
 
 def makeformat(datetime1):
     return (
-        str(datetime1.year)
-        + '년 '
-        + str(datetime1.month)
-        + '월 '
-        + str(datetime1.day)
-        + '일 '
-        + str(datetime1.hour)
-        + '시 '
-        + str(datetime1.minute)
-        + '분 '
-        + str(datetime1.second)
-        + '초 '
+            str(datetime1.year)
+            + '년 '
+            + str(datetime1.month)
+            + '월 '
+            + str(datetime1.day)
+            + '일 '
+            + str(datetime1.hour)
+            + '시 '
+            + str(datetime1.minute)
+            + '분 '
+            + str(datetime1.second)
+            + '초 '
     )
 
 
@@ -574,10 +578,12 @@ class Vote:
     def add_vote(self, opinion: bool, interid: int):
         if opinion:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, self.voteid + str(interid), 0, self.voteid + str(interid), 0))
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                (self.voteid, self.voteid + str(interid), 0, self.voteid + str(interid), 0))
         else:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s", (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
 
     def close(self):
         self.cursor.execute('SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
@@ -596,6 +602,7 @@ class Vote:
         self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
+
 
 class Information:
     def __init__(self, dict1: dict):
@@ -633,21 +640,131 @@ class Information:
     def lastlogout(self):
         return self.lastlogout1
 
+
 class UsernameNotValid(Exception):
     pass
 
+
+class HypixelRankHistory:
+    def __init__(self, detectdict: dict):
+        self.rankrecord = {}
+        for i2 in detectdict.keys():
+            regular = False
+            vip = False
+            vip_plus = False
+            mvp = False
+            mvp_plus = False
+            dictlol = detectdict[i2]
+            if dictlol["REGULAR"]:
+                regular = True
+            if dictlol["VIP"]:
+                vip = True
+            if dictlol["VIP_PLUS"]:
+                vip_plus = True
+            if dictlol["MVP"]:
+                mvp = True
+            if dictlol["MVP_PLUS"]:
+                mvp_plus = True
+            self.rankrecord[i2] = HypixelRank(regular, vip, vip_plus, mvp, mvp_plus)
+
+            def lol(a: dict):
+                if len(a) > 25:
+                    a = sorted(a.items(), reverse=True)
+                    a: dict = a[0]
+                    a = a.popitem()
+                    a = sorted(a.items(), reverse=True)
+                    a = a[0]
+                if len(a) > 25:
+                    lol(a)
+                else:
+                    return a
+
+            self.rankrecord = lol(self.rankrecord)
+
+    @property
+    def rankhistory(self):
+        return self.rankrecord
+
+
+class HypixelRank:
+    def __init__(self, regular: bool, vip: bool, vip_plus: bool, mvp: bool, mvp_plus: bool):
+        self.regular1 = regular
+        self.vip1 = vip
+        self.vip_plus1 = vip_plus
+        self.mvp1 = mvp
+        self.mvp_plus1 = mvp_plus
+
+    @property
+    def regular(self):
+        return self.regular1
+
+    @property
+    def vip(self):
+        return self.vip1
+
+    @property
+    def vip_plus(self):
+        return self.vip_plus1
+
+    @property
+    def mvp(self):
+        return self.mvp1
+
+    @property
+    def mvp_plus(self):
+        return self.mvp_plus1
+
+
 class HypixelAPI:
-    def __init__(self, playername):
+    def __init__(self, playername: str):
+        print(type(playername))
         response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{playername}")
         if response.status_code == 204:
-            raise UsernameNotValid("username is not valid:",playername)
-        responsecontent = json.loads(response.content)
-        self.id = responsecontent['id']
+            raise UsernameNotValid("username is not valid:", playername)
+        self.playername = playername
 
-    def get_information(self):
-        params = {'key': hypixel_api_key, 'uuid': self.id}
-        response = requests.get(f"https://api.hypixel.net/player", params=params)
+    def get_response(self, get: str):
+        params = {'key': hypixel_api_key, 'name': self.playername}
+        if get.find("/") == -1:
+            get = "/" + get
+        response = requests.get(f"https://api.hypixel.net{get}", params)
         if response.status_code != 200:
             return False
         else:
-            return Information(json.loads(response.content)['player'])
+            return json.loads(response.content)
+
+    def get_information(self):
+        try:
+            response = self.get_response("/player")
+        except Exception as e:
+            raise e
+        else:
+            if response is False:
+                return False
+            else:
+                return Information(response['player'])
+
+    def get_rankhistory(self):
+        try:
+            response = self.get_response("/player")
+        except Exception as e:
+            raise e
+        else:
+            if response is False:
+                return False
+            else:
+                return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
+
+    def get_online(self, response: Information = None):
+        try:
+            if response is None:
+                response = self.get_information()
+        except Exception as e:
+            raise e
+        else:
+            if response is False:
+                return None
+            elif Information.lastlogin > Information.lastlogout:
+                return True
+            else:
+                return False
