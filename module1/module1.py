@@ -138,12 +138,12 @@ class Weather:
         return self.weatherimage1
 
 
+# noinspection PyBroadException
 def get_weather(position: str):
     try:
         browser = webdriver.Edge()
-    except Exception as e:
+    except Exception:
         try:
-            print(e)
             options = webdriver.ChromeOptions()
             options.add_argument('--headless')
             options.add_argument('--no-sandbox')
@@ -152,8 +152,7 @@ def get_weather(position: str):
             options.add_argument("disable-gpu")
             print("Chrome")
             browser = webdriver.Chrome('chromedriver', options=options)
-        except Exception as e:
-            print(e)
+        except Exception:
             options = webdriver.ChromeOptions()
             options.add_argument('window-size=1920x1080')
             print('Chrome but not headless')
@@ -163,9 +162,8 @@ def get_weather(position: str):
         browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
             "background-image")
     except Exception as e:
-        print(e)
         browser.close()
-        raise ValueError
+        raise e
     else:
         weatherurl = int(str(browserfindelement).replace(
             'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
@@ -177,7 +175,6 @@ def get_weather(position: str):
     try:
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
         if todaytemperature is None:
-            print("1")
             raise ValueError
     except requests.TooManyRedirects:
         pass
@@ -328,7 +325,10 @@ def helpingyou(memberid: int):
             result = i1
             break
     if result is None:
-        insertmemberdataonce(cursor, memberid)
+        try:
+            insertmemberdataonce(cursor, memberid)
+        except pymysql.err.IntegrityError:
+            pass
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
@@ -603,7 +603,6 @@ class Vote:
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
 
-
 class Information:
     def __init__(self, dict1: dict):
         try:
@@ -647,39 +646,57 @@ class UsernameNotValid(Exception):
 
 class HypixelRankHistory:
     def __init__(self, detectdict: dict):
-        self.rankrecord = {}
-        for i2 in detectdict.keys():
-            regular = False
-            vip = False
-            vip_plus = False
-            mvp = False
-            mvp_plus = False
-            dictlol = detectdict[i2]
-            if dictlol["REGULAR"]:
+        self.detectdict = detectdict
+        self.lol()
+
+        for i2 in self.rankrecord.keys():
+            dictlol = self.detectdict[i2]
+            try:
+                dictlol["REGULAR"]
+            except KeyError:
+                regular = False
+            else:
                 regular = True
-            if dictlol["VIP"]:
+            try:
+                dictlol["VIP"]
+            except KeyError:
+                vip = False
+            else:
                 vip = True
-            if dictlol["VIP_PLUS"]:
+            try:
+                dictlol["VIP_PLUS"]
+            except KeyError:
+                vip_plus = False
+            else:
                 vip_plus = True
-            if dictlol["MVP"]:
+            try:
+                dictlol["MVP"]
+            except KeyError:
+                mvp = False
+            else:
                 mvp = True
-            if dictlol["MVP_PLUS"]:
+            try:
+                dictlol["MVP_PLUS"]
+            except KeyError:
+                mvp_plus = False
+            else:
                 mvp_plus = True
             self.rankrecord[i2] = HypixelRank(regular, vip, vip_plus, mvp, mvp_plus)
 
-            def lol(a: dict):
-                if len(a) > 25:
-                    a = sorted(a.items(), reverse=True)
-                    a: dict = a[0]
-                    a = a.popitem()
-                    a = sorted(a.items(), reverse=True)
-                    a = a[0]
-                if len(a) > 25:
-                    lol(a)
-                else:
-                    return a
-
-            self.rankrecord = lol(self.rankrecord)
+    # noinspection PyShadowingNames
+    def lol(self, a:dict=None):
+        if a is None:
+            a = self.detectdict
+        if len(a) > 25:
+            a = dict(reversed(a.items()))
+            a.popitem()
+            a = dict(reversed(a.items()))
+        if len(a) <= 25:
+            # noinspection PyAttributeOutsideInit
+            self.rankrecord = a
+            return a
+        else:
+            self.lol(a)
 
     @property
     def rankhistory(self):
@@ -714,10 +731,14 @@ class HypixelRank:
     def mvp_plus(self):
         return self.mvp_plus1
 
+class YouAlreadylookedupthisnamerecently(Exception):
+    pass
+
+class KeyLimit(Exception):
+    pass
 
 class HypixelAPI:
     def __init__(self, playername: str):
-        print(type(playername))
         response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{playername}")
         if response.status_code == 204:
             raise UsernameNotValid("username is not valid:", playername)
@@ -728,8 +749,10 @@ class HypixelAPI:
         if get.find("/") == -1:
             get = "/" + get
         response = requests.get(f"https://api.hypixel.net{get}", params)
-        if response.status_code != 200:
-            return False
+        if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this name recently":
+            raise YouAlreadylookedupthisnamerecently("yes it's error")
+        elif response.status_code == 429:
+            raise KeyLimit("Key Limit Exceed")
         else:
             return json.loads(response.content)
 
@@ -764,7 +787,13 @@ class HypixelAPI:
         else:
             if response is False:
                 return None
-            elif Information.lastlogin > Information.lastlogout:
+            elif response.lastlogin > response.lastlogout:
                 return True
             else:
                 return False
+
+def booltostr(arg: bool):
+    if arg:
+        return "없음"
+    elif arg is False:
+        return "있음"

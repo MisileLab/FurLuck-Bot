@@ -17,9 +17,9 @@ Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_co
 Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
 slash = slash_commands.SlashClient(Client)
 
-devserver = [812339145942237204, 635336036465246218]
+devserver = [812339145942237204, 635336036465246218, 863950154055155712]
 icecreamhappydiscord = [635336036465246218]
-ignore_error = commands.CommandNotFound, discord.HTTPException
+ignore_error = commands.CommandNotFound, discord.errors.NotFound
 
 
 @Client.event
@@ -486,7 +486,7 @@ async def _helpinghands(inter: SlashInteraction):
     user = inter.get("user", None)
     if user is None:
         user: discord.Member = inter.author
-    helpingyouandme = md1.helpingyou(user.id)
+    helpingyouandme = md1.helpingyou(user.id)["helpingme"]
     if helpingyouandme is None:
         await inter.reply("그 사람은 데이터가 없어요!")
     else:
@@ -696,25 +696,28 @@ async def _hypixel(inter):
 
 
 playeroption = md1.NewOptionList()
-playeroption.make_option(name="name", description="플레이어의 이름", required=True, type=Type.STRING)
-
+playeroption.make_option(name="playername", description="플레이어의 이름", required=True, type=Type.STRING)
 
 # noinspection PyBroadException
 @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
                       guild_ids=devserver)
 async def _player(inter: SlashInteraction):
-    name = inter.get("name")
+    name = inter.get_option("player").options.get("playername").value
     try:
         response: md1.Information = md1.HypixelAPI(playername=name).get_information()
         response2: bool or None = md1.HypixelAPI(playername=name).get_online(response)
     except md1.UsernameNotValid:
         await inter.reply("유저의 이름이 알맞지 않습니다.")
+    except md1.YouAlreadylookedupthisnamerecently:
+        await inter.reply("이 플레이어를 최근에 누군가 검색했습니다.")
+    except md1.KeyLimit:
+        await inter.reply("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
     except Exception as e:
         await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
     else:
         if response is False or response2 is None:
-            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다. Key Limit을 초과했을 확률이 높습니다.")
+            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
             if response2:
                 responseonline = "온라인"
@@ -731,26 +734,30 @@ async def _player(inter: SlashInteraction):
             embed.add_field(name="현재 온라인 여부", value=str(responseonline))
             await inter.reply(embed=embed)
 
-
 @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options,
                       guild_ids=devserver)
 async def _hypixelrankhistory(inter: SlashInteraction):
-    name = inter.get(name="name")
+    await inter.reply(type=5)
+    name = inter.get_option("rankhistory").options.get("playername").value
     try:
         response = md1.HypixelAPI(playername=name).get_rankhistory()
     except md1.UsernameNotValid:
-        await inter.reply("유저의 이름이 알맞지 않습니다.")
+        await inter.edit("유저의 이름이 알맞지 않습니다.")
+    except md1.YouAlreadylookedupthisnamerecently:
+        await inter.edit("이 플레이어를 최근에 누군가 검색했습니다.")
+    except md1.KeyLimit:
+        await inter.edit("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
     except Exception as e:
-        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
     else:
         if response is False:
-            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다. Key Limit을 초과했을 확률이 높습니다.")
+            await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
-            components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.")
+            components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
             for key in response.keys():
                 components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
-            msg = await inter.reply(f"{name}의 랭크 기록입니다.", components=components)
+            msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
 
             # noinspection PyShadowingNames
             def check(inter):
@@ -760,13 +767,13 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             inter = await msg.wait_for_dropdown(check)
             # noinspection PyUnresolvedReferences
             labels = [option.label for option in inter.select_menu.selected_options]
-            embed = discord.Embed(name=f"{name}의 랭크 기록", description=f"{str(labels).replace('[', '').replace(']', '')}")
+            embed = discord.Embed(name=f"{name}의 랭크 기록")
             for i in labels:
-                for key, value in response.items():
-                    if i == key:
-                        value1 = f"deafult={value.regular}, vip={value.vip}, vip_plus={value.vip_plus}, mvp={value.mvp}, mvp_plus={value.mvp_plus}"
-                        embed.add_field(name=key, value=value1)
-            await inter.edit(embed=embed, components=[])
+                value = response[i]
+                value1 = f"deafult={md1.booltostr(value.regular)}, vip={md1.booltostr(value.vip)}, vip_plus={md1.booltostr(value.vip_plus)}" \
+                         f", mvp={md1.booltostr(value.mvp)}, mvp_plus={md1.booltostr(value.mvp_plus)}"
+                embed.add_field(name=i, value=value1)
+            await msg.edit(content=None, embed=embed, components=[])
 
 
 Client.run(token)
