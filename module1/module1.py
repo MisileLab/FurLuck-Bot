@@ -347,33 +347,18 @@ def shortlink(link):
 
 # noinspection PyTypeChecker
 def warn(memberid: int, amount: int, get: bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
-    sql = "SELECT * FROM `furluckbot1`;"
-    cursor.execute(sql)
+    cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result = i1
-            break
+    result = cursor_to_result(resultcursor, 'id', memberid)
     if result is None:
         insertmemberdataonce(cursor=cursor, memberid=memberid)
     if not get:
-        sql = "UPDATE furluckbot1 SET warn = %s WHERE id = %s"
-        cursor.execute(sql, (amount, memberid))
-    sql = "SELECT * FROM `furluckbot1`;"
-    cursor.execute(sql)
+        cursor.execute("UPDATE furluckbot1 SET warn = %s WHERE id = %s", (amount, memberid))
+    cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result = i1
-            break
+    result = cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
     return result
 
