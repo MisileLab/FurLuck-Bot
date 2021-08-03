@@ -720,8 +720,7 @@ class HypixelRankHistory:
             # noinspection PyAttributeOutsideInit
             self.rankrecord = a
             return a
-        else:
-            self.lol(a)
+        self.lol(a)
 
     @property
     def rankhistory(self):
@@ -779,7 +778,7 @@ class HypixelAPI:
         response = requests.get(f"https://api.hypixel.net{get}", params)
         if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this name recently":
             raise YouAlreadylookedupthisnamerecently("yes it's error")
-        elif response.status_code == 429:
+        if response.status_code == 429:
             raise KeyLimit("Key Limit Exceed")
         else:
             return json.loads(response.content)
@@ -792,8 +791,7 @@ class HypixelAPI:
         else:
             if response is False:
                 return False
-            else:
-                return Information(response['player'])
+            return Information(response['player'])
 
     def get_rankhistory(self):
         try:
@@ -803,8 +801,7 @@ class HypixelAPI:
         else:
             if response is False:
                 return False
-            else:
-                return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
+            return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
 
     def get_online(self, response: Information = None):
         try:
@@ -815,7 +812,7 @@ class HypixelAPI:
         else:
             if response is False:
                 return None
-            elif response.lastlogin > response.lastlogout:
+            if response.lastlogin > response.lastlogout:
                 return True
             else:
                 return False
@@ -824,5 +821,5 @@ class HypixelAPI:
 def booltostr(arg: bool):
     if arg:
         return "없음"
-    elif arg is False:
+    if arg is False:
         return "있음"
