@@ -430,28 +430,17 @@ class FailedDobak(Exception):
 
 
 def getmoney(memberid: int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result1 = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result1 = i1
-            break
+    result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1 is None:
         insertmemberdataonce(cursor, memberid)
         sql = "SELECT * FROM `furluckbot1`;"
         cursor.execute(sql)
         resultcursor = cursor.fetchall()
-        for i1 in resultcursor:
-            resultid = i1['id']
-            if resultid == memberid:
-                result1 = i1
-                break
+        cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
     return result1['level1']
 
@@ -528,23 +517,16 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
-    result = None
-    cursor_to_result(resultcursor, 'serverid', guildid)
+    result = cursor_to_result(resultcursor, 'serverid', guildid)
     if result is None:
         insertserverdataonce(cursor, guildid)
     if get is False:
-        if mode != "logid":
-            sql = "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s"
-            cursor.execute(sql, (mode, channelid, guildid))
-        else:
-            sql = "UPDATE serverfurluckbot SET logid = %s WHERE serverid = %s"
-            cursor.execute(sql, (channelid, guildid))
+        cursor.execute("UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
-    result = None
     try:
-        cursor_to_result(resultcursor, 'serverid', guildid)
+        result = cursor_to_result(resultcursor, 'serverid', guildid)
     except KeyError as e:
         if not get:
             raise KeyError(e)
