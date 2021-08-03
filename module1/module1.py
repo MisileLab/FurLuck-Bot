@@ -799,7 +799,7 @@ def weatherembed(labels, response, name):
                  f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
         embed.add_field(name=i2, value=value1)
 
-def except_error_information(inter, name):
+async def except_error_information(inter, name):
     response = None
     response2 = None
     try:
@@ -816,7 +816,7 @@ def except_error_information(inter, name):
         raise e
     return [response, response2]
 
-def except_error_history(inter, name):
+async def except_error_history(inter, name):
     response = None
     try:
         response: Information = HypixelAPI(playername=name).get_rankhistory()
@@ -862,7 +862,7 @@ def get_message_edit_embed(before, after):
     embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
     embed1.set_footer(text=todaycalculate())
 
-def vote_listener(on_click:ClickListener, votelol, embed, inter):
+async def vote_listener(on_click:ClickListener, votelol, embed, inter):
     # noinspection PyShadowingNames
     @on_click.matching_id('accept')
     async def _accept(inter):
