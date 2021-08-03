@@ -820,8 +820,7 @@ class HypixelAPI:
 def booltostr(arg: bool):
     if arg:
         return "없음"
-    if arg is False:
-        return "있음"
+    return "있음"
 
 def weathercomponents(response):
     components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
