@@ -535,25 +535,16 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
 
 
 def noticeusingbot(guildid: int, channelid: int, get: bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
-    result1 = None
-    for i1 in resultcursor:
-        resultid = i1['serverid']
-        if resultid == guildid:
-            result1 = i1
-            break
+    result1 = cursor_to_result(resultcursor, 'id', guildid)
     if result1 is None:
         insertserverdataonce(cursor, guildid)
     if not get:
-        sql = "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s"
-        cursor.execute(sql, (channelid, guildid))
-    sql = "SELECT * FROM `serverfurluckbot`;"
-    cursor.execute(sql)
+        cursor.execute("UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s", (channelid, guildid))
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     mysql1.close()
     return resultcursor
@@ -859,7 +850,7 @@ def create_player_embed(name, response, response2):
     elif response2 is not True:
         responseonline = "오프라인"
     embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
-    embed.add_field(name="랭크", value=response.rank)
+    embed.add_field(name="부여 받은 랭크", value=response.rank)
     embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
     embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
     embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
