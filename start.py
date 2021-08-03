@@ -263,20 +263,14 @@ async def _mute(inter: SlashInteraction):
     reason = inter.get('reason', None)
     guild = inter.guild
     role1 = discord.utils.get(guild.roles, name='뮤트')
-    if role1 is not None:
-        await member.add_roles(role1, reason=reason)
-        if reason is None:
-            await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
-        else:
-            await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
-    else:
+    if role1 is None:
         perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
         role1 = await guild.create_role(name="뮤트", permissions=perms1)
-        await member.add_roles(role1, reason=reason)
-        if reason is None:
-            await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
-        else:
-            await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
+    await member.add_roles(role1, reason=reason)
+    if reason is None:
+        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
+    else:
+        await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
 
 
 unmuteoption = md1.NewOptionList()
