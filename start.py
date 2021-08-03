@@ -7,7 +7,7 @@ import time
 from module1 import module1 as md1
 import simpleeval
 import secrets
-from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener, SelectMenu
+from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
 from dislash.interactions import SlashInteraction
 
 koreanbotstoken = open("koreanbotstoken.txt", "r").read()
