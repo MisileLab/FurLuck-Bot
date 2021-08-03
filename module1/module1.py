@@ -149,7 +149,6 @@ class WeatherBrowser:
     @staticmethod
     def open_browser():
         try:
-            # noinspection PyUnusedLocal
             browser = webdriver.Edge()
         except Exception:
             try:
@@ -169,7 +168,7 @@ class WeatherBrowser:
                     browser = webdriver.Chrome('chromedriver', options=options)
                 except Exception as e:
                     raise e
-            return browser
+        return browser
 
     def get_weather_data(self):
         browser = self.open_browser()
