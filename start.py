@@ -754,9 +754,7 @@ async def _hypixelrankhistory(inter: SlashInteraction):
         if response is False:
             await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
-            components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
-            for key in response.keys():
-                components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
+            components = md1.weathercomponents(response)
             msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
 
             # noinspection PyShadowingNames
@@ -767,12 +765,7 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             inter = await msg.wait_for_dropdown(check)
             # noinspection PyUnresolvedReferences
             labels = [option.label for option in inter.select_menu.selected_options]
-            embed = discord.Embed(name=f"{name}의 랭크 기록")
-            for i in labels:
-                value = response[i]
-                value1 = f"deafult={md1.booltostr(value.regular)}, vip={md1.booltostr(value.vip)}, vip+={md1.booltostr(value.vip_plus)}" \
-                         f", mvp={md1.booltostr(value.mvp)}, mvp+={md1.booltostr(value.mvp_plus)}"
-                embed.add_field(name=i, value=value1)
+            embed = md1.weatherembed(labels=labels, name=name, response=response)
             await msg.edit(content=None, embed=embed, components=[])
 
 

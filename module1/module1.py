@@ -1,11 +1,13 @@
 import json
 import secrets
 from datetime import datetime
+
+import discord
 import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from dislash import Option, Type, ActionRow, ButtonStyle
+from dislash import Option, Type, ActionRow, ButtonStyle, SelectMenu
 import hashlib
 import pymysql
 from dotenv import dotenv_values
@@ -21,6 +23,7 @@ with open('bitlytoken.txt') as f:
 for i in range(len(tokens_pool)):
     print(i)
     tokens_pool2.append(str(tokens_pool[i]).replace('\n', ''))
+    del i
 print(tokens_pool2)
 
 mysqlconnect = open('pymysql.json', 'r').read()
@@ -819,3 +822,16 @@ def booltostr(arg: bool):
         return "없음"
     if arg is False:
         return "있음"
+
+def weathercomponents(response):
+    components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
+    for key in response.keys():
+        components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
+
+def weatherembed(labels, response, name):
+    embed = discord.Embed(name=f"{name}의 랭크 기록")
+    for i2 in labels:
+        value = response[i2]
+        value1 = f"deafult={booltostr(value.regular)}, vip={booltostr(value.vip)}, vip+={booltostr(value.vip_plus)}" \
+                 f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
+        embed.add_field(name=i2, value=value1)
