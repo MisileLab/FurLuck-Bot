@@ -869,3 +869,17 @@ def except_error(inter, name):
         await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
     return [response, response2]
+
+def create_player_embed(name, response, response2):
+    responseonline = None
+    if response2:
+        responseonline = "온라인"
+    elif response2 is not True:
+        responseonline = "오프라인"
+    embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
+    embed.add_field(name="랭크", value=response.rank)
+    embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
+    embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
+    embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
+    embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
+    embed.add_field(name="현재 온라인 여부", value=str(responseonline))
