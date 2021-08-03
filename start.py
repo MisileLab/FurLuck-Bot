@@ -477,20 +477,12 @@ userchannel.make_option(name="user", description="호감도를 확인할 유저"
 
 @slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
 async def _helpinghands(inter: SlashInteraction):
-    user = inter.get("user", None)
-    if user is None:
-        user: discord.Member = inter.author
+    user = inter.get("user", inter.author)
     helpingyouandme = md1.helpingyou(user.id)["helpingme"]
     if helpingyouandme is None:
         await inter.reply("그 사람은 데이터가 없어요!")
     else:
-        helpingrank = None
-        if user.id == 338902243476635650:
-            helpingrank = "나를 만들어 준 너"
-        elif helpingyouandme == 0:
-            helpingrank = "이용을 해주는 너"
-        elif 0 < helpingyouandme < 100:
-            helpingrank = "조금이라도 도와주는 너"
+        helpingrank = md1.get_helping_rank(helpingyouandme, user.id)
         if helpingrank is None:
             await inter.reply("오류가 난 것 같아요!")
         else:
@@ -588,9 +580,7 @@ serverinfo.make_option(name="serverid", description="서버 ID", type=Type.STRIN
 @slash.command(name="serverinfo", description="서버 정보를 알려주는 명령어", options=serverinfo.options)
 async def _serverinfo(inter: SlashInteraction):
     await inter.reply("서버의 정보를 찾고 있어요!")
-    guildid = inter.get("serverid", None)
-    if guildid is None:
-        guildid = inter.author.guild.id
+    guildid = inter.get("serverid", inter.author.guild.id)
     try:
         guildid = int(guildid)
         guild: discord.Guild = Client.get_guild(guildid)
@@ -616,10 +606,8 @@ userinfo.make_option(name="userid", description="유저 ID", type=Type.STRING, r
 
 @slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo.options)
 async def _userinfo(inter: SlashInteraction):
-    userid = inter.get("serverid")
+    userid = inter.get("serverid", inter.author.id)
     await inter.reply("유저를 찾는 중이에요!")
-    if userid is None:
-        userid = inter.author.id
     try:
         user1: discord.User = Client.get_user(int(userid))
         if user1 is None:

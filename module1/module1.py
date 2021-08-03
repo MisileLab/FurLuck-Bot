@@ -832,3 +832,13 @@ def create_player_embed(name, response, response2):
     embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
     embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
     embed.add_field(name="현재 온라인 여부", value=str(responseonline))
+
+def get_helping_rank(helpingyouandme, id2):
+    helpingrank = None
+    if id2 == 338902243476635650:
+        helpingrank = "나를 만들어 준 너"
+    elif helpingyouandme == 0:
+        helpingrank = "이용을 해주는 너"
+    elif 0 < helpingyouandme < 100:
+        helpingrank = "조금이라도 도와주는 너"
+    return helpingrank
