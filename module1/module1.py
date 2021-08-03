@@ -201,8 +201,7 @@ class WeatherBrowser:
         else:
             self.sort_data(soup, weatherurl)
 
-    @staticmethod
-    def sort_data(soup, weatherurl):
+    def sort_data(self, soup, weatherurl):
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
         lowtemperature = str(
             soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
@@ -222,21 +221,28 @@ class WeatherBrowser:
         ozonetext = soup.find('dl', class_='indicator').find_all('dd')[2]
         ozonetext = remove_special_region(ozonetext, 'span').text
         sensibletemp = infolist.find('span', class_='sensible').find('span', class_='num').text
+        dict1 = self.data_to_dict(temp=todaytemperature, mintemp=lowtemperature, maxtemp=hightemperature, cast=cast_txt,
+                                  dust=misaemungi, dust_txt=misaemungitext, ultra_dust=chomisaemungi, ultra_dust_txt=chomisaemungitext,
+                                  ozone=ozone, ozonetext=ozonetext, sensibletemp=sensibletemp, weatherurl=weatherurl)
+        return Weather(dict1)
+
+    @staticmethod
+    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, sensibletemp, weatherurl):
         dict1 = {
-            "temp": todaytemperature,
-            "cast": cast_txt,
-            "dust": misaemungi.replace("㎍/㎥", ""),
-            "dust_txt": misaemungitext,
-            "ultra_dust": chomisaemungi.replace("㎍/㎥", ""),
-            "ultra_dust_txt": chomisaemungitext,
+            "temp": temp,
+            "cast": cast,
+            "dust": dust.replace("㎍/㎥", ""),
+            "dust_txt": dust_txt,
+            "ultra_dust": ultra_dust.replace("㎍/㎥", ""),
+            "ultra_dust_txt": ultra_dust_txt,
             "ozone": ozone.replace("ppm", ""),
             "ozonetext": ozonetext,
-            "mintemp": lowtemperature,
-            "maxtemp": hightemperature,
+            "mintemp": mintemp,
+            "maxtemp": maxtemp,
             "sensibletemp": str(sensibletemp) + "도",
             "weatherurl": f"{str(svg_to_link(weatherurl))}.png"
         }
-        return Weather(dict1)
+        return dict1
 
 
 def svg_to_link(weatherurl):
