@@ -478,36 +478,21 @@ def cursor_to_result(resultcursor, equal:str, id):
 
 
 def miningmoney(memberid: int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
-    result1 = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result1 = i1
-            break
+    result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1 is None:
         insertmemberdataonce(cursor, memberid)
         sql = "SELECT * FROM `furluckbot1`;"
         cursor.execute(sql)
         resultcursor = cursor.fetchall()
-        for i1 in resultcursor:
-            resultid = i1['id']
-            if resultid == memberid:
-                result1 = i1
-                break
+        result1 = cursor_to_result(resultcursor, 'id', memberid)
     sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
     cursor.execute(sql, (result1['level1'] + 3000, memberid))
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result1 = i1
-            break
+    result1 = cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
     return result1
 
