@@ -201,6 +201,7 @@ class WeatherBrowser:
             self.sort_data(soup, weatherurl)
 
     def sort_data(self, soup, weatherurl):
+        result = self.somanydust(soup)
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
         lowtemperature = str(
             soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
@@ -210,6 +211,20 @@ class WeatherBrowser:
                                                                                                              class_='num').text) + '도'
         infolist = soup.find('ul', class_='info_list')
         cast_txt = infolist.find('p', class_='cast_txt').text
+        misaemungi = result["dust"]
+        misaemungitext = result["dust_txt"]
+        chomisaemungi = result["ultra_dust"]
+        chomisaemungitext = result["ultra_dust_txt"]
+        ozone = result["ozone"]
+        ozonetext = result["ozonetext"]
+        sensibletemp = infolist.find('span', class_='sensible').find('span', class_='num').text
+        dict1 = self.data_to_dict(temp=todaytemperature, mintemp=lowtemperature, maxtemp=hightemperature, cast=cast_txt,
+                                  dust=misaemungi, dust_txt=misaemungitext, ultra_dust=chomisaemungi, ultra_dust_txt=chomisaemungitext,
+                                  ozone=ozone, ozonetext=ozonetext, sensibletemp=sensibletemp, weatherurl=weatherurl)
+        return Weather(dict1)
+
+    @staticmethod
+    def somanydust(soup):
         misaemungi = soup.find('dl', class_='indicator').find_all('dd')[0].find('span', class_='num').text
         misaemungitext = soup.find('dl', class_='indicator').find_all('dd')[0]
         misaemungitext = remove_special_region(misaemungitext, 'span').text
@@ -219,11 +234,8 @@ class WeatherBrowser:
         ozone = soup.find('dl', class_='indicator').find_all('dd')[2].find('span', class_='num').text
         ozonetext = soup.find('dl', class_='indicator').find_all('dd')[2]
         ozonetext = remove_special_region(ozonetext, 'span').text
-        sensibletemp = infolist.find('span', class_='sensible').find('span', class_='num').text
-        dict1 = self.data_to_dict(temp=todaytemperature, mintemp=lowtemperature, maxtemp=hightemperature, cast=cast_txt,
-                                  dust=misaemungi, dust_txt=misaemungitext, ultra_dust=chomisaemungi, ultra_dust_txt=chomisaemungitext,
-                                  ozone=ozone, ozonetext=ozonetext, sensibletemp=sensibletemp, weatherurl=weatherurl)
-        return Weather(dict1)
+        return {"dust":misaemungi,"dust_txt":misaemungitext,"ultra_dust":chomisaemungi,
+                "ultra_dust_txt":chomisaemungitext, "ozone":ozone, "ozonetext":ozonetext}
 
     @staticmethod
     def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, sensibletemp, weatherurl):
