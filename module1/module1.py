@@ -365,33 +365,19 @@ def warn(memberid: int, amount: int, get: bool):
 
 # noinspection PyTypeChecker
 def helpingyou(memberid: int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
-    sql = "SELECT * FROM `furluckbot1`;"
-    cursor.execute(sql)
+    cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result = i1
-            break
+    result = cursor_to_result(resultcursor, 'id', memberid)
     if result is None:
         try:
             insertmemberdataonce(cursor, memberid)
         except pymysql.err.IntegrityError:
             pass
-    sql = "SELECT * FROM `furluckbot1`;"
-    cursor.execute(sql)
+    cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result = i1
-            break
+    result = cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
     return result
 
