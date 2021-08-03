@@ -134,7 +134,7 @@ async def on_message_edit(before, after):
 
 @Client.command(name="hellothisisverification")
 async def idontwantdevelopercommandinthiscommand(ctx):
-    await ctx.send("Misile#2134")
+    await ctx.send("Misile#1231")
 
 
 @slash.command(name="bot", description="봇의 정보를 알려주는 명령어")
