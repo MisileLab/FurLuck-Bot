@@ -837,3 +837,20 @@ def weatherembed(labels, response, name):
         value1 = f"deafult={booltostr(value.regular)}, vip={booltostr(value.vip)}, vip+={booltostr(value.vip_plus)}" \
                  f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
         embed.add_field(name=i2, value=value1)
+
+def except_error(inter, name):
+    response = None
+    response2 = None
+    try:
+        response: Information = HypixelAPI(playername=name).get_information()
+        response2: bool or None = HypixelAPI(playername=name).get_online(response)
+    except UsernameNotValid:
+        await inter.reply("유저의 이름이 알맞지 않습니다.")
+    except YouAlreadylookedupthisnamerecently:
+        await inter.reply("이 플레이어를 최근에 누군가 검색했습니다.")
+    except KeyLimit:
+        await inter.reply("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
+    except Exception as e:
+        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        raise e
+    return [response, response2]
