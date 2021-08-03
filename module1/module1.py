@@ -555,17 +555,11 @@ class NewActionRow:
 class Vote:
     def __init__(self):
         self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
-        self.mysql = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"],
-                                     host=mysqlconnect["host"], db=mysqlconnect["db"], charset=mysqlconnect["charset"],
-                                     port=mysqlconnect["port"], autocommit=True)
+        self.mysql = connect_cursor()
         self.cursor = self.mysql.cursor(pymysql.cursors.DictCursor)
         self.cursor.execute("SELECT * FROM `votes`")
         resultcursor = self.cursor.fetchall()
-        for i1 in resultcursor:
-            resultid = i1['voteid']
-            if resultid == self.voteid:
-                self.voteid = hashlib.sha512(
-                    str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
+        self.set_key(resultcursor)
         self.cursor.execute("INSERT INTO `votes` (voteid, result1, bot) VALUES (%s, %s, %s)",
                             (self.voteid, 1233, self.voteid))
 
@@ -578,6 +572,13 @@ class Vote:
             self.cursor.execute(
                 "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
                 (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
+
+    def set_key(self, resultcursor):
+        for i1 in resultcursor:
+            resultid = i1['voteid']
+            if resultid == self.voteid:
+                self.voteid = hashlib.sha512(
+                    str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
 
     def close(self):
         self.cursor.execute('SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
@@ -802,7 +803,7 @@ def weatherembed(labels, response, name):
                  f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
         embed.add_field(name=i2, value=value1)
 
-def except_error(inter, name):
+def except_error_information(inter, name):
     response = None
     response2 = None
     try:
@@ -818,6 +819,21 @@ def except_error(inter, name):
         await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
     return [response, response2]
+
+def except_error_history(inter, name):
+    response = None
+    try:
+        response: Information = HypixelAPI(playername=name).get_rankhistory()
+    except UsernameNotValid:
+        await inter.reply("유저의 이름이 알맞지 않습니다.")
+    except YouAlreadylookedupthisnamerecently:
+        await inter.reply("이 플레이어를 최근에 누군가 검색했습니다.")
+    except KeyLimit:
+        await inter.reply("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
+    except Exception as e:
+        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        raise e
+    return response
 
 def create_player_embed(name, response, response2):
     responseonline = None

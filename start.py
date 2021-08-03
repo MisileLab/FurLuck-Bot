@@ -682,8 +682,8 @@ playeroption.make_option(name="playername", description="플레이어의 이름"
 async def _player(inter: SlashInteraction):
     name = inter.get_option("player").options.get("playername").value
     try:
-        response = md1.except_error(inter, name)[0]
-        response2 = md1.except_error(inter, name)[1]
+        response = md1.except_error_information(inter, name)[0]
+        response2 = md1.except_error_information(inter, name)[1]
     except Exception as e:
         raise e
     else:
@@ -699,13 +699,7 @@ async def _hypixelrankhistory(inter: SlashInteraction):
     await inter.reply(type=5)
     name = inter.get_option("rankhistory").options.get("playername").value
     try:
-        response = md1.HypixelAPI(playername=name).get_rankhistory()
-    except md1.UsernameNotValid:
-        await inter.edit("유저의 이름이 알맞지 않습니다.")
-    except md1.YouAlreadylookedupthisnamerecently:
-        await inter.edit("이 플레이어를 최근에 누군가 검색했습니다.")
-    except md1.KeyLimit:
-        await inter.edit("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
+        response = md1.except_error_history(inter, name)
     except Exception as e:
         await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
