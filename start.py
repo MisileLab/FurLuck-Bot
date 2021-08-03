@@ -744,7 +744,6 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             components = md1.weathercomponents(response)
             msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
             inter = await msg.wait_for_dropdown()
-            # noinspection PyUnresolvedReferences
             labels = [option.label for option in inter.select_menu.selected_options]
             embed = md1.weatherembed(labels=labels, name=name, response=response)
             await msg.edit(content=None, embed=embed, components=[])
