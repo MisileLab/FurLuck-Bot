@@ -7,7 +7,7 @@ import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from dislash import Option, Type, ActionRow, ButtonStyle, SelectMenu
+from dislash import Option, Type, ActionRow, ButtonStyle, SelectMenu, ClickListener
 import hashlib
 import pymysql
 from dotenv import dotenv_values
@@ -866,3 +866,25 @@ def get_message_edit_embed(before, after):
     embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
     embed1.set_footer(text=todaycalculate())
 
+def vote_listener(on_click:ClickListener, votelol, embed, inter):
+    # noinspection PyShadowingNames
+    @on_click.matching_id('accept')
+    async def _accept(inter):
+        votelol.add_vote(True, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.matching_id('deny')
+    async def _deny(inter):
+        votelol.add_vote(False, inter.author.id)
+        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @on_click.timeout
+    async def _timeout():
+        result = votelol.close()
+        trueopinion = result['true']
+        falseopinion = result['false']
+        embed.add_field(name="O", value=trueopinion)
+        embed.add_field(name="X", value=falseopinion)
+        await inter.edit(embed=embed, components=[])

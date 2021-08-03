@@ -642,29 +642,7 @@ async def _createvote(inter: SlashInteraction):
     votelol = md1.Vote()
     msg = await inter.edit(embed=embed, components=component.components)
     on_click: ClickListener = msg.create_click_listener(timeout=timeout)
-
-    # noinspection PyShadowingNames
-    @on_click.matching_id('accept')
-    async def _accept(inter):
-        votelol.add_vote(True, inter.author.id)
-        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
-
-    # noinspection PyShadowingNames
-    @on_click.matching_id('deny')
-    async def _deny(inter):
-        votelol.add_vote(False, inter.author.id)
-        await inter.reply(content="투표가 완료되었습니다!", ephemeral=True)
-
-    # noinspection PyShadowingNames
-    @on_click.timeout
-    async def _timeout():
-        result = votelol.close()
-        trueopinion = result['true']
-        falseopinion = result['false']
-        embed.add_field(name="O", value=trueopinion)
-        embed.add_field(name="X", value=falseopinion)
-        await inter.edit(embed=embed, components=[])
-
+    md1.vote_listener(on_click, votelol, embed, inter)
 
 # noinspection PyUnusedLocal
 @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
