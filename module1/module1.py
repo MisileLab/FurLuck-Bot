@@ -228,7 +228,7 @@ class WeatherBrowser:
 
     @staticmethod
     def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, sensibletemp, weatherurl):
-        dict1 = {
+        return {
             "temp": temp,
             "cast": cast,
             "dust": dust.replace("㎍/㎥", ""),
@@ -242,7 +242,6 @@ class WeatherBrowser:
             "sensibletemp": str(sensibletemp) + "도",
             "weatherurl": f"{str(svg_to_link(weatherurl))}.png"
         }
-        return dict1
 
 
 def svg_to_link(weatherurl):
