@@ -780,8 +780,7 @@ class HypixelAPI:
             raise YouAlreadylookedupthisnamerecently("yes it's error")
         if response.status_code == 429:
             raise KeyLimit("Key Limit Exceed")
-        else:
-            return json.loads(response.content)
+        return json.loads(response.content)
 
     def get_information(self):
         try:
@@ -812,10 +811,7 @@ class HypixelAPI:
         else:
             if response is False:
                 return None
-            if response.lastlogin > response.lastlogout:
-                return True
-            else:
-                return False
+            return bool(response.lastlogin > response.lastlogout)
 
 
 def booltostr(arg: bool):
