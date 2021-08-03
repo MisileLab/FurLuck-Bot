@@ -472,12 +472,11 @@ def dobakmoney(memberid: int, money: int):
     return result1
 
 
-# noinspection PyShadowingBuiltins
-def cursor_to_result(resultcursor, equal:str, id):
+def cursor_to_result(resultcursor, equal:str, id2):
     result1 = None
     for i1 in resultcursor:
         resultid = i1[equal]
-        if resultid == id:
+        if resultid == id2:
             result1 = i1
             break
     return result1
