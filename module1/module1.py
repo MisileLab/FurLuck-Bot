@@ -435,8 +435,7 @@ def dobakmoney(memberid: int, money: int):
     result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1 is None:
         insertmemberdataonce(cursor, memberid)
-        sql = "SELECT * FROM `furluckbot1`;"
-        cursor.execute(sql)
+        cursor.execute("SELECT * FROM `furluckbot1`;")
         resultcursor = cursor.fetchall()
         result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1['level1'] < money:
@@ -444,14 +443,11 @@ def dobakmoney(memberid: int, money: int):
     random1 = secrets.SystemRandom().randint(1, 2)
     if random1 == 1:
         money1 = result1['level1'] - money
-        sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
-        cursor.execute(sql, (money1, memberid))
+        cursor.execute("UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
         raise FailedDobak
     money1 = result1['level1'] + money
-    sql = "UPDATE furluckbot1 SET level1 = %s WHERE id = %s"
-    cursor.execute(sql, (money1, memberid))
-    sql = "SELECT * FROM `furluckbot1`;"
-    cursor.execute(sql)
+    cursor.execute("UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
+    cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
