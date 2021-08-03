@@ -364,7 +364,7 @@ async def _weather(inter: SlashInteraction):
     await inter.reply(type=5)
     position = inter.get('position', None)
     try:
-        weatherdata: md1.Weather = md1.get_weather(position)
+        weatherdata: md1.Weather = md1.WeatherBrowser(position).get_weather_data()
     except ValueError:
         await inter.edit(content="이름이 맞지 않는 것 같아요!")
     else:
@@ -770,8 +770,8 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             embed = discord.Embed(name=f"{name}의 랭크 기록")
             for i in labels:
                 value = response[i]
-                value1 = f"deafult={md1.booltostr(value.regular)}, vip={md1.booltostr(value.vip)}, vip_plus={md1.booltostr(value.vip_plus)}" \
-                         f", mvp={md1.booltostr(value.mvp)}, mvp_plus={md1.booltostr(value.mvp_plus)}"
+                value1 = f"deafult={md1.booltostr(value.regular)}, vip={md1.booltostr(value.vip)}, vip+={md1.booltostr(value.vip_plus)}" \
+                         f", mvp={md1.booltostr(value.mvp)}, mvp+={md1.booltostr(value.mvp_plus)}"
                 embed.add_field(name=i, value=value1)
             await msg.edit(content=None, embed=embed, components=[])
 

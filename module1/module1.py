@@ -138,49 +138,68 @@ class Weather:
         return self.weatherimage1
 
 
-# noinspection PyBroadException
-def get_weather(position: str):
-    try:
-        browser = webdriver.Edge()
-    except Exception:
+class WeatherBrowser:
+    def __init__(self, position: str):
+        self.position = position
+
+    # noinspection PyBroadException
+    @staticmethod
+    def open_browser():
         try:
-            options = webdriver.ChromeOptions()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('window-size=1920x1080')
-            options.add_argument("disable-gpu")
-            print("Chrome")
-            browser = webdriver.Chrome('chromedriver', options=options)
+            # noinspection PyUnusedLocal
+            browser = webdriver.Edge()
         except Exception:
-            options = webdriver.ChromeOptions()
-            options.add_argument('window-size=1920x1080')
-            print('Chrome but not headless')
-            browser = webdriver.Chrome('chromedriver', options=options)
-    browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
-    try:
-        browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
-            "background-image")
-    except Exception as e:
+            try:
+                options = webdriver.ChromeOptions()
+                options.add_argument('--headless')
+                options.add_argument('--no-sandbox')
+                options.add_argument('--disable-dev-shm-usage')
+                options.add_argument('window-size=1920x1080')
+                options.add_argument("disable-gpu")
+                print("Chrome")
+                browser = webdriver.Chrome('chromedriver', options=options)
+            except Exception:
+                try:
+                    options = webdriver.ChromeOptions()
+                    options.add_argument('window-size=1920x1080')
+                    print('Chrome but not headless')
+                    browser = webdriver.Chrome('chromedriver', options=options)
+                except Exception as e:
+                    raise e
+            return browser
+
+    def get_weather_data(self):
+        browser = self.open_browser()
+        position = self.position
+        browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
+        try:
+            browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
+                "background-image")
+        except Exception as e:
+            browser.close()
+            raise e
+        else:
+            weatherurl = int(str(browserfindelement).replace(
+                'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
+                "").replace('.svg")', ""))
         browser.close()
-        raise e
-    else:
-        weatherurl = int(str(browserfindelement).replace(
-            'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
-            "").replace('.svg")', ""))
-    browser.close()
-    req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
-    soup = BeautifulSoup(req.text, 'html.parser')
-    req.close()
-    try:
-        todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        if todaytemperature is None:
+        req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
+        soup = BeautifulSoup(req.text, 'html.parser')
+        req.close()
+        try:
+            todaytemperature = str(
+                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
+            if todaytemperature is None:
+                raise ValueError
+        except requests.TooManyRedirects:
+            pass
+        except ValueError:
             raise ValueError
-    except requests.TooManyRedirects:
-        pass
-    except ValueError:
-        raise ValueError
-    else:
+        else:
+            self.sort_data(soup, weatherurl)
+
+    @staticmethod
+    def sort_data(soup, weatherurl):
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
         lowtemperature = str(
             soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
@@ -200,48 +219,6 @@ def get_weather(position: str):
         ozonetext = soup.find('dl', class_='indicator').find_all('dd')[2]
         ozonetext = remove_special_region(ozonetext, 'span').text
         sensibletemp = infolist.find('span', class_='sensible').find('span', class_='num').text
-        weatherurl2 = [
-            "https://imgur.com/VPuDpZV",
-            "https://imgur.com/02sqICQ",
-            "https://imgur.com/Px8uR3W",
-            "https://imgur.com/hgfEduj",
-            "https://imgur.com/6FEXmQK",
-            "https://imgur.com/Sl1ueqT",
-            "https://imgur.com/BUwOqYx",
-            "https://imgur.com/CaQKTy1",
-            "https://imgur.com/wWKMPU3",
-            "https://imgur.com/IBJROQn",
-            "https://imgur.com/IBJROQn",
-            "https://imgur.com/WchO5KW",
-            "https://imgur.com/VJC4wfv",
-            "https://imgur.com/QP6kbP3",
-            "https://imgur.com/RsT33Li",
-            "https://imgur.com/p8eKpil",
-            "https://imgur.com/v6zOXdI",
-            "https://imgur.com/xHk7Xex",
-            "https://imgur.com/t3DUaoP",
-            "https://imgur.com/Sbg2Mmi",
-            "https://imgur.com/TbwVn5J",
-            "https://imgur.com/hxKCYPr",
-            "https://imgur.com/0oHigOh",
-            "https://imgur.com/4VHxJjt",
-            "https://imgur.com/MAR7Rip",
-            "https://imgur.com/Cxyz93G",
-            "https://imgur.com/1TECcRk",
-            "https://imgur.com/mOxGn6J",
-            "https://imgur.com/1FJDoEj",
-            "https://imgur.com/JBQz23t",
-            "https://imgur.com/qW7bsxg",
-            "https://imgur.com/raBRUi3",
-            "https://imgur.com/QtEPCkb",
-            "https://imgur.com/gSfaZ6W",
-            "https://imgur.com/SOqq92z",
-            "https://imgur.com/PwtZ8Qs",
-            "https://imgur.com/R1hvM7E",
-            "https://imgur.com/GpY3BOM",
-            "https://imgur.com/XMcWPZc",
-            "https://imgur.com/9Kn7KCy"
-        ]
         dict1 = {
             "temp": todaytemperature,
             "cast": cast_txt,
@@ -254,9 +231,55 @@ def get_weather(position: str):
             "mintemp": lowtemperature,
             "maxtemp": hightemperature,
             "sensibletemp": str(sensibletemp) + "도",
-            "weatherurl": str(weatherurl2[weatherurl - 1]) + ".png"
+            "weatherurl": f"{str(svg_to_link(weatherurl))}.png"
         }
         return Weather(dict1)
+
+
+def svg_to_link(weatherurl):
+    weatherurl2 = [
+        "https://imgur.com/VPuDpZV",
+        "https://imgur.com/02sqICQ",
+        "https://imgur.com/Px8uR3W",
+        "https://imgur.com/hgfEduj",
+        "https://imgur.com/6FEXmQK",
+        "https://imgur.com/Sl1ueqT",
+        "https://imgur.com/BUwOqYx",
+        "https://imgur.com/CaQKTy1",
+        "https://imgur.com/wWKMPU3",
+        "https://imgur.com/IBJROQn",
+        "https://imgur.com/IBJROQn",
+        "https://imgur.com/WchO5KW",
+        "https://imgur.com/VJC4wfv",
+        "https://imgur.com/QP6kbP3",
+        "https://imgur.com/RsT33Li",
+        "https://imgur.com/p8eKpil",
+        "https://imgur.com/v6zOXdI",
+        "https://imgur.com/xHk7Xex",
+        "https://imgur.com/t3DUaoP",
+        "https://imgur.com/Sbg2Mmi",
+        "https://imgur.com/TbwVn5J",
+        "https://imgur.com/hxKCYPr",
+        "https://imgur.com/0oHigOh",
+        "https://imgur.com/4VHxJjt",
+        "https://imgur.com/MAR7Rip",
+        "https://imgur.com/Cxyz93G",
+        "https://imgur.com/1TECcRk",
+        "https://imgur.com/mOxGn6J",
+        "https://imgur.com/1FJDoEj",
+        "https://imgur.com/JBQz23t",
+        "https://imgur.com/qW7bsxg",
+        "https://imgur.com/raBRUi3",
+        "https://imgur.com/QtEPCkb",
+        "https://imgur.com/gSfaZ6W",
+        "https://imgur.com/SOqq92z",
+        "https://imgur.com/PwtZ8Qs",
+        "https://imgur.com/R1hvM7E",
+        "https://imgur.com/GpY3BOM",
+        "https://imgur.com/XMcWPZc",
+        "https://imgur.com/9Kn7KCy"
+    ]
+    return weatherurl2[weatherurl - 1]
 
 
 def remove_special_region(origin, tagname):
@@ -387,29 +410,24 @@ def getmoney(memberid: int):
     return result1['level1']
 
 
+def connect_cursor():
+    return pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
+                           db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
+                           autocommit=True)
+
+
 def dobakmoney(memberid: int, money: int):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result1 = None
-    for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
-            result1 = i1
-            break
+    result1 = cursor_to_result(resultcursor, memberid)
     if result1 is None:
         insertmemberdataonce(cursor, memberid)
         sql = "SELECT * FROM `furluckbot1`;"
         cursor.execute(sql)
         resultcursor = cursor.fetchall()
-        for i1 in resultcursor:
-            resultid = i1['id']
-            if resultid == memberid:
-                result1 = i1
-                break
+        result1 = cursor_to_result(resultcursor, memberid)
     if result1['level1'] < money:
         raise DontHaveMoney
     random1 = secrets.SystemRandom().randint(1, 2)
@@ -424,12 +442,18 @@ def dobakmoney(memberid: int, money: int):
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
+    result1 = cursor_to_result(resultcursor, memberid)
+    mysql1.close()
+    return result1
+
+
+def cursor_to_result(resultcursor, memberid):
+    result1 = None
     for i1 in resultcursor:
         resultid = i1['id']
         if resultid == memberid:
             result1 = i1
             break
-    mysql1.close()
     return result1
 
 
@@ -603,6 +627,7 @@ class Vote:
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
 
+
 class Information:
     def __init__(self, dict1: dict):
         try:
@@ -684,7 +709,7 @@ class HypixelRankHistory:
             self.rankrecord[i2] = HypixelRank(regular, vip, vip_plus, mvp, mvp_plus)
 
     # noinspection PyShadowingNames
-    def lol(self, a:dict=None):
+    def lol(self, a: dict = None):
         if a is None:
             a = self.detectdict
         if len(a) > 25:
@@ -731,11 +756,14 @@ class HypixelRank:
     def mvp_plus(self):
         return self.mvp_plus1
 
+
 class YouAlreadylookedupthisnamerecently(Exception):
     pass
 
+
 class KeyLimit(Exception):
     pass
+
 
 class HypixelAPI:
     def __init__(self, playername: str):
@@ -791,6 +819,7 @@ class HypixelAPI:
                 return True
             else:
                 return False
+
 
 def booltostr(arg: bool):
     if arg:
