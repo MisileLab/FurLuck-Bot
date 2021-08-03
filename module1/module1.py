@@ -496,9 +496,7 @@ def miningmoney(memberid: int):
 
 
 def serverdata(mode: str, guildid: int, channelid: int, get: bool):
-    mysql1 = pymysql.connect(user=mysqlconnect["user"], passwd=mysqlconnect["password"], host=mysqlconnect["host"],
-                             db=mysqlconnect["db"], charset=mysqlconnect["charset"], port=mysqlconnect["port"],
-                             autocommit=True)
+    mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
