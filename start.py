@@ -110,7 +110,7 @@ async def on_message_delete(message):
 
 @Client.event
 async def on_message_edit(before, after):
-    if after.author.bot is not False:
+    if after.author.bot is True:
         return
     try:
         after.attachments[0].url
@@ -118,11 +118,7 @@ async def on_message_edit(before, after):
         pass
     else:
         if after.attachments[0].url is not None:
-            embed1 = discord.Embed(name="메시지가 변경되었어요!")
-            embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
-            embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
-            embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
-            embed1.set_footer(text=md1.todaycalculate())
+            embed1 = md1.get_message_edit_embed(before, after)
             getchannel = md1.serverdata("logid", after.guild.id, 123, True)
             try:
                 channel = await Client.fetch_channel(getchannel["logid"])

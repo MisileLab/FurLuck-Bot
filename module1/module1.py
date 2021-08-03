@@ -842,3 +842,11 @@ def get_helping_rank(helpingyouandme, id2):
     elif 0 < helpingyouandme < 100:
         helpingrank = "조금이라도 도와주는 너"
     return helpingrank
+
+def get_message_edit_embed(before, after):
+    embed1 = discord.Embed(name="메시지가 변경되었어요!")
+    embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
+    embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
+    embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
+    embed1.set_footer(text=todaycalculate())
+
