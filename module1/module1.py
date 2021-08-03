@@ -440,13 +440,13 @@ def dobakmoney(memberid: int, money: int):
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
-    result1 = cursor_to_result(resultcursor, memberid)
+    result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1 is None:
         insertmemberdataonce(cursor, memberid)
         sql = "SELECT * FROM `furluckbot1`;"
         cursor.execute(sql)
         resultcursor = cursor.fetchall()
-        result1 = cursor_to_result(resultcursor, memberid)
+        result1 = cursor_to_result(resultcursor, 'id', memberid)
     if result1['level1'] < money:
         raise DontHaveMoney
     random1 = secrets.SystemRandom().randint(1, 2)
@@ -461,16 +461,17 @@ def dobakmoney(memberid: int, money: int):
     sql = "SELECT * FROM `furluckbot1`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
-    result1 = cursor_to_result(resultcursor, memberid)
+    result1 = cursor_to_result(resultcursor, 'id', memberid)
     mysql1.close()
     return result1
 
 
-def cursor_to_result(resultcursor, memberid):
+# noinspection PyShadowingBuiltins
+def cursor_to_result(resultcursor, equal:str, id):
     result1 = None
     for i1 in resultcursor:
-        resultid = i1['id']
-        if resultid == memberid:
+        resultid = i1[equal]
+        if resultid == id:
             result1 = i1
             break
     return result1
@@ -517,11 +518,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     result = None
-    for i1 in resultcursor:
-        resultid = i1['serverid']
-        if resultid == guildid:
-            result = i1
-            break
+    cursor_to_result(resultcursor, 'serverid', guildid)
     if result is None:
         insertserverdataonce(cursor, guildid)
     if get is False:
@@ -536,11 +533,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     resultcursor = cursor.fetchall()
     result = None
     try:
-        for i1 in resultcursor:
-            resultid = i1['serverid']
-            if resultid == guildid:
-                result = i1
-                break
+        cursor_to_result(resultcursor, 'serverid', guildid)
     except KeyError as e:
         if not get:
             raise KeyError(e)
