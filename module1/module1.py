@@ -42,7 +42,6 @@ def unix_to_datetime(unixtime):
     return datetime.fromtimestamp(unixtime / 1000)
 
 def rollin(b):
-    a = b
     return b
 
 def todaycalculate():
