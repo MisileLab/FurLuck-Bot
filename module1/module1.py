@@ -1,7 +1,8 @@
 import json
 import secrets
 from datetime import datetime
-
+from dislash.interactions.slash_interaction import SlashInteraction
+import psutil
 import discord
 import requests
 from bitlyshortener import Shortener
@@ -206,20 +207,9 @@ class WeatherBrowser:
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        todaytemperature = result["temp"]
-        lowtemperature = result["mintemp"]
-        hightemperature = result["hightemp"]
-        cast_txt = result["cast"]
-        misaemungi = result["dust"]
-        misaemungitext = result["dust_txt"]
-        chomisaemungi = result["ultra_dust"]
-        chomisaemungitext = result["ultra_dust_txt"]
-        ozone = result["ozone"]
-        ozonetext = result["ozonetext"]
-        sensibletemp = result["sensibletemp"]
-        dict1 = self.data_to_dict(temp=todaytemperature, mintemp=lowtemperature, maxtemp=hightemperature, cast=cast_txt,
-                                  dust=misaemungi, dust_txt=misaemungitext, ultra_dust=chomisaemungi, ultra_dust_txt=chomisaemungitext,
-                                  ozone=ozone, ozonetext=ozonetext, sensibletemp=sensibletemp, weatherurl=weatherurl)
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], cast=result["cast"],
+                                  dust=result["dust"], dust_txt=result["dust_txt"], ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
+                                  ozone=result["ozone"], ozonetext=result["ozonetext"], sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
         return Weather(dict1)
 
     def soup_to_dict(self, soup):
@@ -910,3 +900,50 @@ def get_unwarn_message(reason, memberid, authorid, warndata):
     if reason is None:
         return f"<@{memberid}>님은 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
     return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+
+def make_embed_bot_information(inter, cpuinfo1, ping, Client):
+    embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
+    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
+    embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
+    embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
+    embed1.add_field(name="램 전체 용량", value=str(round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
+    embed1.add_field(name="램 사용 용량", value=str(round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
+    embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(psutil.virtual_memory().percent))
+    embed1.add_field(name="봇 핑(ms)", value=str(ping))
+    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    return embed1
+
+async def get_guilds(guildid, Client, inter):
+    try:
+        guildid = int(guildid)
+        guild: discord.Guild = Client.get_guild(guildid)
+        if guild is None:
+            raise AttributeError
+    except (AttributeError, discord.errors.HTTPException, ValueError):
+        await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
+    except Exception as e:
+        raise e
+    else:
+        return guild
+
+def make_guildinfo_embed(guild, inter):
+    embed1 = discord.Embed(name="서버의 정보", description=f"{guild.name}의 정보에요!")
+    embed1.add_field(name="길드의 부스트 티어", value=guild.premium_tier)
+    embed1.add_field(name="길드의 부스트 개수", value=f"{guild.premium_subscription_count}개")
+    embed1.add_field(name="길드 멤버 수(봇 포함)", value=f"{len(guild.members)}명")
+    embed1.add_field(name="실제 길드 멤버 수", value=f"{len([m for m in guild.members if not m.bot])}명")
+    embed1.set_thumbnail(url=guild.icon_url)
+    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1.set_footer(text=todaycalculate())
+    return embed1
+
+async def mute_command(role1:discord.Role or None, inter:SlashInteraction, member=discord.Member, reason=str or None):
+    if role1 is None:
+        perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
+        role1 = await inter.guild.create_role(name="뮤트", permissions=perms1)
+    await member.add_roles(role1, reason=reason)
+    if reason is None:
+        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
+    else:
+        await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")

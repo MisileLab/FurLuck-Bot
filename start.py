@@ -136,19 +136,10 @@ async def idontwantdevelopercommandinthiscommand(ctx):
 @slash.command(name="bot", description="봇의 정보를 알려주는 명령어")
 async def _bot(inter: SlashInteraction):
     before = time.monotonic()
-    await inter.reply("Ping Test")
+    await inter.reply(type=5)
     ping = time.monotonic() - before
     cpuinfo1 = cpuinfo.get_cpu_info()
-    embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
-    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-    embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
-    embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
-    embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
-    embed1.add_field(name="램 전체 용량", value=str(round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 사용 용량", value=str(round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(psutil.virtual_memory().percent))
-    embed1.add_field(name="봇 핑(ms)", value=str(ping))
-    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    embed1 = md1.make_embed_bot_information(inter, cpuinfo1, ping, Client)
     await inter.edit(content=None, embed=embed1)
 
 
@@ -257,17 +248,8 @@ muteoption.make_option(name="reason", description="왜 뮤트함?", required=Fal
 async def _mute(inter: SlashInteraction):
     member: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
-    guild = inter.guild
-    role1 = discord.utils.get(guild.roles, name='뮤트')
-    if role1 is None:
-        perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
-        role1 = await guild.create_role(name="뮤트", permissions=perms1)
-    await member.add_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
-
+    role1 = discord.utils.get(inter.guild.roles, name='뮤트')
+    await md1.mute_command(role1, inter, member, reason)
 
 unmuteoption = md1.NewOptionList()
 unmuteoption.make_option(name="member", description="언뮤트할 사람", required=True, type=Type.USER)
@@ -571,21 +553,11 @@ async def _serverinfo(inter: SlashInteraction):
     await inter.reply("서버의 정보를 찾고 있어요!")
     guildid = inter.get("serverid", inter.author.guild.id)
     try:
-        guildid = int(guildid)
-        guild: discord.Guild = Client.get_guild(guildid)
-        if guild is None:
-            raise AttributeError
-    except (AttributeError, discord.errors.HTTPException, ValueError):
-        await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
+        guild = await md1.get_guilds(guildid, Client, inter)
+    except Exception as e:
+        raise e
     else:
-        embed1 = discord.Embed(name="서버의 정보", description=f"{guild.name}의 정보에요!")
-        embed1.add_field(name="길드의 부스트 티어", value=guild.premium_tier)
-        embed1.add_field(name="길드의 부스트 개수", value=f"{guild.premium_subscription_count}개")
-        embed1.add_field(name="길드 멤버 수(봇 포함)", value=f"{len(guild.members)}명")
-        embed1.add_field(name="실제 길드 멤버 수", value=f"{len([m for m in guild.members if not m.bot])}명")
-        embed1.set_thumbnail(url=guild.icon_url)
-        embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-        embed1.set_footer(text=md1.todaycalculate())
+        embed1 = md1.make_guildinfo_embed(guild, inter)
         await inter.edit(embed=embed1, content=None)
 
 
