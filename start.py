@@ -653,9 +653,10 @@ playeroption.make_option(name="playername", description="플레이어의 이름"
 async def _player(inter: SlashInteraction):
     name = inter.get_option("player").options.get("playername").value
     try:
-        responses: md1.Responses = md1.except_error_information(inter=inter, name=name)
+        responses: md1.Responses = await md1.except_error_information(inter=inter, name=name)
     except Exception as e:
         raise e
+        
     else:
         response = next(responses.responses1)
         response2 = next(responses.responses1)
@@ -671,7 +672,7 @@ async def _hypixelrankhistory(inter: SlashInteraction):
     await inter.reply(type=5)
     name = inter.get_option("rankhistory").options.get("playername").value
     try:
-        response = md1.except_error_history(inter, name)
+        response = await md1.except_error_history(inter, name)
     except Exception as e:
         await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
@@ -679,11 +680,11 @@ async def _hypixelrankhistory(inter: SlashInteraction):
         if response is False:
             await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
-            components = md1.weathercomponents(response)
-            msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
+            components = md1.rankhistorycomponents(response)
+            msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[components])
             inter = await msg.wait_for_dropdown()
             labels = [option.label for option in inter.select_menu.selected_options]
-            embed = md1.weatherembed(labels=labels, name=name, response=response)
+            embed = md1.rankhistoryembed(labels=labels, name=name, response=response)
             await msg.edit(content=None, embed=embed, components=[])
 
 
