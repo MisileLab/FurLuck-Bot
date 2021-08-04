@@ -790,18 +790,20 @@ def booltostr(arg: bool):
         return "없음"
     return "있음"
 
-def weathercomponents(response):
+def rankhistorycomponents(response):
     components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
     for key in response.keys():
         components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
+    return components
 
-def weatherembed(labels, response, name):
+def rankhistoryembed(labels, response, name):
     embed = discord.Embed(name=f"{name}의 랭크 기록")
     for i2 in labels:
         value = response[i2]
         value1 = f"deafult={booltostr(value.regular)}, vip={booltostr(value.vip)}, vip+={booltostr(value.vip_plus)}" \
                  f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
         embed.add_field(name=i2, value=value1)
+    return embed
 
 async def except_error_information(inter, name):
     response = None
