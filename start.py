@@ -424,12 +424,8 @@ async def _warn(inter: SlashInteraction):
     amount = inter.get('amount')
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] + amount, get=False)
-    if reason is None:
-        await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    else:
-        await inter.reply(
-            f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-
+    message = md1.get_warn_message(reason, member.id, inter.author.id, warndata)
+    await inter.reply(message)
 
 unwarnoption = md1.NewOptionList()
 unwarnoption.make_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
@@ -446,11 +442,8 @@ async def _unwarn(inter: SlashInteraction):
     amount = inter.get('amount')
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
-    if reason is None:
-        await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    else:
-        await inter.reply(
-            f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+    message = md1.get_unwarn_message(reason, member.id, inter.author.id, warndata)
+    await inter.reply(message)
 
 
 hellochannel = md1.NewOptionList()
@@ -642,7 +635,7 @@ async def _createvote(inter: SlashInteraction):
     votelol = md1.Vote()
     msg = await inter.edit(embed=embed, components=component.components)
     on_click: ClickListener = msg.create_click_listener(timeout=timeout)
-    md1.vote_listener(on_click, votelol, embed, inter)
+    await md1.vote_listener(on_click, votelol, embed, inter)
 
 # noinspection PyUnusedLocal
 @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
@@ -660,11 +653,12 @@ playeroption.make_option(name="playername", description="플레이어의 이름"
 async def _player(inter: SlashInteraction):
     name = inter.get_option("player").options.get("playername").value
     try:
-        response = md1.except_error_information(inter, name)[0]
-        response2 = md1.except_error_information(inter, name)[1]
+        responses: md1.Responses = md1.except_error_information(inter=inter, name=name)
     except Exception as e:
         raise e
     else:
+        response = next(responses.responses1)
+        response2 = next(responses.responses1)
         if response is False or response2 is None:
             await inter.reply("서버 안에서 알 수 없는 에러가 났습니다.")
         else:

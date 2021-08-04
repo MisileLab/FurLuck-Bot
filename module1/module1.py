@@ -171,6 +171,24 @@ class WeatherBrowser:
         return browser
 
     def get_weather_data(self):
+        position = self.position
+        weatherurl = self.seleniumbrowser()
+        req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
+        soup = BeautifulSoup(req.text, 'html.parser')
+        req.close()
+        try:
+            todaytemperature = str(
+                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
+            if todaytemperature is None:
+                raise ValueError
+        except requests.TooManyRedirects:
+            pass
+        except Exception as e:
+            raise e
+        else:
+            self.sort_data(soup, weatherurl)
+
+    def seleniumbrowser(self):
         browser = self.open_browser()
         position = self.position
         browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
@@ -185,20 +203,7 @@ class WeatherBrowser:
                 'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
                 "").replace('.svg")', ""))
         browser.close()
-        req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
-        soup = BeautifulSoup(req.text, 'html.parser')
-        req.close()
-        try:
-            todaytemperature = str(
-                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-            if todaytemperature is None:
-                raise ValueError
-        except requests.TooManyRedirects:
-            pass
-        except ValueError:
-            raise ValueError
-        else:
-            self.sort_data(soup, weatherurl)
+        return weatherurl
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
@@ -814,7 +819,17 @@ async def except_error_information(inter, name):
     except Exception as e:
         await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
-    return [response, response2]
+    return Responses(response, response2)
+
+class Responses:
+    def __init__(self, response, response2):
+        self.response1 = response
+        self.response21 = response2
+
+    @property
+    def responses1(self):
+        yield self.response1
+        yield self.response21
 
 async def except_error_history(inter, name):
     response = None
@@ -884,3 +899,13 @@ async def vote_listener(on_click:ClickListener, votelol, embed, inter):
         embed.add_field(name="O", value=trueopinion)
         embed.add_field(name="X", value=falseopinion)
         await inter.edit(embed=embed, components=[])
+
+def get_warn_message(reason, memberid, authorid, warndata):
+    if reason is None:
+        return f"<@{memberid}>님은 <@{authorid}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+    return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+
+def get_unwarn_message(reason, memberid, authorid, warndata):
+    if reason is None:
+        return f"<@{memberid}>님은 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+    return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
