@@ -25,16 +25,14 @@ def set_helpingrank_embed(inter:SlashInteraction, user:discord.Member):
     helpingyouandme = md1.helpingyou(user.id)["helpingme"]
     if helpingyouandme is None:
         raise DataisNone
-    else:
-        helpingrank = md1.get_helping_rank(helpingyouandme, user.id)
-        if helpingrank is None:
-            return None
-        else:
-            embedhelping = discord.Embed(title="호감도 현황", description=f"{user.name}님! 고마워요!")
-            embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab",
-                                    icon_url="https://i.imgur.com/6y4X4aw.png")
-            embedhelping.add_field(name="호감도 칭호", value=helpingrank)
-            return embedhelping
+    helpingrank = md1.get_helping_rank(helpingyouandme, user.id)
+    if helpingrank is None:
+        return None
+    embedhelping = discord.Embed(title="호감도 현황", description=f"{user.name}님! 고마워요!")
+    embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab",
+                            icon_url="https://i.imgur.com/6y4X4aw.png")
+    embedhelping.add_field(name="호감도 칭호", value=helpingrank)
+    return embedhelping
 
 def set_weather_embed(weatherdata, position:str):
     embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
