@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 import cpuinfo
-import psutil
 import koreanbots
 import time
 from module1 import module1 as md1
+from module1 import module2 as md2
 import simpleeval
 import secrets
 from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
@@ -53,17 +53,19 @@ async def on_slash_command_error(inter, error):
     elif isinstance(error, slash_commands.CommandOnCooldown):
         await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
 
+    elif isinstance(error, md2.notadmin):
+        if error.message is None:
+            await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
+        else:
+            await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+
     else:
         raise error
 
 
 @Client.event
 async def on_member_join(member):
-    true_member_count = len([m for m in member.guild.members if not m.bot])
-    embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
-    embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
-    embed.set_footer(text=md1.todaycalculate())
-    embed.set_thumbnail(url=member.avatar_url)
+    embed = md2.make_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
@@ -71,8 +73,8 @@ async def on_member_join(member):
         pass
     else:
         await channel.send(embed=embed)
-    if member.guild.id == 635336036465246218:
-        await member.add_roles(member.guild.get_role(826962501097881620))
+        if member.guild.id == 635336036465246218:
+            await member.add_roles(member.guild.get_role(826962501097881620))
 
 
 @Client.event
@@ -340,20 +342,7 @@ async def _weather(inter: SlashInteraction):
     except ValueError:
         await inter.edit(content="이름이 맞지 않는 것 같아요!")
     else:
-        embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
-        embed1.set_thumbnail(url=weatherdata.weatherimage)
-        embed1.add_field(name="현재 온도", value=weatherdata.temp)
-        embed1.add_field(name="최고 온도", value=weatherdata.maxtemp)
-        embed1.add_field(name="최저 온도", value=weatherdata.mintemp)
-        embed1.add_field(name="체감 온도", value=weatherdata.sensibletemp)
-        embed1.add_field(name="날씨 상황", value=weatherdata.cast)
-        embed1.add_field(name="미세먼지 농도(μg/m3)", value=weatherdata.dust)
-        embed1.add_field(name="미세먼지 위험 단계", value=weatherdata.dust_txt)
-        embed1.add_field(name="초미세먼지 농도(μg/m3)", value=weatherdata.ultra_dust)
-        embed1.add_field(name="초미세먼지 위험 단계", value=weatherdata.ultra_dust_txt)
-        embed1.add_field(name="오존 농도(ppm)", value=weatherdata.ozone)
-        embed1.add_field(name="오존 위험 단계", value=weatherdata.ozonetext)
-        await inter.edit(content="완료되었습니다!", embed=embed1)
+        await inter.edit(content=None, embed=md2.set_weather_embed(weatherdata, position))
 
 
 bitlyoption = md1.NewOptionList()
@@ -450,18 +439,15 @@ userchannel.make_option(name="user", description="호감도를 확인할 유저"
 async def _helpinghands(inter: SlashInteraction):
     user = inter.get("user", inter.author)
     helpingyouandme = md1.helpingyou(user.id)["helpingme"]
-    if helpingyouandme is None:
-        await inter.reply("그 사람은 데이터가 없어요!")
-    else:
-        helpingrank = md1.get_helping_rank(helpingyouandme, user.id)
-        if helpingrank is None:
-            await inter.reply("오류가 난 것 같아요!")
-        else:
-            embedhelping = discord.Embed(title="호감도 현황", description=f"{user.name}님! 고마워요!")
-            embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab",
-                                    icon_url="https://i.imgur.com/6y4X4aw.png")
-            embedhelping.add_field(name="호감도 칭호", value=helpingrank)
-            await inter.reply(embed=embedhelping)
+    try:
+        embedhelping = md2.set_helpingrank_embed(inter, user)
+        if embedhelping is None:
+            raise TypeError
+    except md2.DataisNone():
+        await inter.reply("그 플레이어의 데이터가 없는 것 같아요!")
+    except TypeError:
+        await inter.reply("플레이어의 데이터를 가져오는 과정으로 오류가 난 것 같아요!")
+    await inter.reply(embed=embedhelping)
 
 
 noticeother = md1.NewOptionList()
@@ -470,21 +456,19 @@ noticeother.make_option(name="description", description="설명", required=True,
 
 @slash.command(name="noticeother", description="공지를 하는 명령어", options=noticeother.options)
 async def _notice(inter: SlashInteraction, description: str):
-    author = inter.author
-    if author.id != 338902243476635650:
-        await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-    else:
-        embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
-        embednotice.set_footer(text="by MisileLab", icon_url=inter.author.avatar_url)
-        getchannel = md1.noticeusingbot(inter.author.guild.id, 0, True)
-        await inter.reply("공지를 전달 중...")
-        for i1 in getchannel:
-            try:
-                channel: discord.TextChannel = await Client.fetch_channel(i1["gongjiid"])
-                await channel.send(embed=embednotice)
-            except (AttributeError, discord.NotFound):
-                pass
-        await inter.edit(content="공지를 성공적으로 전달했어요!")
+    md2.detect_admin(inter)
+    await inter.reply(type=5)
+    embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
+    embednotice.set_footer(text="by MisileLab", icon_url=inter.author.avatar_url)
+    getchannel = md1.noticeusingbot(inter.author.guild.id, 0, True)
+    for i1 in getchannel:
+        try:
+            channel: discord.TextChannel = await Client.fetch_channel(i1["gongjiid"])
+            await channel.send(embed=embednotice)
+        except (AttributeError, discord.NotFound):
+            pass
+        else:
+            await inter.edit(content="공지를 성공적으로 전달했어요!")
 
 
 setnotice = md1.NewOptionList()
