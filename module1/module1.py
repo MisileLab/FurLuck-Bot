@@ -2,7 +2,7 @@ import json
 import secrets
 from datetime import datetime
 from dislash.interactions.slash_interaction import SlashInteraction
-import psutil
+import module2 as md2
 import discord
 import requests
 from bitlyshortener import Shortener
@@ -238,14 +238,9 @@ class WeatherBrowser:
 
     @staticmethod
     def somanytemp(soup):
-        todaytemperature = str(soup.find('p', class_='info_temperature').find(
-            'span', class_='todaytemp').text) + '도'
-        lowtemperature = str(
-            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
-                                                                                                             class_='num').text) + '도'
-        hightemperature = str(
-            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',
-                                                                                                             class_='num').text) + '도'
+        todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
+        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',class_='num').text) + '도'
+        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',class_='num').text) + '도'
         return {"temp": todaytemperature, "lowtemp": lowtemperature, "hightemp": hightemperature}
 
     @staticmethod
@@ -948,17 +943,8 @@ def get_unwarn_message(reason, memberid, authorid, warndata):
 
 
 def make_embed_bot_information(inter, cpuinfo1, ping, Client):
-    embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
-    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1 = md2.cpuandram(inter, cpuinfo1)
     embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
-    embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
-    embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
-    embed1.add_field(name="램 전체 용량", value=str(
-        round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 사용 용량", value=str(
-        round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(
-        psutil.virtual_memory().percent))
     embed1.add_field(name="봇 핑(ms)", value=str(ping))
     embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
     return embed1

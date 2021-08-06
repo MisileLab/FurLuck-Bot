@@ -44,20 +44,8 @@ async def on_slash_command_error(inter, error):
     if isinstance(error, ignore_error):
         pass
 
-    elif isinstance(error, slash_commands.MissingPermissions):
-        await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
-
-    elif isinstance(error, slash_commands.BotMissingPermissions):
-        await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
-
-    elif isinstance(error, slash_commands.CommandOnCooldown):
-        await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
-
-    elif isinstance(error, md2.notadmin):
-        if error.message is None:
-            await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-        else:
-            await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+    else:
+        await md2.sub_error_handler(error, inter)
 
 
 @Client.event
@@ -300,10 +288,7 @@ async def _guckri(inter: SlashInteraction):
     reason = inter.get('reason', None)
     role1 = inter.guild.get_role(802733890221375498)
     await member.add_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 격리하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!")
+    await inter.reply(content=md2.guckristring(reason, inter, member))
 
 
 guckridisableoption = md1.NewOptionList()
@@ -320,10 +305,7 @@ async def _guckridisable(inter: SlashInteraction):
     reason = inter.get('reason', None)
     role1 = inter.guild.get_role(802733890221375498)
     await member.remove_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 격리해제 하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
+    await inter.reply(content=md2.notguckristring(reason, inter, member))
 
 
 weatheroption = md1.NewOptionList()

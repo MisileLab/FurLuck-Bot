@@ -1,4 +1,6 @@
+from dislash import slash_commands
 from dislash.interactions.slash_interaction import SlashInteraction
+import psutil
 import module1 as md1
 import discord
 
@@ -49,3 +51,42 @@ def set_weather_embed(weatherdata, position:str):
     embed1.add_field(name="오존 농도(ppm)", value=weatherdata.ozone)
     embed1.add_field(name="오존 위험 단계", value=weatherdata.ozonetext)
     return embed1
+
+async def sub_error_handler(error, inter):
+    if isinstance(error, slash_commands.MissingPermissions):
+        await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
+
+    elif isinstance(error, slash_commands.BotMissingPermissions):
+        await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
+
+    elif isinstance(error, slash_commands.CommandOnCooldown):
+        await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
+
+    elif isinstance(error, notadmin):
+        if error.message is None:
+            await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
+        else:
+            await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+
+def cpuandram(inter:SlashInteraction, cpuinfo1):
+    embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
+    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
+    embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
+    embed1.add_field(name="램 전체 용량", value=str(
+        round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
+    embed1.add_field(name="램 사용 용량", value=str(
+        round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
+    embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(
+        psutil.virtual_memory().percent))
+    return embed1
+
+def guckristring(reason:str or None, inter:SlashInteraction, member:discord.Member):
+    if reason is None:
+        return f"<@{inter.author.id}>님이 <@{member.id}>님을 격리하였습니다!"
+    return f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!"
+
+def notguckristring(reason:str or None, inter:SlashInteraction, member:discord.Member):
+    if reason is None:
+        return (f"<@{inter.author.id}>님이 <@{member.id}>님을 격리해제 하였습니다!")
+    return (f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
