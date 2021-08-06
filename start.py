@@ -41,10 +41,7 @@ async def on_command_error(error):
 
 @slash.event
 async def on_slash_command_error(inter, error):
-    if isinstance(error, ignore_error):
-        pass
-
-    else:
+    if not isinstance(error, ignore_error):
         await md2.sub_error_handler(error, inter)
 
 
