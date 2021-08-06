@@ -1,7 +1,8 @@
 import json
 import secrets
 from datetime import datetime
-
+from dislash.interactions.slash_interaction import SlashInteraction
+import module2 as md2
 import discord
 import requests
 from bitlyshortener import Shortener
@@ -45,35 +46,35 @@ def unix_to_datetime(unixtime):
 def todaycalculate():
     datetimetoday = datetime.today()
     return (
-            str(datetimetoday.year)
-            + '년 '
-            + str(datetimetoday.month)
-            + '월 '
-            + str(datetimetoday.day)
-            + '일 '
-            + str(datetimetoday.hour)
-            + '시 '
-            + str(datetimetoday.minute)
-            + '분 '
-            + str(datetimetoday.second)
-            + '초 '
+        str(datetimetoday.year)
+        + '년 '
+        + str(datetimetoday.month)
+        + '월 '
+        + str(datetimetoday.day)
+        + '일 '
+        + str(datetimetoday.hour)
+        + '시 '
+        + str(datetimetoday.minute)
+        + '분 '
+        + str(datetimetoday.second)
+        + '초 '
     )
 
 
 def makeformat(datetime1):
     return (
-            str(datetime1.year)
-            + '년 '
-            + str(datetime1.month)
-            + '월 '
-            + str(datetime1.day)
-            + '일 '
-            + str(datetime1.hour)
-            + '시 '
-            + str(datetime1.minute)
-            + '분 '
-            + str(datetime1.second)
-            + '초 '
+        str(datetime1.year)
+        + '년 '
+        + str(datetime1.month)
+        + '월 '
+        + str(datetime1.day)
+        + '일 '
+        + str(datetime1.hour)
+        + '시 '
+        + str(datetime1.minute)
+        + '분 '
+        + str(datetime1.second)
+        + '초 '
     )
 
 
@@ -171,9 +172,29 @@ class WeatherBrowser:
         return browser
 
     def get_weather_data(self):
+        position = self.position
+        weatherurl = self.seleniumbrowser()
+        req = requests.get(
+            f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
+        soup = BeautifulSoup(req.text, 'html.parser')
+        req.close()
+        try:
+            todaytemperature = str(
+                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
+            if todaytemperature is None:
+                raise ValueError
+        except requests.TooManyRedirects:
+            pass
+        except Exception as e:
+            raise e
+        else:
+            self.sort_data(soup, weatherurl)
+
+    def seleniumbrowser(self):
         browser = self.open_browser()
         position = self.position
-        browser.get(url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
+        browser.get(
+            url=f"https://search.naver.com/search.naver?&query={position.replace(' ', '+')}+날씨")
         try:
             browserfindelement = browser.find_element_by_class_name(name="ico_state").value_of_css_property(
                 "background-image")
@@ -185,48 +206,26 @@ class WeatherBrowser:
                 'url("https://ssl.pstatic.net/sstatic/keypage/outside/scui/weather_new/img/weather_svg/icon_wt_',
                 "").replace('.svg")', ""))
         browser.close()
-        req = requests.get(f'https://search.naver.com/search.naver?ie=utf8&query={position.replace(" ", "+")}+날씨')
-        soup = BeautifulSoup(req.text, 'html.parser')
-        req.close()
-        try:
-            todaytemperature = str(
-                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-            if todaytemperature is None:
-                raise ValueError
-        except requests.TooManyRedirects:
-            pass
-        except ValueError:
-            raise ValueError
-        else:
-            self.sort_data(soup, weatherurl)
+        return weatherurl
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        todaytemperature = result["temp"]
-        lowtemperature = result["mintemp"]
-        hightemperature = result["hightemp"]
-        cast_txt = result["cast"]
-        misaemungi = result["dust"]
-        misaemungitext = result["dust_txt"]
-        chomisaemungi = result["ultra_dust"]
-        chomisaemungitext = result["ultra_dust_txt"]
-        ozone = result["ozone"]
-        ozonetext = result["ozonetext"]
-        sensibletemp = result["sensibletemp"]
-        dict1 = self.data_to_dict(temp=todaytemperature, mintemp=lowtemperature, maxtemp=hightemperature, cast=cast_txt,
-                                  dust=misaemungi, dust_txt=misaemungitext, ultra_dust=chomisaemungi, ultra_dust_txt=chomisaemungitext,
-                                  ozone=ozone, ozonetext=ozonetext, sensibletemp=sensibletemp, weatherurl=weatherurl)
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], cast=result["cast"],
+                                  dust=result["dust"], dust_txt=result["dust_txt"], ultra_dust=result[
+                                      "ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
+                                  ozone=result["ozone"], ozonetext=result["ozonetext"], sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
         return Weather(dict1)
 
     def soup_to_dict(self, soup):
         result = self.somanydust(soup)
         temp = self.somanytemp(soup)
         infolist = soup.find('ul', class_='info_list')
-        sensibletemp = infolist.find('span', class_='sensible').find('span', class_='num').text
-        return {"temp":temp["temp"],"dust":result["dust"],"dust_txt":result["dust_txt"],
-                "ultra_dust":result["ultra_dust"],"ultra_dust_txt":result["ultra_dust_txt"],
-                "ozone":result["ozone"], "ozonetext":result["ozone_text"], "lowtemp":temp["lowtemp"],
-                "hightemp":temp["hightemp"], "cast":result["cast"], "sensibletemp":sensibletemp}
+        sensibletemp = infolist.find('span', class_='sensible').find(
+            'span', class_='num').text
+        return {"temp": temp["temp"], "dust": result["dust"], "dust_txt": result["dust_txt"],
+                "ultra_dust": result["ultra_dust"], "ultra_dust_txt": result["ultra_dust_txt"],
+                "ozone": result["ozone"], "ozonetext": result["ozone_text"], "lowtemp": temp["lowtemp"],
+                "hightemp": temp["hightemp"], "cast": result["cast"], "sensibletemp": sensibletemp}
 
     def somanydust(self, soup):
         infolist = soup.find('ul', class_='info_list')
@@ -235,36 +234,37 @@ class WeatherBrowser:
         ultradust = self.getultradust(soup)
         ozone = self.getozone(soup)
         return {"cast": cast_txt, "dust": dust[0], "dust_txt": dust[1], "ultra_dust": ultradust[0],
-                "ultra_dust_txt": ultradust[1],"ozone": ozone[0], "ozone_text": ozone[1]}
+                "ultra_dust_txt": ultradust[1], "ozone": ozone[0], "ozone_text": ozone[1]}
 
     @staticmethod
     def somanytemp(soup):
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        lowtemperature = str(
-            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',
-                                                                                                             class_='num').text) + '도'
-        hightemperature = str(
-            soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',
-                                                                                                             class_='num').text) + '도'
-        return {"temp":todaytemperature, "lowtemp":lowtemperature, "hightemp":hightemperature}
+        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',class_='num').text) + '도'
+        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',class_='num').text) + '도'
+        return {"temp": todaytemperature, "lowtemp": lowtemperature, "hightemp": hightemperature}
 
     @staticmethod
     def getdust(soup):
-        misaemungi = soup.find('dl', class_='indicator').find_all('dd')[0].find('span', class_='num').text
+        misaemungi = soup.find('dl', class_='indicator').find_all('dd')[
+            0].find('span', class_='num').text
         misaemungitext = soup.find('dl', class_='indicator').find_all('dd')[0]
         misaemungitext = remove_special_region(misaemungitext, 'span').text
         return [misaemungi, misaemungitext]
 
     @staticmethod
     def getultradust(soup):
-        chomisaemungi = soup.find('dl', class_='indicator').find_all('dd')[1].find('span', class_='num').text
-        chomisaemungitext = soup.find('dl', class_='indicator').find_all('dd')[1]
-        chomisaemungitext = remove_special_region(chomisaemungitext, 'span').text
+        chomisaemungi = soup.find('dl', class_='indicator').find_all('dd')[
+            1].find('span', class_='num').text
+        chomisaemungitext = soup.find(
+            'dl', class_='indicator').find_all('dd')[1]
+        chomisaemungitext = remove_special_region(
+            chomisaemungitext, 'span').text
         return [chomisaemungi, chomisaemungitext]
 
     @staticmethod
     def getozone(soup):
-        ozone = soup.find('dl', class_='indicator').find_all('dd')[2].find('span', class_='num').text
+        ozone = soup.find('dl', class_='indicator').find_all('dd')[
+            2].find('span', class_='num').text
         ozonetext = soup.find('dl', class_='indicator').find_all('dd')[2]
         ozonetext = remove_special_region(ozonetext, 'span').text
         return [ozone, ozonetext]
@@ -360,7 +360,8 @@ def warn(memberid: int, amount: int, get: bool):
     if result is None:
         insertmemberdataonce(cursor=cursor, memberid=memberid)
     if not get:
-        cursor.execute("UPDATE furluckbot1 SET warn = %s WHERE id = %s", (amount, memberid))
+        cursor.execute(
+            "UPDATE furluckbot1 SET warn = %s WHERE id = %s", (amount, memberid))
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result = cursor_to_result(resultcursor, 'id', memberid)
@@ -433,20 +434,10 @@ def dobakmoney(memberid: int, money: int):
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
-    if result1 is None:
-        insertmemberdataonce(cursor, memberid)
-        cursor.execute("SELECT * FROM `furluckbot1`;")
-        resultcursor = cursor.fetchall()
-        result1 = cursor_to_result(resultcursor, 'id', memberid)
-    if result1['level1'] < money:
-        raise DontHaveMoney
-    random1 = secrets.SystemRandom().randint(1, 2)
-    if random1 == 1:
-        money1 = result1['level1'] - money
-        cursor.execute("UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
-        raise FailedDobak
-    money1 = result1['level1'] + money
-    cursor.execute("UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
+    try:
+        sub_dobak_money(result1, cursor, money, memberid)
+    except Exception as e:
+        raise e
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
@@ -454,7 +445,25 @@ def dobakmoney(memberid: int, money: int):
     return result1
 
 
-def cursor_to_result(resultcursor, equal:str, id2):
+def sub_dobak_money(result1, cursor, money, memberid):
+    if result1 is None:
+        insertmemberdataonce(cursor, memberid)
+        cursor.execute("SELECT * FROM `furluckbot1`;")
+        resultcursor = cursor.fetchall()
+        result1 = cursor_to_result(resultcursor, 'id', memberid)
+    if result1['level1'] < money:
+        raise DontHaveMoney
+    if secrets.SystemRandom().randint(1, 2) == 1:
+        money1 = result1['level1'] - money
+        cursor.execute(
+            "UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
+        raise FailedDobak
+    money1 = result1['level1'] + money
+    cursor.execute(
+        "UPDATE furluckbot1 SET level1 = %s WHERE id = %s", (money1, memberid))
+
+
+def cursor_to_result(resultcursor, equal: str, id2):
     result1 = None
     for i1 in resultcursor:
         resultid = i1[equal]
@@ -493,7 +502,8 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     if result is None:
         insertserverdataonce(cursor, guildid)
     if get is False:
-        cursor.execute("UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
+        cursor.execute(
+            "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
@@ -515,7 +525,8 @@ def noticeusingbot(guildid: int, channelid: int, get: bool):
     if result1 is None:
         insertserverdataonce(cursor, guildid)
     if not get:
-        cursor.execute("UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s", (channelid, guildid))
+        cursor.execute(
+            "UPDATE serverfurluckbot SET gongjiid = %s WHERE serverid = %s", (channelid, guildid))
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     mysql1.close()
@@ -527,7 +538,8 @@ class NewOptionList:
         self.option = []
 
     def make_option(self, name: str, description: str, required: bool, type: Type):
-        option = Option(name=name, description=description, required=required, type=type)
+        option = Option(name=name, description=description,
+                        required=required, type=type)
         self.option.append(option)
         return self.option
 
@@ -550,7 +562,8 @@ class NewActionRow:
 
 class Vote:
     def __init__(self):
-        self.voteid = hashlib.sha512(str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
+        self.voteid = hashlib.sha512(
+            str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
         self.mysql = connect_cursor()
         self.cursor = self.mysql.cursor(pymysql.cursors.DictCursor)
         self.cursor.execute("SELECT * FROM `votes`")
@@ -577,7 +590,8 @@ class Vote:
                     str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
 
     def close(self):
-        self.cursor.execute('SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
+        self.cursor.execute(
+            'SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
         resultcursor = self.cursor.fetchall()
         trueopinion = 0
         falseopinion = 0
@@ -590,7 +604,8 @@ class Vote:
                     trueopinion += 1
                 elif resultid == 1:
                     falseopinion += 1
-        self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
+        self.cursor.execute(
+            "DELETE FROM `votes` WHERE voteid = %s", self.voteid)
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
 
@@ -673,7 +688,8 @@ class HypixelRankHistory:
                 mvp_plus = False
             else:
                 mvp_plus = True
-            self.rankrecord[i2] = HypixelRank(regular, vip, vip_plus, mvp, mvp_plus)
+            self.rankrecord[i2] = HypixelRank(
+                regular, vip, vip_plus, mvp, mvp_plus)
 
     # noinspection PyShadowingNames
     def lol(self, a: dict = None):
@@ -733,7 +749,8 @@ class KeyLimit(Exception):
 
 class HypixelAPI:
     def __init__(self, playername: str):
-        response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{playername}")
+        response = requests.get(
+            f"https://api.mojang.com/users/profiles/minecraft/{playername}")
         if response.status_code == 204:
             raise UsernameNotValid("username is not valid:", playername)
         self.playername = playername
@@ -786,11 +803,15 @@ def booltostr(arg: bool):
         return "없음"
     return "있음"
 
+
 def rankhistorycomponents(response):
-    components = SelectMenu(custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
+    components = SelectMenu(
+        custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
     for key in response.keys():
-        components.add_option(label=key, value=key, description=f"{key} 날짜의 기록을 보여줍니다.")
+        components.add_option(label=key, value=key,
+                              description=f"{key} 날짜의 기록을 보여줍니다.")
     return components
+
 
 def rankhistoryembed(labels, response, name):
     embed = discord.Embed(name=f"{name}의 랭크 기록")
@@ -801,12 +822,14 @@ def rankhistoryembed(labels, response, name):
         embed.add_field(name=i2, value=value1)
     return embed
 
+
 async def except_error_information(inter, name):
     response = None
     response2 = None
     try:
         response: Information = HypixelAPI(playername=name).get_information()
-        response2: bool or None = HypixelAPI(playername=name).get_online(response)
+        response2: bool or None = HypixelAPI(
+            playername=name).get_online(response)
     except UsernameNotValid:
         await inter.reply("유저의 이름이 알맞지 않습니다.")
     except YouAlreadylookedupthisnamerecently:
@@ -816,7 +839,19 @@ async def except_error_information(inter, name):
     except Exception as e:
         await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
-    return [response, response2]
+    return Responses(response, response2)
+
+
+class Responses:
+    def __init__(self, response, response2):
+        self.response1 = response
+        self.response21 = response2
+
+    @property
+    def responses1(self):
+        yield self.response1
+        yield self.response21
+
 
 async def except_error_history(inter, name):
     response = None
@@ -833,6 +868,7 @@ async def except_error_history(inter, name):
         raise e
     return response
 
+
 def create_player_embed(name, response, response2):
     responseonline = None
     if response2:
@@ -841,11 +877,13 @@ def create_player_embed(name, response, response2):
         responseonline = "오프라인"
     embed = discord.Embed(title="플레이어 정보", description=f"플레이어 이름 : {name}")
     embed.add_field(name="부여 받은 랭크", value=response.rank)
-    embed.add_field(name="돈으로 산 랭크", value=str(response.packagerank).replace('PLUS', '+').replace('_', ''))
+    embed.add_field(name="돈으로 산 랭크", value=str(
+        response.packagerank).replace('PLUS', '+').replace('_', ''))
     embed.add_field(name="처음 로그인한 일자", value=str(response.firstlogin))
     embed.add_field(name="마지막으로 로그인한 일자", value=str(response.lastlogin))
     embed.add_field(name="마지막으로 로그아웃한 일자", value=str(response.lastlogout))
     embed.add_field(name="현재 온라인 여부", value=str(responseonline))
+
 
 def get_helping_rank(helpingyouandme, id2):
     helpingrank = None
@@ -857,14 +895,18 @@ def get_helping_rank(helpingyouandme, id2):
         helpingrank = "조금이라도 도와주는 너"
     return helpingrank
 
+
 def get_message_edit_embed(before, after):
     embed1 = discord.Embed(name="메시지가 변경되었어요!")
-    embed1.add_field(name="변경되기 전 메시지의 콘텐츠", value=before.content, inline=False)
+    embed1.add_field(name="변경되기 전 메시지의 콘텐츠",
+                     value=before.content, inline=False)
     embed1.add_field(name="변경된 후 메시지의 콘텐츠", value=after.content, inline=False)
-    embed1.add_field(name="메시지를 변경한 사람", value=f"<@{after.author.id}>", inline=False)
+    embed1.add_field(name="메시지를 변경한 사람",
+                     value=f"<@{after.author.id}>", inline=False)
     embed1.set_footer(text=todaycalculate())
 
-async def vote_listener(on_click:ClickListener, votelol, embed, inter):
+
+async def vote_listener(on_click: ClickListener, votelol, embed, inter):
     # noinspection PyShadowingNames
     @on_click.matching_id('accept')
     async def _accept(inter):
@@ -886,3 +928,63 @@ async def vote_listener(on_click:ClickListener, votelol, embed, inter):
         embed.add_field(name="O", value=trueopinion)
         embed.add_field(name="X", value=falseopinion)
         await inter.edit(embed=embed, components=[])
+
+
+def get_warn_message(reason, memberid, authorid, warndata):
+    if reason is None:
+        return f"<@{memberid}>님은 <@{authorid}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+    return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+
+
+def get_unwarn_message(reason, memberid, authorid, warndata):
+    if reason is None:
+        return f"<@{memberid}>님은 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+    return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
+
+
+def make_embed_bot_information(inter, cpuinfo1, ping, Client):
+    embed1 = md2.cpuandram(inter, cpuinfo1)
+    embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
+    embed1.add_field(name="봇 핑(ms)", value=str(ping))
+    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    return embed1
+
+
+async def get_guilds(guildid, Client, inter):
+    try:
+        guildid = int(guildid)
+        guild: discord.Guild = Client.get_guild(guildid)
+        if guild is None:
+            raise AttributeError
+    except (AttributeError, discord.errors.HTTPException, ValueError):
+        await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
+    except Exception as e:
+        raise e
+    else:
+        return guild
+
+
+def make_guildinfo_embed(guild, inter):
+    embed1 = discord.Embed(name="서버의 정보", description=f"{guild.name}의 정보에요!")
+    embed1.add_field(name="길드의 부스트 티어", value=guild.premium_tier)
+    embed1.add_field(name="길드의 부스트 개수",
+                     value=f"{guild.premium_subscription_count}개")
+    embed1.add_field(name="길드 멤버 수(봇 포함)", value=f"{len(guild.members)}명")
+    embed1.add_field(name="실제 길드 멤버 수",
+                     value=f"{len([m for m in guild.members if not m.bot])}명")
+    embed1.set_thumbnail(url=guild.icon_url)
+    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1.set_footer(text=todaycalculate())
+    return embed1
+
+
+async def mute_command(role1: discord.Role or None, inter: SlashInteraction, member=discord.Member, reason=str or None):
+    if role1 is None:
+        perms1 = discord.Permissions(
+            add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
+        role1 = await inter.guild.create_role(name="뮤트", permissions=perms1)
+    await member.add_roles(role1, reason=reason)
+    if reason is None:
+        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
+    else:
+        await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")

@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 import cpuinfo
-import psutil
 import koreanbots
 import time
 from module1 import module1 as md1
+from module1 import module2 as md2
 import simpleeval
 import secrets
 from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
@@ -41,29 +41,13 @@ async def on_command_error(error):
 
 @slash.event
 async def on_slash_command_error(inter, error):
-    if isinstance(error, ignore_error):
-        pass
-
-    elif isinstance(error, slash_commands.MissingPermissions):
-        await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
-
-    elif isinstance(error, slash_commands.BotMissingPermissions):
-        await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
-
-    elif isinstance(error, slash_commands.CommandOnCooldown):
-        await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
-
-    else:
-        raise error
+    if not isinstance(error, ignore_error):
+        await md2.sub_error_handler(error, inter)
 
 
 @Client.event
 async def on_member_join(member):
-    true_member_count = len([m for m in member.guild.members if not m.bot])
-    embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
-    embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
-    embed.set_footer(text=md1.todaycalculate())
-    embed.set_thumbnail(url=member.avatar_url)
+    embed = md2.make_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
@@ -71,8 +55,8 @@ async def on_member_join(member):
         pass
     else:
         await channel.send(embed=embed)
-    if member.guild.id == 635336036465246218:
-        await member.add_roles(member.guild.get_role(826962501097881620))
+        if member.guild.id == 635336036465246218:
+            await member.add_roles(member.guild.get_role(826962501097881620))
 
 
 @Client.event
@@ -136,19 +120,10 @@ async def idontwantdevelopercommandinthiscommand(ctx):
 @slash.command(name="bot", description="봇의 정보를 알려주는 명령어")
 async def _bot(inter: SlashInteraction):
     before = time.monotonic()
-    await inter.reply("Ping Test")
+    await inter.reply(type=5)
     ping = time.monotonic() - before
     cpuinfo1 = cpuinfo.get_cpu_info()
-    embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
-    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-    embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
-    embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
-    embed1.add_field(name="CPU Hz", value=cpuinfo1["hz_actual_friendly"])
-    embed1.add_field(name="램 전체 용량", value=str(round(psutil.virtual_memory().total / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 사용 용량", value=str(round(psutil.virtual_memory().used / (1024 * 1024 * 1024))) + "GB")
-    embed1.add_field(name="램 용량 퍼센테이지(%)", value=str(psutil.virtual_memory().percent))
-    embed1.add_field(name="봇 핑(ms)", value=str(ping))
-    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    embed1 = md1.make_embed_bot_information(inter, cpuinfo1, ping, Client)
     await inter.edit(content=None, embed=embed1)
 
 
@@ -257,17 +232,8 @@ muteoption.make_option(name="reason", description="왜 뮤트함?", required=Fal
 async def _mute(inter: SlashInteraction):
     member: discord.Member = inter.get('member')
     reason = inter.get('reason', None)
-    guild = inter.guild
-    role1 = discord.utils.get(guild.roles, name='뮤트')
-    if role1 is None:
-        perms1 = discord.Permissions(add_reactions=False, create_instant_invite=False, send_messages=False, speak=False)
-        role1 = await guild.create_role(name="뮤트", permissions=perms1)
-    await member.add_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
-
+    role1 = discord.utils.get(inter.guild.roles, name='뮤트')
+    await md1.mute_command(role1, inter, member, reason)
 
 unmuteoption = md1.NewOptionList()
 unmuteoption.make_option(name="member", description="언뮤트할 사람", required=True, type=Type.USER)
@@ -319,10 +285,7 @@ async def _guckri(inter: SlashInteraction):
     reason = inter.get('reason', None)
     role1 = inter.guild.get_role(802733890221375498)
     await member.add_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 격리하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!")
+    await inter.reply(content=md2.guckristring(reason, inter, member))
 
 
 guckridisableoption = md1.NewOptionList()
@@ -339,10 +302,7 @@ async def _guckridisable(inter: SlashInteraction):
     reason = inter.get('reason', None)
     role1 = inter.guild.get_role(802733890221375498)
     await member.remove_roles(role1, reason=reason)
-    if reason is None:
-        await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 격리해제 하였습니다!")
-    else:
-        await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
+    await inter.reply(content=md2.notguckristring(reason, inter, member))
 
 
 weatheroption = md1.NewOptionList()
@@ -358,20 +318,7 @@ async def _weather(inter: SlashInteraction):
     except ValueError:
         await inter.edit(content="이름이 맞지 않는 것 같아요!")
     else:
-        embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
-        embed1.set_thumbnail(url=weatherdata.weatherimage)
-        embed1.add_field(name="현재 온도", value=weatherdata.temp)
-        embed1.add_field(name="최고 온도", value=weatherdata.maxtemp)
-        embed1.add_field(name="최저 온도", value=weatherdata.mintemp)
-        embed1.add_field(name="체감 온도", value=weatherdata.sensibletemp)
-        embed1.add_field(name="날씨 상황", value=weatherdata.cast)
-        embed1.add_field(name="미세먼지 농도(μg/m3)", value=weatherdata.dust)
-        embed1.add_field(name="미세먼지 위험 단계", value=weatherdata.dust_txt)
-        embed1.add_field(name="초미세먼지 농도(μg/m3)", value=weatherdata.ultra_dust)
-        embed1.add_field(name="초미세먼지 위험 단계", value=weatherdata.ultra_dust_txt)
-        embed1.add_field(name="오존 농도(ppm)", value=weatherdata.ozone)
-        embed1.add_field(name="오존 위험 단계", value=weatherdata.ozonetext)
-        await inter.edit(content="완료되었습니다!", embed=embed1)
+        await inter.edit(content=None, embed=md2.set_weather_embed(weatherdata, position))
 
 
 bitlyoption = md1.NewOptionList()
@@ -424,12 +371,8 @@ async def _warn(inter: SlashInteraction):
     amount = inter.get('amount')
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] + amount, get=False)
-    if reason is None:
-        await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    else:
-        await inter.reply(
-            f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의를 받았어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-
+    message = md1.get_warn_message(reason, member.id, inter.author.id, warndata)
+    await inter.reply(message)
 
 unwarnoption = md1.NewOptionList()
 unwarnoption.make_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
@@ -446,11 +389,8 @@ async def _unwarn(inter: SlashInteraction):
     amount = inter.get('amount')
     warndata = md1.warn(memberid=member.id, amount=0, get=True)
     warndata = md1.warn(memberid=member.id, amount=warndata['warn'] - amount, get=False)
-    if reason is None:
-        await inter.reply(f"<@{member.id}>님은 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
-    else:
-        await inter.reply(
-            f"<@{member.id}>님은 {reason}이라는 이유로 <@{inter.author.id}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!")
+    message = md1.get_unwarn_message(reason, member.id, inter.author.id, warndata)
+    await inter.reply(message)
 
 
 hellochannel = md1.NewOptionList()
@@ -474,19 +414,15 @@ userchannel.make_option(name="user", description="호감도를 확인할 유저"
 @slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
 async def _helpinghands(inter: SlashInteraction):
     user = inter.get("user", inter.author)
-    helpingyouandme = md1.helpingyou(user.id)["helpingme"]
-    if helpingyouandme is None:
-        await inter.reply("그 사람은 데이터가 없어요!")
-    else:
-        helpingrank = md1.get_helping_rank(helpingyouandme, user.id)
-        if helpingrank is None:
-            await inter.reply("오류가 난 것 같아요!")
-        else:
-            embedhelping = discord.Embed(title="호감도 현황", description=f"{user.name}님! 고마워요!")
-            embedhelping.set_author(name="Misile#2134", url="https://github.com/MisileLab",
-                                    icon_url="https://i.imgur.com/6y4X4aw.png")
-            embedhelping.add_field(name="호감도 칭호", value=helpingrank)
-            await inter.reply(embed=embedhelping)
+    try:
+        embedhelping = md2.set_helpingrank_embed(inter, user)
+        if embedhelping is None:
+            raise TypeError
+    except md2.DataisNone():
+        await inter.reply("그 플레이어의 데이터가 없는 것 같아요!")
+    except TypeError:
+        await inter.reply("플레이어의 데이터를 가져오는 과정으로 오류가 난 것 같아요!")
+    await inter.reply(embed=embedhelping)
 
 
 noticeother = md1.NewOptionList()
@@ -495,21 +431,19 @@ noticeother.make_option(name="description", description="설명", required=True,
 
 @slash.command(name="noticeother", description="공지를 하는 명령어", options=noticeother.options)
 async def _notice(inter: SlashInteraction, description: str):
-    author = inter.author
-    if author.id != 338902243476635650:
-        await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-    else:
-        embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
-        embednotice.set_footer(text="by MisileLab", icon_url=inter.author.avatar_url)
-        getchannel = md1.noticeusingbot(inter.author.guild.id, 0, True)
-        await inter.reply("공지를 전달 중...")
-        for i1 in getchannel:
-            try:
-                channel: discord.TextChannel = await Client.fetch_channel(i1["gongjiid"])
-                await channel.send(embed=embednotice)
-            except (AttributeError, discord.NotFound):
-                pass
-        await inter.edit(content="공지를 성공적으로 전달했어요!")
+    md2.detect_admin(inter)
+    await inter.reply(type=5)
+    embednotice = discord.Embed(title="공지", description=description, color=0xed2f09)
+    embednotice.set_footer(text="by MisileLab", icon_url=inter.author.avatar_url)
+    getchannel = md1.noticeusingbot(inter.author.guild.id, 0, True)
+    for i1 in getchannel:
+        try:
+            channel: discord.TextChannel = await Client.fetch_channel(i1["gongjiid"])
+            await channel.send(embed=embednotice)
+        except (AttributeError, discord.NotFound):
+            pass
+        else:
+            await inter.edit(content="공지를 성공적으로 전달했어요!")
 
 
 setnotice = md1.NewOptionList()
@@ -578,21 +512,11 @@ async def _serverinfo(inter: SlashInteraction):
     await inter.reply("서버의 정보를 찾고 있어요!")
     guildid = inter.get("serverid", inter.author.guild.id)
     try:
-        guildid = int(guildid)
-        guild: discord.Guild = Client.get_guild(guildid)
-        if guild is None:
-            raise AttributeError
-    except (AttributeError, discord.errors.HTTPException, ValueError):
-        await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
+        guild = await md1.get_guilds(guildid, Client, inter)
+    except Exception as e:
+        raise e
     else:
-        embed1 = discord.Embed(name="서버의 정보", description=f"{guild.name}의 정보에요!")
-        embed1.add_field(name="길드의 부스트 티어", value=guild.premium_tier)
-        embed1.add_field(name="길드의 부스트 개수", value=f"{guild.premium_subscription_count}개")
-        embed1.add_field(name="길드 멤버 수(봇 포함)", value=f"{len(guild.members)}명")
-        embed1.add_field(name="실제 길드 멤버 수", value=f"{len([m for m in guild.members if not m.bot])}명")
-        embed1.set_thumbnail(url=guild.icon_url)
-        embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-        embed1.set_footer(text=md1.todaycalculate())
+        embed1 = md1.make_guildinfo_embed(guild, inter)
         await inter.edit(embed=embed1, content=None)
 
 
@@ -642,7 +566,7 @@ async def _createvote(inter: SlashInteraction):
     votelol = md1.Vote()
     msg = await inter.edit(embed=embed, components=component.components)
     on_click: ClickListener = msg.create_click_listener(timeout=timeout)
-    md1.vote_listener(on_click, votelol, embed, inter)
+    await md1.vote_listener(on_click, votelol, embed, inter)
 
 # noinspection PyUnusedLocal
 @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
@@ -665,6 +589,8 @@ async def _player(inter: SlashInteraction):
         raise e
         
     else:
+        response = next(responses.responses1)
+        response2 = next(responses.responses1)
         if response is False or response2 is None:
             await inter.reply("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
