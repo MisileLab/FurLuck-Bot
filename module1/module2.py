@@ -1,4 +1,3 @@
-from dislash import slash_commands
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
 import module1 as md1
@@ -53,6 +52,7 @@ def set_weather_embed(weatherdata, position:str):
     return embed1
 
 async def sub_error_handler(error, inter):
+    from dislash import slash_commands
     if isinstance(error, slash_commands.MissingPermissions):
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
