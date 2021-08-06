@@ -438,7 +438,6 @@ userchannel.make_option(name="user", description="호감도를 확인할 유저"
 @slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
 async def _helpinghands(inter: SlashInteraction):
     user = inter.get("user", inter.author)
-    helpingyouandme = md1.helpingyou(user.id)["helpingme"]
     try:
         embedhelping = md2.set_helpingrank_embed(inter, user)
         if embedhelping is None:
