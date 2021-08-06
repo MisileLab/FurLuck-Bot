@@ -59,9 +59,6 @@ async def on_slash_command_error(inter, error):
         else:
             await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
 
-    else:
-        raise error
-
 
 @Client.event
 async def on_member_join(member):
