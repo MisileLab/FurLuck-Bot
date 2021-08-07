@@ -2,7 +2,7 @@ import json
 import secrets
 from datetime import datetime
 from dislash.interactions.slash_interaction import SlashInteraction
-import module2 as md2
+import modules.module2 as md2
 import discord
 import requests
 from bitlyshortener import Shortener
@@ -853,7 +853,7 @@ class Responses:
         yield self.response21
 
 
-async def except_error_history(inter, name):
+async def except_error_history(inter:SlashInteraction, name:str):
     response = None
     try:
         response: Information = HypixelAPI(playername=name).get_rankhistory()

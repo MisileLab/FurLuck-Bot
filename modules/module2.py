@@ -1,6 +1,6 @@
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
-import module1 as md1
+import modules.module2 as md1
 import discord
 
 def make_embed(member: discord.Member):

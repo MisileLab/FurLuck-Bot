@@ -3,8 +3,8 @@ from discord.ext import commands
 import cpuinfo
 import koreanbots
 import time
-from module1 import module1 as md1
-from module1 import module2 as md2
+from modules import module1 as md1
+from modules import module2 as md2
 import simpleeval
 import secrets
 from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
@@ -20,6 +20,7 @@ slash = slash_commands.SlashClient(Client)
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]
 icecreamhappydiscord = [635336036465246218]
 ignore_error = commands.CommandNotFound, discord.errors.NotFound
+message_error = slash_commands.MissingPermissions, slash_commands.BotMissingPermissions, slash_commands.CommandOnCooldown
 
 
 @Client.event
@@ -42,7 +43,10 @@ async def on_command_error(error):
 @slash.event
 async def on_slash_command_error(inter, error):
     if not isinstance(error, ignore_error):
-        await md2.sub_error_handler(error, inter)
+        if isinstance(error, message_error): 
+            await md2.sub_error_handler(error, inter)
+        else:
+            raise error
 
 
 @Client.event
@@ -612,7 +616,7 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
         else:
             components = md1.rankhistorycomponents(response)
-            msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[components])
+            msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
             inter = await msg.wait_for_dropdown()
             labels = [option.label for option in inter.select_menu.selected_options]
             embed = md1.rankhistoryembed(labels=labels, name=name, response=response)
