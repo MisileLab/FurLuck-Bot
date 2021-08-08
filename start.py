@@ -622,5 +622,4 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             embed = md1.rankhistoryembed(labels=labels, name=name, response=response)
             await msg.edit(content=None, embed=embed, components=[])
 
-
 Client.run(token)
