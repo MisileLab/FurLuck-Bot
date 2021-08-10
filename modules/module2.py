@@ -1,28 +1,38 @@
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
-import modules.module2 as md1
+import modules.module1 as md1
 import discord
+from dislash import slash_commands
+
+
+def get_true_member(member: discord.Member):
+    return str(len([m for m in member.guild.members if not m.bot]))
+
 
 def make_embed(member: discord.Member):
     embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
-    embed.add_field(name='현재 인원', value=str(len([m for m in member.guild.members if not m.bot])) + '명')
+    embed.add_field(name='현재 인원', value=get_true_member(member) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
     return embed
 
+
 class notadmin(Exception):
-    def __init__(self, message:discord.Message=None):
+    def __init__(self, message: discord.Message = None):
         self.message = message
 
-def detect_admin(inter: SlashInteraction, message: discord.Message=None):
+
+def detect_admin(inter: SlashInteraction, message: discord.Message = None):
     if inter.author.id != 338902243476635650:
         raise notadmin(message)
     return True
 
+
 class DataisNone(Exception):
     pass
 
-def set_helpingrank_embed(inter:SlashInteraction, user:discord.Member):
+
+def set_helpingrank_embed(inter: SlashInteraction, user: discord.Member):
     helpingyouandme = md1.helpingyou(user.id)["helpingme"]
     if helpingyouandme is None:
         raise DataisNone
@@ -35,13 +45,9 @@ def set_helpingrank_embed(inter:SlashInteraction, user:discord.Member):
     embedhelping.add_field(name="호감도 칭호", value=helpingrank)
     return embedhelping
 
-def set_weather_embed(weatherdata, position:str):
-    embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
-    embed1.set_thumbnail(url=weatherdata.weatherimage)
-    embed1.add_field(name="현재 온도", value=weatherdata.temp)
-    embed1.add_field(name="최고 온도", value=weatherdata.maxtemp)
-    embed1.add_field(name="최저 온도", value=weatherdata.mintemp)
-    embed1.add_field(name="체감 온도", value=weatherdata.sensibletemp)
+
+def set_weather_embed(weatherdata: md1.Weather, position: str):
+    embed1 = set_weather_embed_temp(weatherdata, position)
     embed1.add_field(name="날씨 상황", value=weatherdata.cast)
     embed1.add_field(name="미세먼지 농도(μg/m3)", value=weatherdata.dust)
     embed1.add_field(name="미세먼지 위험 단계", value=weatherdata.dust_txt)
@@ -51,24 +57,40 @@ def set_weather_embed(weatherdata, position:str):
     embed1.add_field(name="오존 위험 단계", value=weatherdata.ozonetext)
     return embed1
 
-async def sub_error_handler(error, inter):
-    from dislash import slash_commands
-    if isinstance(error, slash_commands.MissingPermissions):
-        await inter.reply(f"권한이 부족해요! 부족한 권한 : {error.missing_perms}")
 
-    elif isinstance(error, slash_commands.BotMissingPermissions):
-        await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
+def set_weather_embed_temp(weatherdata: md1.Weather, position: str):
+    embed1 = discord.Embed(name="현재 날씨", description=f"{position}의 날씨에요!")
+    embed1.set_thumbnail(url=weatherdata.weatherimage)
+    embed1.add_field(name="현재 온도", value=weatherdata.temp)
+    embed1.add_field(name="최고 온도", value=weatherdata.maxtemp)
+    embed1.add_field(name="최저 온도", value=weatherdata.mintemp)
+    embed1.add_field(name="체감 온도", value=weatherdata.sensibletemp)
+    return embed1
 
-    elif isinstance(error, slash_commands.CommandOnCooldown):
-        await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
 
-    elif isinstance(error, notadmin):
-        if error.message is None:
-            await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-        else:
-            await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+class sub_error_handler:
+    async def __init__(self, error, inter: SlashInteraction):
+        if isinstance(error, slash_commands.MissingPermissions):
+            await self.MissingPermissonHandling(error.missing_perms, inter)
 
-def cpuandram(inter:SlashInteraction, cpuinfo1):
+        elif isinstance(error, slash_commands.BotMissingPermissions):
+            await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
+
+        elif isinstance(error, slash_commands.CommandOnCooldown):
+            await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
+
+        elif isinstance(error, notadmin):
+            if error.message is None:
+                await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
+            else:
+                await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+    
+    @staticmethod
+    async def MissingPermissonHandling(missing_perms, inter: SlashInteraction):
+        await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
+
+
+def cpuandram(inter: SlashInteraction, cpuinfo1):
     embed1 = discord.Embed(title="봇 정보", description="펄럭 봇의 엄청난 봇 정보")
     embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
     embed1.add_field(name="CPU 이름", value=cpuinfo1["brand_raw"])
@@ -81,12 +103,22 @@ def cpuandram(inter:SlashInteraction, cpuinfo1):
         psutil.virtual_memory().percent))
     return embed1
 
-def guckristring(reason:str or None, inter:SlashInteraction, member:discord.Member):
+
+def guckristring(reason: str or None, inter: SlashInteraction, member: discord.Member):
     if reason is None:
         return f"<@{inter.author.id}>님이 <@{member.id}>님을 격리하였습니다!"
     return f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리하였습니다!"
 
-def notguckristring(reason:str or None, inter:SlashInteraction, member:discord.Member):
+
+def notguckristring(reason: str or None, inter: SlashInteraction, member: discord.Member):
     if reason is None:
         return (f"<@{inter.author.id}>님이 <@{member.id}>님을 격리해제 하였습니다!")
     return (f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}님을 격리해제 하였습니다!")
+
+
+def make_member_remove_embed(member: discord.Member):
+    embed = discord.Embed(title="멤버 퇴장", description=f'{member.name}님이 {member.guild.name}에서 퇴장했어요. ㅠㅠ', color=0xff4747)
+    embed.add_field(name='현재 인원', value=str(len([m for m in member.guild.members if not m.bot])) + '명')
+    embed.set_footer(text=md1.todaycalculate())
+    embed.set_thumbnail(url=member.avatar_url)
+    return embed

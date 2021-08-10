@@ -1,6 +1,8 @@
 import json
 import secrets
 from datetime import datetime
+
+from discord.ext import commands
 from dislash.interactions.slash_interaction import SlashInteraction
 import modules.module2 as md2
 import discord
@@ -210,10 +212,13 @@ class WeatherBrowser:
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], cast=result["cast"],
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], 
+                                  cast=result["cast"],
                                   dust=result["dust"], dust_txt=result["dust_txt"], ultra_dust=result[
-                                      "ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
-                                  ozone=result["ozone"], ozonetext=result["ozonetext"], sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
+                                  "ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
+                                  ozone=result["ozone"], ozonetext=result["ozonetext"], 
+                                  sensibletemp=result["sensibletemp"], 
+                                  weatherurl=weatherurl)
         return Weather(dict1)
 
     def soup_to_dict(self, soup):
@@ -239,8 +244,10 @@ class WeatherBrowser:
     @staticmethod
     def somanytemp(soup):
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',class_='num').text) + '도'
-        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',class_='num').text) + '도'
+        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min')
+                                 .find('span', class_='num').text) + '도'
+        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge')
+                                  .find('span', class_='max').find('span', class_='num').text) + '도'
         return {"temp": todaytemperature, "lowtemp": lowtemperature, "hightemp": hightemperature}
 
     @staticmethod
@@ -270,7 +277,8 @@ class WeatherBrowser:
         return [ozone, ozonetext]
 
     @staticmethod
-    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, sensibletemp, weatherurl):
+    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, 
+                     sensibletemp, weatherurl):
         return {
             "temp": temp,
             "cast": cast,
@@ -575,11 +583,13 @@ class Vote:
     def add_vote(self, opinion: bool, interid: int):
         if opinion:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY \
+                UPDATE bot=%s, result1=%s",
                 (self.voteid, self.voteid + str(interid), 0, self.voteid + str(interid), 0))
         else:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY \
+                UPDATE bot=%s, result1=%s",
                 (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
 
     def set_key(self, resultcursor):
@@ -760,7 +770,8 @@ class HypixelAPI:
         if get.find("/") == -1:
             get = "/" + get
         response = requests.get(f"https://api.hypixel.net{get}", params)
-        if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this name recently":
+        if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this \
+                                                                                     name recently":
             raise YouAlreadylookedupthisnamerecently("yes it's error")
         if response.status_code == 429:
             raise KeyLimit("Key Limit Exceed")
@@ -853,7 +864,7 @@ class Responses:
         yield self.response21
 
 
-async def except_error_history(inter:SlashInteraction, name:str):
+async def except_error_history(inter: SlashInteraction, name: str):
     response = None
     try:
         response: Information = HypixelAPI(playername=name).get_rankhistory()
@@ -942,18 +953,18 @@ def get_unwarn_message(reason, memberid, authorid, warndata):
     return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
 
 
-def make_embed_bot_information(inter, cpuinfo1, ping, Client):
+def make_embed_bot_information(inter: SlashInteraction, cpuinfo1, ping, client: commands.Bot):
     embed1 = md2.cpuandram(inter, cpuinfo1)
     embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
     embed1.add_field(name="봇 핑(ms)", value=str(ping))
-    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    embed1.add_field(name="API 핑(ms)", value=str(round(client.latency * 1000)))
     return embed1
 
 
-async def get_guilds(guildid, Client, inter):
+async def get_guilds(guildid, client: commands.Bot, inter):
     try:
         guildid = int(guildid)
-        guild: discord.Guild = Client.get_guild(guildid)
+        guild: discord.Guild = client.get_guild(guildid)
         if guild is None:
             raise AttributeError
     except (AttributeError, discord.errors.HTTPException, ValueError):
