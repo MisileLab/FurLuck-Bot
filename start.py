@@ -9,9 +9,11 @@ import simpleeval
 import secrets
 from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
 from dislash.interactions import SlashInteraction
+from dotenv import dotenv_values
 
-koreanbotstoken = open("koreanbotstoken.txt", "r").read()
-token = open('token.txt').read()
+dotenvvalues = dotenv_values(".env")
+koreanbotstoken = dotenvvalues["koreanbotstoken"]
+token = dotenvvalues["token"]
 
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
 Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)

@@ -29,11 +29,16 @@ for i in range(len(tokens_pool)):
     del i
 print(tokens_pool2)
 
-mysqlconnect = open('pymysql.json', 'r').read()
-mysqlconnect = json.loads(mysqlconnect)
-
 config = dotenv_values(".env")
 hypixel_api_key = config['hypixelapi']
+mysqlconnect = {
+                "host": config['host'], 
+                "user": config['user'], 
+                "password": config['password'], 
+                "db": config['db'],
+                "charset": config['charset'],
+                "port": int(config['port'])
+                }
 
 
 def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
