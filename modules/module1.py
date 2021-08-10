@@ -32,9 +32,9 @@ print(tokens_pool2)
 config = dotenv_values(".env")
 hypixel_api_key = config['hypixelapi']
 mysqlconnect = {
-                "host": config['host'], 
-                "user": config['user'], 
-                "password": config['password'], 
+                "host": config['host'],
+                "user": config['user'],
+                "password": config['password'],
                 "db": config['db'],
                 "charset": config['charset'],
                 "port": int(config['port'])
@@ -169,13 +169,10 @@ class WeatherBrowser:
                 print("Chrome")
                 browser = webdriver.Chrome('chromedriver', options=options)
             except Exception:
-                try:
-                    options = webdriver.ChromeOptions()
-                    options.add_argument('window-size=1920x1080')
-                    print('Chrome but not headless')
-                    browser = webdriver.Chrome('chromedriver', options=options)
-                except Exception as e:
-                    raise e
+                options = webdriver.ChromeOptions()
+                options.add_argument('window-size=1920x1080')
+                print('Chrome but not headless')
+                browser = webdriver.Chrome('chromedriver', options=options)
         return browser
 
     def get_weather_data(self):
@@ -186,14 +183,9 @@ class WeatherBrowser:
         soup = BeautifulSoup(req.text, 'html.parser')
         req.close()
         try:
-            todaytemperature = str(
-                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-            if todaytemperature is None:
-                raise ValueError
+            soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text
         except requests.TooManyRedirects:
             pass
-        except Exception as e:
-            raise e
         else:
             self.sort_data(soup, weatherurl)
 
@@ -217,13 +209,11 @@ class WeatherBrowser:
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], 
-                                  cast=result["cast"],
-                                  dust=result["dust"], dust_txt=result["dust_txt"], ultra_dust=result[
-                                  "ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
-                                  ozone=result["ozone"], ozonetext=result["ozonetext"], 
-                                  sensibletemp=result["sensibletemp"], 
-                                  weatherurl=weatherurl)
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"],
+                                  cast=result["cast"], dust=result["dust"], dust_txt=result["dust_txt"],
+                                  ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
+                                  ozone=result["ozone"], ozonetext=result["ozonetext"],
+                                  sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
         return Weather(dict1)
 
     def soup_to_dict(self, soup):
@@ -282,7 +272,7 @@ class WeatherBrowser:
         return [ozone, ozonetext]
 
     @staticmethod
-    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, 
+    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp,
                      sensibletemp, weatherurl):
         return {
             "temp": temp,
@@ -447,10 +437,7 @@ def dobakmoney(memberid: int, money: int):
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
-    try:
-        sub_dobak_money(result1, cursor, money, memberid)
-    except Exception as e:
-        raise e
+    sub_dobak_money(result1, cursor, money, memberid)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
@@ -514,7 +501,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     result = cursor_to_result(resultcursor, 'serverid', guildid)
     if result is None:
         insertserverdataonce(cursor, guildid)
-    if get is False:
+    if not get:
         cursor.execute(
             "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
@@ -670,39 +657,15 @@ class HypixelRankHistory:
     def __init__(self, detectdict: dict):
         self.detectdict = detectdict
         self.lol()
+        regular = True
 
         for i2 in self.rankrecord.keys():
             dictlol = self.detectdict[i2]
-            try:
-                dictlol["REGULAR"]
-            except KeyError:
-                regular = False
-            else:
-                regular = True
-            try:
-                dictlol["VIP"]
-            except KeyError:
-                vip = False
-            else:
-                vip = True
-            try:
-                dictlol["VIP_PLUS"]
-            except KeyError:
-                vip_plus = False
-            else:
-                vip_plus = True
-            try:
-                dictlol["MVP"]
-            except KeyError:
-                mvp = False
-            else:
-                mvp = True
-            try:
-                dictlol["MVP_PLUS"]
-            except KeyError:
-                mvp_plus = False
-            else:
-                mvp_plus = True
+            ranks = self.ranks(dictlol)
+            vip = ranks["vip"]
+            vip_plus = ranks["vip_plus"]
+            mvp = ranks["mvp"]
+            mvp_plus = ranks["mvp_plus"]
             self.rankrecord[i2] = HypixelRank(
                 regular, vip, vip_plus, mvp, mvp_plus)
 
@@ -719,6 +682,33 @@ class HypixelRankHistory:
             self.rankrecord = a
             return a
         self.lol(a)
+
+    def ranks(self, dictlol: dict):
+        try:
+            dictlol["VIP"]
+        except KeyError:
+            vip = False
+        else:
+            vip = True
+        try:
+            dictlol["VIP_PLUS"]
+        except KeyError:
+            vip_plus = False
+        else:
+            vip_plus = True
+        try:
+            dictlol["MVP"]
+        except KeyError:
+            mvp = False
+        else:
+            mvp = True
+        try:
+            dictlol["MVP_PLUS"]
+        except KeyError:
+            mvp_plus = False
+        else:
+            mvp_plus = True
+        return {"vip": vip, "vip_plus": vip_plus, "mvp": mvp, "mvp_plus": mvp_plus}
 
     @property
     def rankhistory(self):
@@ -783,35 +773,23 @@ class HypixelAPI:
         return json.loads(response.content)
 
     def get_information(self):
-        try:
-            response = self.get_response("/player")
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return False
-            return Information(response['player'])
+        response = self.get_response("/player")
+        if response is False:
+            return False
+        return Information(response['player'])
 
     def get_rankhistory(self):
-        try:
-            response = self.get_response("/player")
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return False
-            return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
+        response = self.get_response("/player")
+        if response is False:
+            return False
+        return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
 
     def get_online(self, response: Information = None):
-        try:
-            if response is None:
-                response = self.get_information()
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return None
-            return bool(response.lastlogin > response.lastlogout)
+        if response is None:
+            response = self.get_information()
+        if response is False:
+            return None
+        return bool(response.lastlogin > response.lastlogout)
 
 
 def booltostr(arg: bool):
@@ -974,8 +952,6 @@ async def get_guilds(guildid, client: commands.Bot, inter):
             raise AttributeError
     except (AttributeError, discord.errors.HTTPException, ValueError):
         await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
-    except Exception as e:
-        raise e
     else:
         return guild
 

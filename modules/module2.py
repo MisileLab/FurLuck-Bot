@@ -84,7 +84,7 @@ class sub_error_handler:
                 await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
             else:
                 await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
-    
+
     @staticmethod
     async def MissingPermissonHandling(missing_perms, inter: SlashInteraction):
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
