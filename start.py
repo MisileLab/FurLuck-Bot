@@ -171,7 +171,7 @@ async def _clean(inter: SlashInteraction):
     amount: int = inter.get('amount')
     channel1 = inter.channel
     await channel1.purge(limit=int(amount))
-    await inter.reply(f"<@{inter.author.id}>님이 {str(amount)}만큼 채팅청소 했어요!")
+    await inter.reply(f'<@{inter.author.id}>님이 {amount}만큼 채팅청소 했어요!')
     time.sleep(3)
     await inter.delete()
 
