@@ -286,7 +286,7 @@ class WeatherBrowser:
             "mintemp": mintemp,
             "maxtemp": maxtemp,
             "sensibletemp": str(sensibletemp) + "도",
-            "weatherurl": f"{str(svg_to_link(weatherurl))}.png"
+            "weatherurl": f'{svg_to_link(weatherurl)}.png',
         }
 
 
