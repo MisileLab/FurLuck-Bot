@@ -1,6 +1,8 @@
 import json
 import secrets
 from datetime import datetime
+
+from discord.ext import commands
 from dislash.interactions.slash_interaction import SlashInteraction
 import modules.module2 as md2
 import discord
@@ -27,11 +29,16 @@ for i in range(len(tokens_pool)):
     del i
 print(tokens_pool2)
 
-mysqlconnect = open('pymysql.json', 'r').read()
-mysqlconnect = json.loads(mysqlconnect)
-
 config = dotenv_values(".env")
 hypixel_api_key = config['hypixelapi']
+mysqlconnect = {
+                "host": config['host'],
+                "user": config['user'],
+                "password": config['password'],
+                "db": config['db'],
+                "charset": config['charset'],
+                "port": int(config['port'])
+                }
 
 
 def tz_from_utc_ms_ts(utc_ms_ts, tz_info):
@@ -162,13 +169,10 @@ class WeatherBrowser:
                 print("Chrome")
                 browser = webdriver.Chrome('chromedriver', options=options)
             except Exception:
-                try:
-                    options = webdriver.ChromeOptions()
-                    options.add_argument('window-size=1920x1080')
-                    print('Chrome but not headless')
-                    browser = webdriver.Chrome('chromedriver', options=options)
-                except Exception as e:
-                    raise e
+                options = webdriver.ChromeOptions()
+                options.add_argument('window-size=1920x1080')
+                print('Chrome but not headless')
+                browser = webdriver.Chrome('chromedriver', options=options)
         return browser
 
     def get_weather_data(self):
@@ -179,14 +183,9 @@ class WeatherBrowser:
         soup = BeautifulSoup(req.text, 'html.parser')
         req.close()
         try:
-            todaytemperature = str(
-                soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-            if todaytemperature is None:
-                raise ValueError
+            soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text
         except requests.TooManyRedirects:
             pass
-        except Exception as e:
-            raise e
         else:
             self.sort_data(soup, weatherurl)
 
@@ -210,10 +209,11 @@ class WeatherBrowser:
 
     def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"], cast=result["cast"],
-                                  dust=result["dust"], dust_txt=result["dust_txt"], ultra_dust=result[
-                                      "ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
-                                  ozone=result["ozone"], ozonetext=result["ozonetext"], sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"],
+                                  cast=result["cast"], dust=result["dust"], dust_txt=result["dust_txt"],
+                                  ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
+                                  ozone=result["ozone"], ozonetext=result["ozonetext"],
+                                  sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
         return Weather(dict1)
 
     def soup_to_dict(self, soup):
@@ -239,8 +239,10 @@ class WeatherBrowser:
     @staticmethod
     def somanytemp(soup):
         todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min').find('span',class_='num').text) + '도'
-        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='max').find('span',class_='num').text) + '도'
+        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min')
+                                 .find('span', class_='num').text) + '도'
+        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge')
+                                  .find('span', class_='max').find('span', class_='num').text) + '도'
         return {"temp": todaytemperature, "lowtemp": lowtemperature, "hightemp": hightemperature}
 
     @staticmethod
@@ -270,7 +272,8 @@ class WeatherBrowser:
         return [ozone, ozonetext]
 
     @staticmethod
-    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp, sensibletemp, weatherurl):
+    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp,
+                     sensibletemp, weatherurl):
         return {
             "temp": temp,
             "cast": cast,
@@ -283,7 +286,7 @@ class WeatherBrowser:
             "mintemp": mintemp,
             "maxtemp": maxtemp,
             "sensibletemp": str(sensibletemp) + "도",
-            "weatherurl": f"{str(svg_to_link(weatherurl))}.png"
+            "weatherurl": f'{svg_to_link(weatherurl)}.png',
         }
 
 
@@ -434,10 +437,7 @@ def dobakmoney(memberid: int, money: int):
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
-    try:
-        sub_dobak_money(result1, cursor, money, memberid)
-    except Exception as e:
-        raise e
+    sub_dobak_money(result1, cursor, money, memberid)
     cursor.execute("SELECT * FROM `furluckbot1`;")
     resultcursor = cursor.fetchall()
     result1 = cursor_to_result(resultcursor, 'id', memberid)
@@ -501,7 +501,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
     result = cursor_to_result(resultcursor, 'serverid', guildid)
     if result is None:
         insertserverdataonce(cursor, guildid)
-    if get is False:
+    if not get:
         cursor.execute(
             "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
@@ -575,11 +575,13 @@ class Vote:
     def add_vote(self, opinion: bool, interid: int):
         if opinion:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY \
+                UPDATE bot=%s, result1=%s",
                 (self.voteid, self.voteid + str(interid), 0, self.voteid + str(interid), 0))
         else:
             self.cursor.execute(
-                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE bot=%s, result1=%s",
+                "INSERT INTO `votes` (voteid, bot, result1) VALUES (%s, %s, %s) ON DUPLICATE KEY \
+                UPDATE bot=%s, result1=%s",
                 (self.voteid, self.voteid + str(interid), 1, self.voteid + str(interid), 1))
 
     def set_key(self, resultcursor):
@@ -655,39 +657,15 @@ class HypixelRankHistory:
     def __init__(self, detectdict: dict):
         self.detectdict = detectdict
         self.lol()
+        regular = True
 
         for i2 in self.rankrecord.keys():
             dictlol = self.detectdict[i2]
-            try:
-                dictlol["REGULAR"]
-            except KeyError:
-                regular = False
-            else:
-                regular = True
-            try:
-                dictlol["VIP"]
-            except KeyError:
-                vip = False
-            else:
-                vip = True
-            try:
-                dictlol["VIP_PLUS"]
-            except KeyError:
-                vip_plus = False
-            else:
-                vip_plus = True
-            try:
-                dictlol["MVP"]
-            except KeyError:
-                mvp = False
-            else:
-                mvp = True
-            try:
-                dictlol["MVP_PLUS"]
-            except KeyError:
-                mvp_plus = False
-            else:
-                mvp_plus = True
+            ranks = self.ranks(dictlol)
+            vip = ranks["vip"]
+            vip_plus = ranks["vip_plus"]
+            mvp = ranks["mvp"]
+            mvp_plus = ranks["mvp_plus"]
             self.rankrecord[i2] = HypixelRank(
                 regular, vip, vip_plus, mvp, mvp_plus)
 
@@ -704,6 +682,33 @@ class HypixelRankHistory:
             self.rankrecord = a
             return a
         self.lol(a)
+
+    def ranks(self, dictlol: dict):
+        try:
+            dictlol["VIP"]
+        except KeyError:
+            vip = False
+        else:
+            vip = True
+        try:
+            dictlol["VIP_PLUS"]
+        except KeyError:
+            vip_plus = False
+        else:
+            vip_plus = True
+        try:
+            dictlol["MVP"]
+        except KeyError:
+            mvp = False
+        else:
+            mvp = True
+        try:
+            dictlol["MVP_PLUS"]
+        except KeyError:
+            mvp_plus = False
+        else:
+            mvp_plus = True
+        return {"vip": vip, "vip_plus": vip_plus, "mvp": mvp, "mvp_plus": mvp_plus}
 
     @property
     def rankhistory(self):
@@ -760,42 +765,31 @@ class HypixelAPI:
         if get.find("/") == -1:
             get = "/" + get
         response = requests.get(f"https://api.hypixel.net{get}", params)
-        if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this name recently":
+        if response.status_code != 200 and json.loads(response.content)["cause"] == "You have already looked up this \
+                                                                                     name recently":
             raise YouAlreadylookedupthisnamerecently("yes it's error")
         if response.status_code == 429:
             raise KeyLimit("Key Limit Exceed")
         return json.loads(response.content)
 
     def get_information(self):
-        try:
-            response = self.get_response("/player")
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return False
-            return Information(response['player'])
+        response = self.get_response("/player")
+        if response is False:
+            return False
+        return Information(response['player'])
 
     def get_rankhistory(self):
-        try:
-            response = self.get_response("/player")
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return False
-            return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
+        response = self.get_response("/player")
+        if response is False:
+            return False
+        return HypixelRankHistory(response["player"]["monthlycrates"]).rankhistory
 
     def get_online(self, response: Information = None):
-        try:
-            if response is None:
-                response = self.get_information()
-        except Exception as e:
-            raise e
-        else:
-            if response is False:
-                return None
-            return bool(response.lastlogin > response.lastlogout)
+        if response is None:
+            response = self.get_information()
+        if response is False:
+            return None
+        return bool(response.lastlogin > response.lastlogout)
 
 
 def booltostr(arg: bool):
@@ -853,7 +847,7 @@ class Responses:
         yield self.response21
 
 
-async def except_error_history(inter:SlashInteraction, name:str):
+async def except_error_history(inter: SlashInteraction, name: str):
     response = None
     try:
         response: Information = HypixelAPI(playername=name).get_rankhistory()
@@ -942,24 +936,22 @@ def get_unwarn_message(reason, memberid, authorid, warndata):
     return f"<@{memberid}>님은 {reason}이라는 이유로 <@{authorid}>에 의해서 주의가 없어졌어요! 현재 주의 개수는 {warndata['warn']}개에요!"
 
 
-def make_embed_bot_information(inter, cpuinfo1, ping, Client):
+def make_embed_bot_information(inter: SlashInteraction, cpuinfo1, ping, client: commands.Bot):
     embed1 = md2.cpuandram(inter, cpuinfo1)
     embed1.add_field(name="파이썬 버전", value=cpuinfo1["python_version"])
     embed1.add_field(name="봇 핑(ms)", value=str(ping))
-    embed1.add_field(name="API 핑(ms)", value=str(round(Client.latency * 1000)))
+    embed1.add_field(name="API 핑(ms)", value=str(round(client.latency * 1000)))
     return embed1
 
 
-async def get_guilds(guildid, Client, inter):
+async def get_guilds(guildid, client: commands.Bot, inter):
     try:
         guildid = int(guildid)
-        guild: discord.Guild = Client.get_guild(guildid)
+        guild: discord.Guild = client.get_guild(guildid)
         if guild is None:
             raise AttributeError
     except (AttributeError, discord.errors.HTTPException, ValueError):
         await inter.edit(content="그 서버는 잘못된 서버거나 제가 참여하지 않은 서버인 것 같아요!")
-    except Exception as e:
-        raise e
     else:
         return guild
 

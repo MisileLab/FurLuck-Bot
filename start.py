@@ -9,9 +9,11 @@ import simpleeval
 import secrets
 from dislash import slash_commands, Type, Button, ActionRow, ButtonStyle, ClickListener
 from dislash.interactions import SlashInteraction
+from dotenv import dotenv_values
 
-koreanbotstoken = open("koreanbotstoken.txt", "r").read()
-token = open('token.txt').read()
+dotenvvalues = dotenv_values(".env")
+koreanbotstoken = dotenvvalues["koreanbotstoken"]
+token = dotenvvalues["token"]
 
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
 Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
@@ -20,12 +22,8 @@ slash = slash_commands.SlashClient(Client)
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]
 icecreamhappydiscord = [635336036465246218]
 ignore_error = commands.CommandNotFound, discord.errors.NotFound
-message_error = slash_commands.MissingPermissions, slash_commands.BotMissingPermissions, slash_commands.CommandOnCooldown
-
-
-@Client.event
-async def on_ready():
-    print("Ready!")
+message_error = slash_commands.MissingPermissions, slash_commands.BotMissingPermissions, \
+                slash_commands.CommandOnCooldown
 
 
 @slash.event
@@ -43,7 +41,7 @@ async def on_command_error(error):
 @slash.event
 async def on_slash_command_error(inter, error):
     if not isinstance(error, ignore_error):
-        if isinstance(error, message_error): 
+        if isinstance(error, message_error):
             await md2.sub_error_handler(error, inter)
         else:
             raise error
@@ -65,11 +63,7 @@ async def on_member_join(member):
 
 @Client.event
 async def on_member_remove(member):
-    true_member_count = len([m for m in member.guild.members if not m.bot])
-    embed = discord.Embed(title="멤버 퇴장", description=f'{member.name}님이 {member.guild.name}에서 퇴장했어요. ㅠㅠ', color=0xff4747)
-    embed.add_field(name='현재 인원', value=str(true_member_count) + '명')
-    embed.set_footer(text=md1.todaycalculate())
-    embed.set_thumbnail(url=member.avatar_url)
+    embed = md2.make_member_remove_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
@@ -117,7 +111,7 @@ async def on_message_edit(before, after):
 
 
 @Client.command(name="hellothisisverification")
-async def idontwantdevelopercommandinthiscommand(ctx):
+async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
     await ctx.send("Misile#1231")
 
 
@@ -177,7 +171,7 @@ async def _clean(inter: SlashInteraction):
     amount: int = inter.get('amount')
     channel1 = inter.channel
     await channel1.purge(limit=int(amount))
-    await inter.reply(f"<@{inter.author.id}>님이 {str(amount)}만큼 채팅청소 했어요!")
+    await inter.reply(f'<@{inter.author.id}>님이 {amount}만큼 채팅청소 했어요!')
     time.sleep(3)
     await inter.delete()
 
@@ -426,7 +420,8 @@ async def _helpinghands(inter: SlashInteraction):
         await inter.reply("그 플레이어의 데이터가 없는 것 같아요!")
     except TypeError:
         await inter.reply("플레이어의 데이터를 가져오는 과정으로 오류가 난 것 같아요!")
-    await inter.reply(embed=embedhelping)
+    else:
+        await inter.reply(embed=embedhelping)
 
 
 noticeother = md1.NewOptionList()
@@ -515,13 +510,9 @@ serverinfo.make_option(name="serverid", description="서버 ID", type=Type.STRIN
 async def _serverinfo(inter: SlashInteraction):
     await inter.reply("서버의 정보를 찾고 있어요!")
     guildid = inter.get("serverid", inter.author.guild.id)
-    try:
-        guild = await md1.get_guilds(guildid, Client, inter)
-    except Exception as e:
-        raise e
-    else:
-        embed1 = md1.make_guildinfo_embed(guild, inter)
-        await inter.edit(embed=embed1, content=None)
+    guild = await md1.get_guilds(guildid, Client, inter)
+    embed1 = md1.make_guildinfo_embed(guild, inter)
+    await inter.edit(embed=embed1, content=None)
 
 
 userinfo = md1.NewOptionList()
@@ -572,6 +563,7 @@ async def _createvote(inter: SlashInteraction):
     on_click: ClickListener = msg.create_click_listener(timeout=timeout)
     await md1.vote_listener(on_click, votelol, embed, inter)
 
+
 # noinspection PyUnusedLocal
 @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
 @commands.guild_only()
@@ -582,24 +574,21 @@ async def _hypixel(inter):
 playeroption = md1.NewOptionList()
 playeroption.make_option(name="playername", description="플레이어의 이름", required=True, type=Type.STRING)
 
+
 # noinspection PyBroadException
 @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
                       guild_ids=devserver)
 async def _player(inter: SlashInteraction):
     name = inter.get_option("player").options.get("playername").value
-    try:
-        responses: md1.Responses = await md1.except_error_information(inter=inter, name=name)
-    except Exception as e:
-        raise e
-        
+    responses: md1.Responses = await md1.except_error_information(inter=inter, name=name)
+    response = next(responses.responses1)
+    response2 = next(responses.responses1)
+    if response is False or response2 is None:
+        await inter.reply("서버 안에서 알 수 없는 에러가 났습니다.")
     else:
-        response = next(responses.responses1)
-        response2 = next(responses.responses1)
-        if response is False or response2 is None:
-            await inter.reply("서버 안에서 알 수 없는 에러가 났습니다.")
-        else:
-            embed = md1.create_player_embed(name, response, response2)
-            await inter.reply(embed=embed)
+        embed = md1.create_player_embed(name, response, response2)
+        await inter.reply(embed=embed)
+
 
 @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options,
                       guild_ids=devserver)
@@ -621,6 +610,5 @@ async def _hypixelrankhistory(inter: SlashInteraction):
             labels = [option.label for option in inter.select_menu.selected_options]
             embed = md1.rankhistoryembed(labels=labels, name=name, response=response)
             await msg.edit(content=None, embed=embed, components=[])
-
 
 Client.run(token)
