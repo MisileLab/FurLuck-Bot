@@ -69,7 +69,17 @@ def set_weather_embed_temp(weatherdata: md1.Weather, position: str):
 
 
 class sub_error_handler:
-    async def __init__(self, error, inter: SlashInteraction):
+    def __init__(self, error, inter: SlashInteraction):
+        self.error = error
+        self.inter = inter
+
+    @staticmethod
+    async def MissingPermissonHandling(missing_perms, inter: SlashInteraction):
+        await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
+
+    async def ErrorHandling(self):
+        error = self.error
+        inter = self.inter
         if isinstance(error, slash_commands.MissingPermissions):
             await self.MissingPermissonHandling(error.missing_perms, inter)
 
@@ -84,10 +94,6 @@ class sub_error_handler:
                 await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
             else:
                 await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
-
-    @staticmethod
-    async def MissingPermissonHandling(missing_perms, inter: SlashInteraction):
-        await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
 
 
 def cpuandram(inter: SlashInteraction, cpuinfo1):

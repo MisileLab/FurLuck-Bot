@@ -10,7 +10,7 @@ import requests
 from bitlyshortener import Shortener
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from dislash import Option, Type, ActionRow, ButtonStyle, SelectMenu, ClickListener
+from dislash import ActionRow, ButtonStyle, SelectMenu, ClickListener
 import hashlib
 import pymysql
 from dotenv import dotenv_values
@@ -183,7 +183,7 @@ class WeatherBrowser:
         soup = BeautifulSoup(req.text, 'html.parser')
         req.close()
         try:
-            soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text
+            soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text()
         except requests.TooManyRedirects:
             pass
         else:
@@ -531,21 +531,6 @@ def noticeusingbot(guildid: int, channelid: int, get: bool):
     resultcursor = cursor.fetchall()
     mysql1.close()
     return resultcursor
-
-
-class NewOptionList:
-    def __init__(self):
-        self.option = []
-
-    def make_option(self, name: str, description: str, required: bool, type: Type):
-        option = Option(name=name, description=description,
-                        required=required, type=type)
-        self.option.append(option)
-        return self.option
-
-    @property
-    def options(self):
-        return self.option
 
 
 class NewActionRow:
