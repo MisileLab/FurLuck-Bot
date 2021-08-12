@@ -136,3 +136,4 @@ def make_member_remove_embed(member: discord.Member):
 
 def NoneSlashCommand():
     return SlashCommand('none', 'none')
+

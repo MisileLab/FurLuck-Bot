@@ -10,22 +10,19 @@ from .modules.module2 import NoneSlashCommand
 playeroption = NoneSlashCommand()
 playeroption.add_option(name="playername", description="플레이어의 이름", required=True, type=Type.STRING)
 
-devserver = [812339145942237204, 635336036465246218, 863950154055155712]
-
 
 class hypixel(Cog):
     def __init__(self, bot):
         self.Client = bot
 
     # noinspection PyUnusedLocal
-    @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들", guild_ids=devserver)
+    @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들")
     @commands.guild_only()
     async def _hypixel(self, inter):
         pass
 
     # noinspection PyBroadException
-    @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
-                          guild_ids=devserver)
+    @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options)
     async def _player(self, inter: SlashInteraction):
         name = inter.get_option("player").get("playername").value
         responses: md1.Responses = await md1.except_error_information(inter=inter, name=name)
@@ -37,8 +34,7 @@ class hypixel(Cog):
             embed = md1.create_player_embed(name, response, response2)
             await inter.reply(embed=embed)
 
-    @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options,
-                          guild_ids=devserver)
+    @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options)
     async def _hypixelrankhistory(self, inter: SlashInteraction):
         await inter.reply(type=5)
         name = inter.get_option("rankhistory").get("playername").value
