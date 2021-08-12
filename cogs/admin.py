@@ -5,7 +5,7 @@ from dislash.interactions import SlashInteraction
 from discord.ext import commands
 import discord
 import time
-from modules import module1 as md1
+from .modules import module1 as md1
 
 
 class admin(commands.Cog):

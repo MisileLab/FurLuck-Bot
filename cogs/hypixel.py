@@ -3,7 +3,7 @@ from dislash.interactions.message_components import ActionRow
 from dislash.interactions.slash_interaction import SlashInteraction
 from dislash.slash_commands import slash_command as slash
 from dislash.slash_commands.slash_command import SlashCommand, Type
-import modules.module1 as md1
+from .modules import module1 as md1
 from discord.ext.commands import Cog
 
 playeroption = SlashCommand()

@@ -10,8 +10,8 @@ import simpleeval
 import cpuinfo
 import discord
 import time
-import modules.module1 as md1
-import modules.module2 as md2
+from .modules import module1 as md1
+from .modules import module2 as md2
 import secrets
 
 

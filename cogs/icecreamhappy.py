@@ -2,7 +2,7 @@ from discord.ext.commands import Cog
 from dislash.interactions.slash_interaction import SlashInteraction
 from dislash.slash_commands.slash_command import SlashCommand, Type
 from dislash import slash_commands as slash
-import modules.module2 as md2
+from .modules import module2 as md2
 
 icecreamhappydiscord = [635336036465246218]
 
