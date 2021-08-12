@@ -6,7 +6,7 @@ from dislash.slash_commands.slash_command import SlashCommand, Type
 from .modules import module1 as md1
 from discord.ext.commands import Cog
 
-playeroption = SlashCommand()
+playeroption = SlashCommand(None, None)
 playeroption.add_option(name="playername", description="플레이어의 이름", required=True, type=Type.STRING)
 
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]

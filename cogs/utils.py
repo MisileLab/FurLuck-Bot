@@ -66,7 +66,7 @@ class utils(Cog):
         async def timeout(inter: SlashInteraction):
             await inter.edit(embed=embed1, components=[])
 
-    calculateoption = SlashCommand()
+    calculateoption = SlashCommand(None, None)
     calculateoption.add_option(name="calculate", description="계산할 식", required=True, type=Type.STRING)
 
     @slash.command(name="calculate", description="계산을 할 수 있는 명령어", options=calculateoption.options)
@@ -81,7 +81,7 @@ class utils(Cog):
         else:
             await inter.reply(f"<@{inter.author.id}>님, 계산 결과가 {result}입니다.")
 
-    weatheroption = SlashCommand()
+    weatheroption = SlashCommand(None, None)
     weatheroption.add_option(name="position", description="날씨를 알고 싶은 장소", required=False, type=Type.STRING)
 
     @slash.command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=weatheroption.options)
@@ -95,7 +95,7 @@ class utils(Cog):
         else:
             await inter.edit(content=None, embed=md2.set_weather_embed(weatherdata, position))
 
-    bitlyoption = SlashCommand()
+    bitlyoption = SlashCommand(None, None)
     bitlyoption.add_option(name="url", description="길지 않게 만들 링크", required=True, type=Type.STRING)
 
     @slash.command(name="bitly", description="링크를 길지 않게 만들어주는 명령어", options=bitlyoption.options)
@@ -105,7 +105,7 @@ class utils(Cog):
         shorturl2 = str(shorturl).replace("['", "").replace("']", "")
         await inter.reply(f"<@{inter.author.id}>님 링크가 {shorturl2} 로 변한것 같아요!")
 
-    randomoption = SlashCommand()
+    randomoption = SlashCommand(None, None)
     randomoption.add_option(name="min", description="최소 숫자", required=True, type=Type.INTEGER)
     randomoption.add_option(name="max", description="최대 숫자", required=True, type=Type.INTEGER)
 
@@ -115,7 +115,7 @@ class utils(Cog):
         y = inter.get('max')
         await inter.reply(secrets.SystemRandom().randint(x, y))
 
-    userchannel = SlashCommand()
+    userchannel = SlashCommand(None, None)
     userchannel.add_option(name="user", description="호감도를 확인할 유저", required=False, type=Type.USER)
 
     @slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
@@ -132,7 +132,7 @@ class utils(Cog):
         else:
             await inter.reply(embed=embedhelping)
 
-    noticeother = SlashCommand()
+    noticeother = SlashCommand(None, None)
     noticeother.add_option(name="description", description="설명", required=True, type=Type.STRING)
 
     @slash.command(name="noticeother", description="공지를 하는 명령어", options=noticeother.options)
@@ -166,7 +166,7 @@ class utils(Cog):
         getmoney = md1.getmoney(inter.author.id)
         await inter.reply(f"<@{inter.author.id}>님의 돈 : {getmoney}원")
 
-    dobak = SlashCommand()
+    dobak = SlashCommand(None, None)
     dobak.add_option(name="money", description="도박할 돈", required=True, type=Type.INTEGER)
 
     @slash.command(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님", options=dobak.options)
@@ -180,7 +180,7 @@ class utils(Cog):
         else:
             await inter.reply(f"<@{inter.author.id}>님이 도박에 성공했어요!")
 
-    logoption = SlashCommand()
+    logoption = SlashCommand(None, None)
     logoption.add_option(name="channel", description="로그 채널", type=Type.CHANNEL, required=True)
 
     @slash.command(name="log", description="로그 채널을 지정하는 재밌는 명령어", options=logoption.options)
@@ -189,7 +189,7 @@ class utils(Cog):
         md1.serverdata('logid', inter.author.guild.id, channel.id, False)
         await inter.reply(f"로그 채널이 {channel.mention}으로 지정되었어요!")
 
-    serverinfo = SlashCommand()
+    serverinfo = SlashCommand(None, None)
     serverinfo.add_option(name="serverid", description="서버 ID", type=Type.STRING, required=False)
 
     @slash.command(name="serverinfo", description="서버 정보를 알려주는 명령어", options=serverinfo.options)
@@ -200,7 +200,7 @@ class utils(Cog):
         embed1 = md1.make_guildinfo_embed(guild, inter)
         await inter.edit(embed=embed1, content=None)
 
-    userinfo = SlashCommand()
+    userinfo = SlashCommand(None, None)
     userinfo.add_option(name="userid", description="유저 ID", type=Type.STRING, required=False)
 
     @slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo.options)
@@ -223,7 +223,7 @@ class utils(Cog):
             embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
             await inter.edit(content=None, embed=embed1)
 
-    createvoteoption = SlashCommand()
+    createvoteoption = SlashCommand(None, None)
     createvoteoption.add_option(name="name", description="투표 이름", required=True, type=Type.STRING)
     createvoteoption.add_option(name="description", description="설명", required=False, type=Type.STRING)
     createvoteoption.add_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)

@@ -10,7 +10,7 @@ icecreamhappydiscord = [635336036465246218]
 class icecreamhappyistroll(Cog):
     def __init__(self, bot):
         self.Client = bot
-    guckrioption = SlashCommand()
+    guckrioption = SlashCommand(None, None)
     guckrioption.add_option(name="member", description="격리할 사람", required=True, type=Type.USER)
     guckrioption.add_option(name="reason", description="격리하는 이유", required=False, type=Type.STRING)
 
@@ -24,7 +24,7 @@ class icecreamhappyistroll(Cog):
         await member.add_roles(role1, reason=reason)
         await inter.reply(content=md2.guckristring(reason, inter, member))
 
-    guckridisableoption = SlashCommand()
+    guckridisableoption = SlashCommand(None, None)
     guckridisableoption.add_option(name="member", description="격리 해제할 멤버", required=True, type=Type.USER)
     guckridisableoption.add_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
 
