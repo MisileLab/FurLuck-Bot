@@ -56,3 +56,7 @@ class hypixel(Cog):
                 labels = [option.label for option in inter.select_menu.selected_options]
                 embed = md1.rankhistoryembed(labels=labels, name=name, response=response)
                 await msg.edit(content=None, embed=embed, components=[])
+
+
+def setup(bot):
+    bot.add_cog(hypixel(bot))

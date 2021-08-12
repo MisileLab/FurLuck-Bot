@@ -1,7 +1,7 @@
 from discord.ext import commands
 from dislash.interactions.message_components import ActionRow, Button, ButtonStyle
 from dislash.slash_commands.slash_command import SlashCommand
-from dislash import Type
+from dislash import OptionType as Type
 from dislash import slash_commands as slash
 from dislash.interactions import SlashInteraction
 from discord.ext.commands import Cog

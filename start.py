@@ -115,5 +115,9 @@ async def on_message_edit(before, after):
 async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
     await ctx.send("Misile#1231")
 
+for file in os.listdir("cogs"):
+    if file.endswith(".py"):
+        Client.load_extension(f"cogs.{file[:-3]}")
+        print(f"cogs.{file[:-3]} Loaded")
 
 Client.run(token)
