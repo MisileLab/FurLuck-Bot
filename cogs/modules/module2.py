@@ -1,8 +1,9 @@
 from __future__ import annotations
+from dislash.interactions.application_command import SlashCommand
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
 import discord
-from dislash import slash_commands
+from dislash import application_command as slash_commands
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import module1 as md1
@@ -131,3 +132,7 @@ def make_member_remove_embed(member: discord.Member):
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
     return embed
+
+
+def NoneSlashCommand():
+    return SlashCommand('none', 'none')

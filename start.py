@@ -1,6 +1,7 @@
 import os
 import discord
 from discord.ext import commands
+from discord.ext.commands.errors import ExtensionAlreadyLoaded
 import koreanbots
 from cogs.modules import module1 as md1
 from cogs.modules import module2 as md2
@@ -117,7 +118,10 @@ async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
 
 for file in os.listdir("cogs"):
     if file.endswith(".py"):
-        Client.load_extension(f"cogs.{file[:-3]}")
+        try:
+            Client.load_extension(f"cogs.{file[:-3]}")
+        except ExtensionAlreadyLoaded:
+            break
         print(f"cogs.{file[:-3]} Loaded")
 
 Client.run(token)

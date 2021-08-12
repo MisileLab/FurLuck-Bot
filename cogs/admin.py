@@ -1,4 +1,3 @@
-from dislash.slash_commands.slash_command import SlashCommand
 from dislash import Type
 from dislash import slash_commands as slash
 from dislash.interactions import SlashInteraction
@@ -6,13 +5,14 @@ from discord.ext import commands
 import discord
 import time
 from .modules import module1 as md1
+from .modules.module2 import NoneSlashCommand
 
 
 class admin(commands.Cog):
     def __init__(self, bot):
         self.Client = bot
 
-    kickoption = SlashCommand(None, None)
+    kickoption = NoneSlashCommand()
     kickoption.add_option(name="member", description="킥할 사람", required=True, type=Type.USER)
     kickoption.add_option(name="reason", description="왜 킥함?", required=False, type=Type.STRING)
 
@@ -25,7 +25,7 @@ class admin(commands.Cog):
         await kickmember.kick(reason=reason)
         await inter.reply(f"<@{inter.author.id}>님으로 인하여 <@{kickmember.id}>가 킥 당했습니다.")
 
-    banoption = SlashCommand(None, None)
+    banoption = NoneSlashCommand()
     banoption.add_option(name="member", description="밴할 멤버", required=True, type=Type.USER)
     banoption.add_option(name="reason", description="왜 밴함", required=False, type=Type.STRING)
 
@@ -43,7 +43,7 @@ class admin(commands.Cog):
         else:
             await dm.send(f"밴되었습니다. - by {inter.author.name}")
 
-    cleanoption = SlashCommand(None, None)
+    cleanoption = NoneSlashCommand()
     cleanoption.add_option(name="amount", description="채팅청소하는 수", required=False, type=Type.INTEGER)
 
     @slash.command(name="clean", description="채팅청소하는 엄청난 명령어", options=cleanoption.options)
@@ -57,7 +57,7 @@ class admin(commands.Cog):
         time.sleep(3)
         await inter.delete()
 
-    muteoption = SlashCommand(None, None)
+    muteoption = NoneSlashCommand()
     muteoption.add_option(name="member", description="뮤트할 사람", required=True, type=Type.USER)
     muteoption.add_option(name="reason", description="왜 뮤트함?", required=False, type=Type.STRING)
 
@@ -70,7 +70,7 @@ class admin(commands.Cog):
         role1 = discord.utils.get(inter.guild.roles, name='뮤트')
         await md1.mute_command(role1, inter, member, reason)
 
-    unmuteoption = SlashCommand(None, None)
+    unmuteoption = NoneSlashCommand()
     unmuteoption.add_option(name="member", description="언뮤트할 사람", required=True, type=Type.USER)
     unmuteoption.add_option(name="reason", description="왜 언뮤트함?", required=False, type=Type.STRING)
 
@@ -88,7 +88,7 @@ class admin(commands.Cog):
         else:
             await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!")
 
-    getwarnoption = SlashCommand(None, None)
+    getwarnoption = NoneSlashCommand()
     getwarnoption.add_option(name="member", description="누구의 주의를 볼거임?", type=Type.USER, required=False)
 
     @slash.command(name="getwarn", description="주의를 보는 세상 간단한 명령어", options=getwarnoption.options)
@@ -97,7 +97,7 @@ class admin(commands.Cog):
         warndata = md1.warn(memberid=member.id, amount=0, get=True)
         await inter.reply(f"{member.display_name}님의 주의 개수는 {warndata['warn']}개에요!")
 
-    warnoption = SlashCommand(None, None)
+    warnoption = NoneSlashCommand()
     warnoption.add_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
     warnoption.add_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
     warnoption.add_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
@@ -114,7 +114,7 @@ class admin(commands.Cog):
         message = md1.get_warn_message(reason, member.id, inter.author.id, warndata)
         await inter.reply(message)
 
-    unwarnoption = SlashCommand(None, None)
+    unwarnoption = NoneSlashCommand()
     unwarnoption.add_option(name="member", description="주의를 줄 사람", required=True, type=Type.USER)
     unwarnoption.add_option(name="amount", description="주의를 얼마나 줄거임?", required=True, type=Type.INTEGER)
     unwarnoption.add_option(name="reason", description="주의를 주는 이유", required=False, type=Type.STRING)
@@ -131,7 +131,7 @@ class admin(commands.Cog):
         message = md1.get_unwarn_message(reason, member.id, inter.author.id, warndata)
         await inter.reply(message)
 
-    hellochannel = SlashCommand(None, None)
+    hellochannel = NoneSlashCommand()
     hellochannel.add_option(name="channel", description="인사 채널 (꼭 텍스트 채널이어야 함)", required=True, type=Type.CHANNEL)
 
     @slash.has_guild_permissions(administrator=True)
@@ -143,7 +143,7 @@ class admin(commands.Cog):
             md1.serverdata("insaname", inter.author.guild.id, channel.id, False)
             await inter.reply(f"{channel.mention}으로 인사 채널이 변경되었어요!")
 
-    setnotice = SlashCommand(None, None)
+    setnotice = NoneSlashCommand()
     setnotice.add_option(name="channel", description="봇 공지 채널", required=True, type=Type.CHANNEL)
 
     @slash.has_guild_permissions(manage_messages=True, manage_channels=True)

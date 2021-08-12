@@ -1,12 +1,13 @@
 from discord.ext import commands
 from dislash.interactions.message_components import ActionRow
 from dislash.interactions.slash_interaction import SlashInteraction
-from dislash.slash_commands import slash_command as slash
-from dislash.slash_commands.slash_command import SlashCommand, Type
+from dislash import slash_commands as slash
+from dislash import OptionType as Type
 from .modules import module1 as md1
 from discord.ext.commands import Cog
+from .modules.module2 import NoneSlashCommand
 
-playeroption = SlashCommand(None, None)
+playeroption = NoneSlashCommand()
 playeroption.add_option(name="playername", description="플레이어의 이름", required=True, type=Type.STRING)
 
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]
@@ -23,7 +24,7 @@ class hypixel(Cog):
         pass
 
     # noinspection PyBroadException
-    @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption,
+    @_hypixel.sub_command(name="player", description="플레이어의 기본적인 스탯을 확인하는 명령어", options=playeroption.options,
                           guild_ids=devserver)
     async def _player(self, inter: SlashInteraction):
         name = inter.get_option("player").get("playername").value
@@ -36,7 +37,7 @@ class hypixel(Cog):
             embed = md1.create_player_embed(name, response, response2)
             await inter.reply(embed=embed)
 
-    @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption,
+    @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options,
                           guild_ids=devserver)
     async def _hypixelrankhistory(self, inter: SlashInteraction):
         await inter.reply(type=5)

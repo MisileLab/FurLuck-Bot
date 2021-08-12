@@ -1,8 +1,9 @@
 from discord.ext.commands import Cog
 from dislash.interactions.slash_interaction import SlashInteraction
-from dislash.slash_commands.slash_command import SlashCommand, Type
+from dislash.slash_commands.slash_command import Type
 from dislash import slash_commands as slash
 from .modules import module2 as md2
+from .modules.module2 import NoneSlashCommand
 
 icecreamhappydiscord = [635336036465246218]
 
@@ -10,7 +11,7 @@ icecreamhappydiscord = [635336036465246218]
 class icecreamhappyistroll(Cog):
     def __init__(self, bot):
         self.Client = bot
-    guckrioption = SlashCommand(None, None)
+    guckrioption = NoneSlashCommand()
     guckrioption.add_option(name="member", description="격리할 사람", required=True, type=Type.USER)
     guckrioption.add_option(name="reason", description="격리하는 이유", required=False, type=Type.STRING)
 
@@ -24,7 +25,7 @@ class icecreamhappyistroll(Cog):
         await member.add_roles(role1, reason=reason)
         await inter.reply(content=md2.guckristring(reason, inter, member))
 
-    guckridisableoption = SlashCommand(None, None)
+    guckridisableoption = NoneSlashCommand()
     guckridisableoption.add_option(name="member", description="격리 해제할 멤버", required=True, type=Type.USER)
     guckridisableoption.add_option(name="reason", description="격리 해제하는 이유", required=False, type=Type.STRING)
 
