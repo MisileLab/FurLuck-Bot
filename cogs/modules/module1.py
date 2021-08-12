@@ -4,7 +4,7 @@ from datetime import datetime
 
 from discord.ext import commands
 from dislash.interactions.slash_interaction import SlashInteraction
-import modules.module2 as md2
+from . import module2 as md2
 import discord
 import requests
 from bitlyshortener import Shortener

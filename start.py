@@ -2,8 +2,8 @@ import os
 import discord
 from discord.ext import commands
 import koreanbots
-from modules import module1 as md1
-from modules import module2 as md2
+from cogs.modules import module1 as md1
+from cogs.modules import module2 as md2
 from dislash import slash_commands
 from dotenv import dotenv_values
 

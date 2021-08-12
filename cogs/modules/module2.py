@@ -1,8 +1,11 @@
+from __future__ import annotations
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
-import modules.module1 as md1
 import discord
 from dislash import slash_commands
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    import module1 as md1
 
 
 def get_true_member(member: discord.Member):
