@@ -36,6 +36,7 @@ class hypixel(Cog):
 
     @_hypixel.sub_command(name="rankhistory", description="플레이어의 랭크 기록을 확인하는 명령어", options=playeroption.options)
     async def _hypixelrankhistory(self, inter: SlashInteraction):
+        # sourcery no-metrics
         await inter.reply(type=5)
         name = inter.get_option("rankhistory").get("playername").value
         try:
