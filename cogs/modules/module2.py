@@ -190,7 +190,7 @@ async def createticketchannel(inter: SlashInteraction):
 def get_unmute_string(reason: str or None, inter: SlashInteraction, member: discord.Member):
     if reason is None:
         return f"<@{inter.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!"
-    return f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!"
+    return f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!"
 
 
 def make_userinfo_embed(user1: discord.Member, inter: SlashInteraction):
