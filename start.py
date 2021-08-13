@@ -1,7 +1,8 @@
 import os
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import ExtensionAlreadyLoaded
+from discord.ext.commands.errors import ExtensionNotFound, ExtensionNotLoaded
+from dislash.interactions.app_command_interaction import SlashInteraction
 import koreanbots
 from cogs.modules import module1 as md1
 from cogs.modules import module2 as md2
@@ -116,12 +117,67 @@ async def on_message_edit(before, after):
 async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
     await ctx.send("Misile#1231")
 
-for file in os.listdir("cogs"):
-    if file.endswith(".py"):
-        try:
-            Client.load_extension(f"cogs.{file[:-3]}")
-        except ExtensionAlreadyLoaded:
-            break
-        print(f"cogs.{file[:-3]} Loaded")
+
+@slash.command(name="cogs")
+async def _cogs(inter: SlashInteraction):
+    pass
+
+unloadoption = md2.NoneSlashCommand()
+unloadoption.add_option(name="cogname", description="cog name", required=True)
+
+
+@_cogs.sub_command(name="unload", description="unload cog", options=unloadoption.options)
+async def _unloadcogs(inter: SlashInteraction):
+    cogname = inter.get('cogs')
+    try:
+        Client.load_extension(f"cogs.{cogname}")
+    except ExtensionNotFound:
+        await inter.reply("그 cogs는 없는 것 같습니다.")
+    except ExtensionNotLoaded:
+        await inter.reply("그 cogs는 이미 로드되지 않았습니다.")
+    except Exception:
+        print(f'cogs.{cogname} error')
+        raise
+    else:
+        await inter.reply("cogs가 정상 로드되었습니다.")
+
+
+@_cogs.sub_command(name="load", description="load cog", options=unloadoption.options)
+async def _loadcogs(inter: SlashInteraction):
+    cogname = inter.get('cogs')
+    try:
+        Client.load_extension(f"cogs.{cogname}")
+    except ExtensionNotFound:
+        await inter.reply("그 cogs는 없는 것 같습니다.")
+    except ExtensionNotLoaded:
+        await inter.reply("그 cogs는 이미 로드되었습니다.")
+    except Exception:
+        print(f'cogs.{cogname} error')
+        raise
+    else:
+        await inter.reply("cogs가 정상 언로드되었습니다.")
+
+
+@_cogs.sub_command(name="reload", description="reload cogs")
+async def _reloadcogs(inter: SlashInteraction):
+    for file in os.listdir("cogs"):
+        if file.endswith(".py"):
+            try:
+                Client.unload_extension(f"cogs.{file[:-3]}")
+            except Exception:
+                print(f'cogs.{file[:-3]} error')
+                raise
+            else:
+                print(f"cogs.{file[:-3]} - 언로드 성공!")
+    for file in os.listdir("cogs"):
+        if file.endswith(".py"):
+            try:
+                Client.load_extension(f"cogs.{file[:-3]}")
+            except Exception:
+                print(f'cogs.{file[:-3]} error')
+                raise
+            else:
+                print(f"cogs.{file[:-3]} - 로드 성공!")
+
 
 Client.run(token)
