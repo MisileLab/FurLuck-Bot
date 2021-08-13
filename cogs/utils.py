@@ -46,25 +46,7 @@ class utils(Cog):
                                                                            label="Click Please",
                                                                            custom_id="buttonhelping"))])
         clicklistener: ClickListener = msg.create_click_listnener(timeout=30)
-
-        # noinspection PyShadowingNames
-        @clicklistener.not_from_user(inter.author, reset_timeout=False)
-        async def wrong_user(inter: SlashInteraction):
-            await inter.reply("You are not owner!", ephemeral=True)
-
-        # noinspection PyShadowingNames
-        @clicklistener.matching_id("buttonhelping")
-        async def buttonhelping(inter: SlashInteraction):
-            embed2 = discord.Embed(name="Helping hands", description="Thank you")
-            embed2.add_field(name="EQUENOS", value="Make github pull requests, dislash.py developer")
-            embed2.add_field(name="Rapptz", value="discord.py developer")
-            embed2.add_field(name="Python Developers", value="Python is good ~~(Except Speed)~~")
-            await inter.edit(embed=embed2, components=[])
-
-        # noinspection PyShadowingNames
-        @clicklistener.timeout
-        async def timeout(inter: SlashInteraction):
-            await inter.edit(embed=embed1, components=[])
+        await md2.specialthankslistener(clicklistener, inter, embed1)
 
     calculateoption = NoneSlashCommand()
     calculateoption.add_option(name="calculate", description="계산할 식", required=True, type=Type.STRING)
@@ -214,13 +196,7 @@ class utils(Cog):
         except (AttributeError, discord.errors.HTTPException, ValueError):
             await inter.edit(content="그 서버는 잘못된 유저거나 제가 알 수 없는 유저인 것 같아요!")
         else:
-            embed1 = discord.Embed(name="유저의 정보", description=f"{user1.name}의 정보에요!")
-            embed1.set_thumbnail(url=user1.avatar_url)
-            embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
-            embed1.set_footer(text=md1.todaycalculate())
-            embed1.add_field(name="봇 여부", value=str(user1.bot))
-            embed1.add_field(name="시스템 계정 여부", value=str(user1.system))
-            embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
+            embed1 = md2.make_userinfo_embed(user1, inter)
             await inter.edit(content=None, embed=embed1)
 
     createvoteoption = NoneSlashCommand()
@@ -231,19 +207,17 @@ class utils(Cog):
     @slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options)
     @commands.guild_only()
     @commands.cooldown(10, 600)
-    async def _createvote(self, inter: SlashInteraction):
+    async def _createvote(self, inter: SlashInteraction):  # sourcery no-metrics
         await inter.reply(type=5)
         name = inter.get("name")
         description = inter.get("description", None)
         timeout = inter.get('timeout', '3600')
         embed = discord.Embed(title=name, description=description)
-        component = md1.NewActionRow()
-        component.add_button(style=ButtonStyle.green, name="O", custom_id="accept")
+        component = md1.NewActionRow().add_button(style=ButtonStyle.green, name="O", custom_id="accept")
         component.add_button(style=ButtonStyle.red, name="X", custom_id="deny")
-        votelol = md1.Vote()
         msg = await inter.edit(embed=embed, components=component.components)
         on_click: ClickListener = msg.create_click_listener(timeout=timeout)
-        await md1.vote_listener(on_click, votelol, embed, inter)
+        await md1.vote_listener(on_click, md1.Vote(), embed, inter)
 
 
 def setup(bot):

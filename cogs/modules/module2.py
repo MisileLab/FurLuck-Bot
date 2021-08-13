@@ -1,12 +1,14 @@
 from __future__ import annotations
+import hashlib
+from random import SystemRandom
+from dislash.application_commands.utils import ClickListener
 from dislash.interactions.application_command import SlashCommand
+from dislash.interactions.message_components import ActionRow, Button, ButtonStyle
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
 import discord
 from dislash import application_command as slash_commands
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    import module1 as md1
+from . import module1 as md1
 
 
 def get_true_member(member: discord.Member):
@@ -82,22 +84,23 @@ class sub_error_handler:
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
 
     async def ErrorHandling(self):
-        error = self.error
-        inter = self.inter
-        if isinstance(error, slash_commands.MissingPermissions):
-            await self.MissingPermissonHandling(error.missing_perms, inter)
+        if isinstance(self.error, slash_commands.MissingPermissions):
+            await self.MissingPermissonHandling(self.error.missing_perms, self.inter)
 
-        elif isinstance(error, slash_commands.BotMissingPermissions):
-            await inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {error.missing_perms}")
+        elif isinstance(self.error, slash_commands.BotMissingPermissions):
+            await self.inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {self.error.missing_perms}")
 
-        elif isinstance(error, slash_commands.CommandOnCooldown):
-            await inter.reply(f"이 명령어는 {error.retry_after}초 뒤에 사용할 수 있어요!")
+        elif isinstance(self.error, slash_commands.CommandOnCooldown):
+            await self.inter.reply(f"이 명령어는 {self.error.retry_after}초 뒤에 사용할 수 있어요!")
 
-        elif isinstance(error, notadmin):
-            if error.message is None:
-                await inter.reply("이 명령어는 당신이 쓸 수 없어요!")
-            else:
-                await error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
+        elif isinstance(self.error, notadmin):
+            await self.MessageErrorHandling()
+
+    async def MessageErrorHandling(self):
+        if self.error.message is None:
+            await self.inter.reply("이 명령어는 당신이 쓸 수 없어요!")
+        else:
+            await self.error.message.edit("이 명령어는 당신이 쓸 수 없어요!")
 
 
 def cpuandram(inter: SlashInteraction, cpuinfo1):
@@ -137,3 +140,66 @@ def make_member_remove_embed(member: discord.Member):
 def NoneSlashCommand():
     return SlashCommand('none', 'none')
 
+
+async def specialthankslistener(clicklistener: ClickListener, inter: SlashInteraction, embed1: discord.Embed):
+    # noinspection PyShadowingNames
+    @clicklistener.not_from_user(inter.author, reset_timeout=False)
+    async def wrong_user(inter: SlashInteraction):
+        await inter.reply("You are not owner!", ephemeral=True)
+
+    # noinspection PyShadowingNames
+    @clicklistener.matching_id("buttonhelping")
+    async def buttonhelping(inter: SlashInteraction):
+        embed2 = discord.Embed(name="Helping hands", description="Thank you")
+        embed2.add_field(name="EQUENOS", value="Make github pull requests, dislash.py developer")
+        embed2.add_field(name="Rapptz", value="discord.py developer")
+        embed2.add_field(name="Python Developers", value="Python is good ~~(Except Speed)~~")
+        await inter.edit(embed=embed2, components=[])
+
+    # noinspection PyShadowingNames
+    @clicklistener.timeout
+    async def timeout(inter: SlashInteraction):
+        await inter.edit(embed=embed1, components=[])
+
+
+async def createticketlistener(clicklistener: ClickListener, inter: SlashInteraction):
+    @clicklistener.matching_id("createticket")
+    async def createticketlol(inter: SlashInteraction):
+        channel: discord.Channel = createticketlistener(clicklistener, inter)
+        components = [ActionRow(Button(style=ButtonStyle.red, label="채널 없애기", custom_id="deleteticket"))]
+        msg = await channel.send(f'티켓이 만들어졌습니다! <@{inter.author.id}>', components=components)
+        clicklistener2: ClickListener = msg.create_click_listener()
+
+        @clicklistener2.matching_id("deleteticket")
+        async def deleteticket(inter: SlashInteraction):
+            channel.delete()
+
+
+async def createticketchannel(inter: SlashInteraction):
+    ticketowner: discord.Member = inter.author.guild.get_member(inter.author.id)
+    overwrites = {
+        inter.author.guild.deafult_role: discord.PermissionOverwrite(view_channels=False),
+        ticketowner: discord.PermissionOverwrite(view_channels=True)
+    }
+    randomlol = str(hashlib.sha512(str(SystemRandom().randint(1, 1000000000)).encode('utf-8')).hexdigest())
+    list1 = [randomlol[SystemRandom().randint(0, 512)] for _ in range(1, 6)]
+    str1 = list1[0:6]
+    return await inter.author.guild.create_text_channel(f'ticket-{str1}', overwrites=overwrites)
+
+
+def get_unmute_string(reason: str or None, inter: SlashInteraction, member: discord.Member):
+    if reason is None:
+        return f"<@{inter.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!"
+    else:
+        return f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!"
+
+
+def make_userinfo_embed(user1: discord.Member, inter: SlashInteraction):
+    embed1 = discord.Embed(name="유저의 정보", description=f"{user1.name}의 정보에요!")
+    embed1.set_thumbnail(url=user1.avatar_url)
+    embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
+    embed1.set_footer(text=md1.todaycalculate())
+    embed1.add_field(name="봇 여부", value=str(user1.bot))
+    embed1.add_field(name="시스템 계정 여부", value=str(user1.system))
+    embed1.add_field(name="계정이 생성된 날짜", value=str(md1.makeformat(user1.created_at)))
+    return embed1

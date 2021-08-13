@@ -6,6 +6,7 @@ import discord
 import time
 from .modules import module1 as md1
 from .modules.module2 import NoneSlashCommand
+from .modules import module2 as md2
 
 
 class admin(commands.Cog):
@@ -83,10 +84,7 @@ class admin(commands.Cog):
         guild = inter.guild
         role1 = discord.utils.get(guild.roles, name='뮤트')
         await member.remove_roles(role1, reason=reason)
-        if reason is None:
-            await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 언뮤트하였습니다!")
-        else:
-            await inter.reply(f"<@{inter.author.id}님이 {reason}이라는 이유로 <@{member.id}>님을 언뮤트하였습니다!")
+        await inter.reply(md2.get_unmute_string(reason, inter, member))
 
     getwarnoption = NoneSlashCommand()
     getwarnoption.add_option(name="member", description="누구의 주의를 볼거임?", type=Type.USER, required=False)
@@ -139,7 +137,7 @@ class admin(commands.Cog):
     @slash.command(name="hellochannel", description="인사 채널을 설정하는 명령어", options=hellochannel.options)
     async def _hellochannel(self, inter: SlashInteraction):
         channel = inter.get("channel")
-        if type(channel) is discord.TextChannel:
+        if isinstance(channel, discord.TextChannel):
             md1.serverdata("insaname", inter.author.guild.id, channel.id, False)
             await inter.reply(f"{channel.mention}으로 인사 채널이 변경되었어요!")
 

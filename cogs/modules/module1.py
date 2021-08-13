@@ -23,10 +23,10 @@ musicqueueyes = {}
 with open('bitlytoken.txt') as f:
     tokens_pool = f.readlines()
     print(tokens_pool)
-for i in range(len(tokens_pool)):
-    print(i)
-    tokens_pool2.append(str(tokens_pool[i]).replace('\n', ''))
-    del i
+for i, i2 in enumerate(tokens_pool):
+    print(i2)
+    tokens_pool2.append(str(i2).replace('\n', ''))
+    del i2
 print(tokens_pool2)
 
 config = dotenv_values(".env")
@@ -207,9 +207,9 @@ class WeatherBrowser:
         browser.close()
         return weatherurl
 
-    def sort_data(self, soup, weatherurl):
+    def sort_data(self, soup, weatherurl):  # sourcery no-metrics
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["mintemp"], maxtemp=result["hightemp"],
+        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["lowtemp"], maxtemp=result["hightemp"],
                                   cast=result["cast"], dust=result["dust"], dust_txt=result["dust_txt"],
                                   ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
                                   ozone=result["ozone"], ozonetext=result["ozonetext"],
@@ -238,11 +238,10 @@ class WeatherBrowser:
 
     @staticmethod
     def somanytemp(soup):
-        todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp').text) + '도'
-        lowtemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge').find('span', class_='min')
-                                 .find('span', class_='num').text) + '도'
-        hightemperature = str(soup.find('ul', class_='info_list').find('span', class_='merge')
-                                  .find('span', class_='max').find('span', class_='num').text) + '도'
+        todaytemperature = str(soup.find('p', class_='info_temperature').find('span', class_='todaytemp')).text + '도'
+        tempdata = soup.find('ul', class_='info_list').find('span', class_='merge')
+        lowtemperature = str(tempdata.find('span', class_='min').find('span', class_='num').text) + '도'
+        hightemperature = str(tempdata.find('span', class_='max').find('span', class_='num').text) + '도'
         return {"temp": todaytemperature, "lowtemp": lowtemperature, "hightemp": hightemperature}
 
     @staticmethod
@@ -494,6 +493,7 @@ def miningmoney(memberid: int):
 
 
 def serverdata(mode: str, guildid: int, channelid: int, get: bool):
+    # sourcery no-metrics
     mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
@@ -576,9 +576,8 @@ class Vote:
                 self.voteid = hashlib.sha512(
                     str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
 
-    def close(self):
-        self.cursor.execute(
-            'SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
+    def close(self):  # sourcery no-metrics
+        self.cursor.execute('SELECT * FROM `votes` WHERE voteid = %s', self.voteid)
         resultcursor = self.cursor.fetchall()
         trueopinion = 0
         falseopinion = 0
@@ -591,8 +590,7 @@ class Vote:
                     trueopinion += 1
                 elif resultid == 1:
                     falseopinion += 1
-        self.cursor.execute(
-            "DELETE FROM `votes` WHERE voteid = %s", self.voteid)
+        self.cursor.execute("DELETE FROM `votes` WHERE voteid = %s", self.voteid)
         self.cursor.close()
         return {"true": trueopinion, "false": falseopinion}
 

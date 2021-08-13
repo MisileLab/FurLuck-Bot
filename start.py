@@ -44,7 +44,7 @@ async def on_command_error(error):
 async def on_slash_command_error(inter, error):
     if not isinstance(error, ignore_error):
         if isinstance(error, message_error):
-            await md2.sub_error_handler(error, inter)
+            await md2.sub_error_handler(error, inter).ErrorHandling()
         else:
             raise error
 
