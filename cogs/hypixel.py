@@ -18,7 +18,7 @@ class hypixel(Cog):
     # noinspection PyUnusedLocal
     @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들")
     @commands.guild_only()
-    async def _hypixel(self, inter):
+    async def _hypixel(self, inter: SlashInteraction):
         pass
 
     # noinspection PyBroadException

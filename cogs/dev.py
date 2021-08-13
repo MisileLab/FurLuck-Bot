@@ -14,7 +14,7 @@ class dev(Cog):
         self.Client = bot
 
     @slash_commands.command(name="ticket", guild_ids=devserver)
-    async def _ticket(self):
+    async def _ticket(self, inter: SlashInteraction):
         pass
 
     @_ticket.sub_command(name="create", description="티켓을 만드는 명령어", guild_ids=devserver)
