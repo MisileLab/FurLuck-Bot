@@ -19,6 +19,7 @@ class dev(Cog):
 
     @_ticket.sub_command(name="create", description="티켓을 만드는 명령어", guild_ids=devserver)
     @slash_commands.bot_has_guild_permissions(manage_channels=True)
+    @slash_commands.has_guild_permissions(manage_channels=True)
     async def _createticket(self, inter: SlashInteraction):
         components = [ActionRow(Button(style=ButtonStyle.gray, label="티켓 만들기", custom_id="createticket"))]
         msg = await inter.reply(content="티켓을 만들려면 버튼을 눌러주세요!", components=components)

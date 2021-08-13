@@ -165,25 +165,25 @@ async def specialthankslistener(clicklistener: ClickListener, inter: SlashIntera
 async def createticketlistener(clicklistener: ClickListener, inter: SlashInteraction):
     @clicklistener.matching_id("createticket")
     async def createticketlol(inter: SlashInteraction):
-        channel: discord.Channel = createticketlistener(clicklistener, inter)
+        channel: discord.Channel = await createticketchannel(inter)
         components = [ActionRow(Button(style=ButtonStyle.red, label="채널 없애기", custom_id="deleteticket"))]
         msg = await channel.send(f'티켓이 만들어졌습니다! <@{inter.author.id}>', components=components)
         clicklistener2: ClickListener = msg.create_click_listener()
 
         @clicklistener2.matching_id("deleteticket")
         async def deleteticket(inter: SlashInteraction):
-            channel.delete()
+            await channel.delete()
 
 
 async def createticketchannel(inter: SlashInteraction):
     ticketowner: discord.Member = inter.author.guild.get_member(inter.author.id)
     overwrites = {
-        inter.author.guild.deafult_role: discord.PermissionOverwrite(view_channels=False),
-        ticketowner: discord.PermissionOverwrite(view_channels=True)
+        inter.author.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        ticketowner: discord.PermissionOverwrite(view_channel=True)
     }
     randomlol = str(hashlib.sha512(str(SystemRandom().randint(1, 1000000000)).encode('utf-8')).hexdigest())
-    list1 = [randomlol[SystemRandom().randint(0, 512)] for _ in range(1, 6)]
-    str1 = list1[0:6]
+    list1 = [randomlol[SystemRandom().randint(0, 128)] for _ in range(6)]
+    str1 = ''.join(list1)
     return await inter.author.guild.create_text_channel(f'ticket-{str1}', overwrites=overwrites)
 
 
