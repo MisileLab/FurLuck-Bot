@@ -207,14 +207,12 @@ class WeatherBrowser:
         browser.close()
         return weatherurl
 
-    def sort_data(self, soup, weatherurl):  # sourcery no-metrics
+    def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["lowtemp"], maxtemp=result["hightemp"],
-                                  cast=result["cast"], dust=result["dust"], dust_txt=result["dust_txt"],
-                                  ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
-                                  ozone=result["ozone"], ozonetext=result["ozonetext"],
-                                  sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
-        return Weather(dict1)
+        dicttemp = {"maxtemp": result["hightemp"], "lowtemp": result["lowtemp"],
+                    "weatherurl": f'{self.svg_to_link(weatherurl)}.png'}
+        result.update(dicttemp)
+        return Weather(result)
 
     def soup_to_dict(self, soup):
         result = self.somanydust(soup)
@@ -222,8 +220,8 @@ class WeatherBrowser:
         infolist = soup.find('ul', class_='info_list')
         sensibletemp = infolist.find('span', class_='sensible').find(
             'span', class_='num').text
-        return {"temp": temp["temp"], "dust": result["dust"], "dust_txt": result["dust_txt"],
-                "ultra_dust": result["ultra_dust"], "ultra_dust_txt": result["ultra_dust_txt"],
+        return {"temp": temp["temp"], "dust": result["dust"].replace("㎍/㎥", ""), "dust_txt": result["dust_txt"],
+                "ultra_dust": result["ultra_dust"].replace("㎍/㎥", ""), "ultra_dust_txt": result["ultra_dust_txt"],
                 "ozone": result["ozone"], "ozonetext": result["ozone_text"], "lowtemp": temp["lowtemp"],
                 "hightemp": temp["hightemp"], "cast": result["cast"], "sensibletemp": sensibletemp}
 
@@ -271,68 +269,50 @@ class WeatherBrowser:
         return [ozone, ozonetext]
 
     @staticmethod
-    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp,
-                     sensibletemp, weatherurl):
-        return {
-            "temp": temp,
-            "cast": cast,
-            "dust": dust.replace("㎍/㎥", ""),
-            "dust_txt": dust_txt,
-            "ultra_dust": ultra_dust.replace("㎍/㎥", ""),
-            "ultra_dust_txt": ultra_dust_txt,
-            "ozone": ozone.replace("ppm", ""),
-            "ozonetext": ozonetext,
-            "mintemp": mintemp,
-            "maxtemp": maxtemp,
-            "sensibletemp": str(sensibletemp) + "도",
-            "weatherurl": f'{svg_to_link(weatherurl)}.png',
-        }
-
-
-def svg_to_link(weatherurl):
-    weatherurl2 = [
-        "https://imgur.com/VPuDpZV",
-        "https://imgur.com/02sqICQ",
-        "https://imgur.com/Px8uR3W",
-        "https://imgur.com/hgfEduj",
-        "https://imgur.com/6FEXmQK",
-        "https://imgur.com/Sl1ueqT",
-        "https://imgur.com/BUwOqYx",
-        "https://imgur.com/CaQKTy1",
-        "https://imgur.com/wWKMPU3",
-        "https://imgur.com/IBJROQn",
-        "https://imgur.com/IBJROQn",
-        "https://imgur.com/WchO5KW",
-        "https://imgur.com/VJC4wfv",
-        "https://imgur.com/QP6kbP3",
-        "https://imgur.com/RsT33Li",
-        "https://imgur.com/p8eKpil",
-        "https://imgur.com/v6zOXdI",
-        "https://imgur.com/xHk7Xex",
-        "https://imgur.com/t3DUaoP",
-        "https://imgur.com/Sbg2Mmi",
-        "https://imgur.com/TbwVn5J",
-        "https://imgur.com/hxKCYPr",
-        "https://imgur.com/0oHigOh",
-        "https://imgur.com/4VHxJjt",
-        "https://imgur.com/MAR7Rip",
-        "https://imgur.com/Cxyz93G",
-        "https://imgur.com/1TECcRk",
-        "https://imgur.com/mOxGn6J",
-        "https://imgur.com/1FJDoEj",
-        "https://imgur.com/JBQz23t",
-        "https://imgur.com/qW7bsxg",
-        "https://imgur.com/raBRUi3",
-        "https://imgur.com/QtEPCkb",
-        "https://imgur.com/gSfaZ6W",
-        "https://imgur.com/SOqq92z",
-        "https://imgur.com/PwtZ8Qs",
-        "https://imgur.com/R1hvM7E",
-        "https://imgur.com/GpY3BOM",
-        "https://imgur.com/XMcWPZc",
-        "https://imgur.com/9Kn7KCy"
-    ]
-    return weatherurl2[weatherurl - 1]
+    def svg_to_link(weatherurl):
+        weatherurl2 = [
+            "https://imgur.com/VPuDpZV",
+            "https://imgur.com/02sqICQ",
+            "https://imgur.com/Px8uR3W",
+            "https://imgur.com/hgfEduj",
+            "https://imgur.com/6FEXmQK",
+            "https://imgur.com/Sl1ueqT",
+            "https://imgur.com/BUwOqYx",
+            "https://imgur.com/CaQKTy1",
+            "https://imgur.com/wWKMPU3",
+            "https://imgur.com/IBJROQn",
+            "https://imgur.com/IBJROQn",
+            "https://imgur.com/WchO5KW",
+            "https://imgur.com/VJC4wfv",
+            "https://imgur.com/QP6kbP3",
+            "https://imgur.com/RsT33Li",
+            "https://imgur.com/p8eKpil",
+            "https://imgur.com/v6zOXdI",
+            "https://imgur.com/xHk7Xex",
+            "https://imgur.com/t3DUaoP",
+            "https://imgur.com/Sbg2Mmi",
+            "https://imgur.com/TbwVn5J",
+            "https://imgur.com/hxKCYPr",
+            "https://imgur.com/0oHigOh",
+            "https://imgur.com/4VHxJjt",
+            "https://imgur.com/MAR7Rip",
+            "https://imgur.com/Cxyz93G",
+            "https://imgur.com/1TECcRk",
+            "https://imgur.com/mOxGn6J",
+            "https://imgur.com/1FJDoEj",
+            "https://imgur.com/JBQz23t",
+            "https://imgur.com/qW7bsxg",
+            "https://imgur.com/raBRUi3",
+            "https://imgur.com/QtEPCkb",
+            "https://imgur.com/gSfaZ6W",
+            "https://imgur.com/SOqq92z",
+            "https://imgur.com/PwtZ8Qs",
+            "https://imgur.com/R1hvM7E",
+            "https://imgur.com/GpY3BOM",
+            "https://imgur.com/XMcWPZc",
+            "https://imgur.com/9Kn7KCy"
+        ]
+        return weatherurl2[weatherurl - 1]
 
 
 def remove_special_region(origin, tagname):
