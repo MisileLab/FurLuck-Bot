@@ -15,8 +15,10 @@ def get_true_member(member: discord.Member):
     return str(len([m for m in member.guild.members if not m.bot]))
 
 
-def make_embed(member: discord.Member):
-    embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
+def make_member_join_embed(member: discord.Member):
+    embed = discord.Embed(title="멤버 입장",
+                          description=f'{member.name}님이 {member.guild.name}에 입장했어요!',
+                          color=0x00a352)
     embed.add_field(name='현재 인원', value=get_true_member(member) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)
@@ -165,25 +167,25 @@ async def specialthankslistener(clicklistener: ClickListener, inter: SlashIntera
 async def createticketlistener(clicklistener: ClickListener, inter: SlashInteraction):
     @clicklistener.matching_id("createticket")
     async def createticketlol(inter: SlashInteraction):
-        channel: discord.Channel = createticketlistener(clicklistener, inter)
+        channel: discord.Channel = await createticketchannel(inter)
         components = [ActionRow(Button(style=ButtonStyle.red, label="채널 없애기", custom_id="deleteticket"))]
         msg = await channel.send(f'티켓이 만들어졌습니다! <@{inter.author.id}>', components=components)
         clicklistener2: ClickListener = msg.create_click_listener()
 
         @clicklistener2.matching_id("deleteticket")
         async def deleteticket(inter: SlashInteraction):
-            channel.delete()
+            await channel.delete()
 
 
 async def createticketchannel(inter: SlashInteraction):
     ticketowner: discord.Member = inter.author.guild.get_member(inter.author.id)
     overwrites = {
-        inter.author.guild.deafult_role: discord.PermissionOverwrite(view_channels=False),
-        ticketowner: discord.PermissionOverwrite(view_channels=True)
+        inter.author.guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        ticketowner: discord.PermissionOverwrite(view_channel=True)
     }
     randomlol = str(hashlib.sha512(str(SystemRandom().randint(1, 1000000000)).encode('utf-8')).hexdigest())
-    list1 = [randomlol[SystemRandom().randint(0, 512)] for _ in range(1, 6)]
-    str1 = list1[0:6]
+    list1 = [randomlol[SystemRandom().randint(0, 128)] for _ in range(6)]
+    str1 = ''.join(list1)
     return await inter.author.guild.create_text_channel(f'ticket-{str1}', overwrites=overwrites)
 
 

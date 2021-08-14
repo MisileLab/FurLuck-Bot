@@ -207,14 +207,12 @@ class WeatherBrowser:
         browser.close()
         return weatherurl
 
-    def sort_data(self, soup, weatherurl):  # sourcery no-metrics
+    def sort_data(self, soup, weatherurl):
         result = self.soup_to_dict(soup)
-        dict1 = self.data_to_dict(temp=result["temp"], mintemp=result["lowtemp"], maxtemp=result["hightemp"],
-                                  cast=result["cast"], dust=result["dust"], dust_txt=result["dust_txt"],
-                                  ultra_dust=result["ultra_dust"], ultra_dust_txt=result["ultra_dust_txt"],
-                                  ozone=result["ozone"], ozonetext=result["ozonetext"],
-                                  sensibletemp=result["sensibletemp"], weatherurl=weatherurl)
-        return Weather(dict1)
+        dicttemp = {"maxtemp": result["hightemp"], "lowtemp": result["lowtemp"],
+                    "weatherurl": f'{self.svg_to_link(weatherurl)}.png'}
+        result.update(dicttemp)
+        return Weather(result)
 
     def soup_to_dict(self, soup):
         result = self.somanydust(soup)
@@ -222,8 +220,8 @@ class WeatherBrowser:
         infolist = soup.find('ul', class_='info_list')
         sensibletemp = infolist.find('span', class_='sensible').find(
             'span', class_='num').text
-        return {"temp": temp["temp"], "dust": result["dust"], "dust_txt": result["dust_txt"],
-                "ultra_dust": result["ultra_dust"], "ultra_dust_txt": result["ultra_dust_txt"],
+        return {"temp": temp["temp"], "dust": result["dust"].replace("㎍/㎥", ""), "dust_txt": result["dust_txt"],
+                "ultra_dust": result["ultra_dust"].replace("㎍/㎥", ""), "ultra_dust_txt": result["ultra_dust_txt"],
                 "ozone": result["ozone"], "ozonetext": result["ozone_text"], "lowtemp": temp["lowtemp"],
                 "hightemp": temp["hightemp"], "cast": result["cast"], "sensibletemp": sensibletemp}
 
@@ -271,68 +269,50 @@ class WeatherBrowser:
         return [ozone, ozonetext]
 
     @staticmethod
-    def data_to_dict(temp, cast, dust, dust_txt, ultra_dust, ultra_dust_txt, ozone, ozonetext, mintemp, maxtemp,
-                     sensibletemp, weatherurl):
-        return {
-            "temp": temp,
-            "cast": cast,
-            "dust": dust.replace("㎍/㎥", ""),
-            "dust_txt": dust_txt,
-            "ultra_dust": ultra_dust.replace("㎍/㎥", ""),
-            "ultra_dust_txt": ultra_dust_txt,
-            "ozone": ozone.replace("ppm", ""),
-            "ozonetext": ozonetext,
-            "mintemp": mintemp,
-            "maxtemp": maxtemp,
-            "sensibletemp": str(sensibletemp) + "도",
-            "weatherurl": f'{svg_to_link(weatherurl)}.png',
-        }
-
-
-def svg_to_link(weatherurl):
-    weatherurl2 = [
-        "https://imgur.com/VPuDpZV",
-        "https://imgur.com/02sqICQ",
-        "https://imgur.com/Px8uR3W",
-        "https://imgur.com/hgfEduj",
-        "https://imgur.com/6FEXmQK",
-        "https://imgur.com/Sl1ueqT",
-        "https://imgur.com/BUwOqYx",
-        "https://imgur.com/CaQKTy1",
-        "https://imgur.com/wWKMPU3",
-        "https://imgur.com/IBJROQn",
-        "https://imgur.com/IBJROQn",
-        "https://imgur.com/WchO5KW",
-        "https://imgur.com/VJC4wfv",
-        "https://imgur.com/QP6kbP3",
-        "https://imgur.com/RsT33Li",
-        "https://imgur.com/p8eKpil",
-        "https://imgur.com/v6zOXdI",
-        "https://imgur.com/xHk7Xex",
-        "https://imgur.com/t3DUaoP",
-        "https://imgur.com/Sbg2Mmi",
-        "https://imgur.com/TbwVn5J",
-        "https://imgur.com/hxKCYPr",
-        "https://imgur.com/0oHigOh",
-        "https://imgur.com/4VHxJjt",
-        "https://imgur.com/MAR7Rip",
-        "https://imgur.com/Cxyz93G",
-        "https://imgur.com/1TECcRk",
-        "https://imgur.com/mOxGn6J",
-        "https://imgur.com/1FJDoEj",
-        "https://imgur.com/JBQz23t",
-        "https://imgur.com/qW7bsxg",
-        "https://imgur.com/raBRUi3",
-        "https://imgur.com/QtEPCkb",
-        "https://imgur.com/gSfaZ6W",
-        "https://imgur.com/SOqq92z",
-        "https://imgur.com/PwtZ8Qs",
-        "https://imgur.com/R1hvM7E",
-        "https://imgur.com/GpY3BOM",
-        "https://imgur.com/XMcWPZc",
-        "https://imgur.com/9Kn7KCy"
-    ]
-    return weatherurl2[weatherurl - 1]
+    def svg_to_link(weatherurl):
+        weatherurl2 = [
+            "https://imgur.com/VPuDpZV",
+            "https://imgur.com/02sqICQ",
+            "https://imgur.com/Px8uR3W",
+            "https://imgur.com/hgfEduj",
+            "https://imgur.com/6FEXmQK",
+            "https://imgur.com/Sl1ueqT",
+            "https://imgur.com/BUwOqYx",
+            "https://imgur.com/CaQKTy1",
+            "https://imgur.com/wWKMPU3",
+            "https://imgur.com/IBJROQn",
+            "https://imgur.com/IBJROQn",
+            "https://imgur.com/WchO5KW",
+            "https://imgur.com/VJC4wfv",
+            "https://imgur.com/QP6kbP3",
+            "https://imgur.com/RsT33Li",
+            "https://imgur.com/p8eKpil",
+            "https://imgur.com/v6zOXdI",
+            "https://imgur.com/xHk7Xex",
+            "https://imgur.com/t3DUaoP",
+            "https://imgur.com/Sbg2Mmi",
+            "https://imgur.com/TbwVn5J",
+            "https://imgur.com/hxKCYPr",
+            "https://imgur.com/0oHigOh",
+            "https://imgur.com/4VHxJjt",
+            "https://imgur.com/MAR7Rip",
+            "https://imgur.com/Cxyz93G",
+            "https://imgur.com/1TECcRk",
+            "https://imgur.com/mOxGn6J",
+            "https://imgur.com/1FJDoEj",
+            "https://imgur.com/JBQz23t",
+            "https://imgur.com/qW7bsxg",
+            "https://imgur.com/raBRUi3",
+            "https://imgur.com/QtEPCkb",
+            "https://imgur.com/gSfaZ6W",
+            "https://imgur.com/SOqq92z",
+            "https://imgur.com/PwtZ8Qs",
+            "https://imgur.com/R1hvM7E",
+            "https://imgur.com/GpY3BOM",
+            "https://imgur.com/XMcWPZc",
+            "https://imgur.com/9Kn7KCy"
+        ]
+        return weatherurl2[weatherurl - 1]
 
 
 def remove_special_region(origin, tagname):
@@ -775,12 +755,6 @@ class HypixelAPI:
         return bool(response.lastlogin > response.lastlogout)
 
 
-def booltostr(arg: bool):
-    if arg:
-        return "없음"
-    return "있음"
-
-
 def rankhistorycomponents(response):
     components = SelectMenu(
         custom_id="rankhistory", placeholder="보고 싶은 날짜를 골라주세요.", max_values=len(response))
@@ -793,14 +767,22 @@ def rankhistorycomponents(response):
 def rankhistoryembed(labels, response, name):
     embed = discord.Embed(name=f"{name}의 랭크 기록")
     for i2 in labels:
-        value = response[i2]
-        value1 = f"deafult={booltostr(value.regular)}, vip={booltostr(value.vip)}, vip+={booltostr(value.vip_plus)}" \
-                 f", mvp={booltostr(value.mvp)}, mvp+={booltostr(value.mvp_plus)}"
+        value: HypixelRank = response[i2]
+        if value.mvp_plus:
+            value1 = "일반, VIP, VIP+, MVP, MVP+"
+        elif value.mvp:
+            value1 = "일반, VIP, VIP+, MVP"
+        elif value.vip_plus:
+            value1 = "일반, VIP, VIP+"
+        elif value.vip:
+            value1 = "일반, VIP"
+        else:
+            value1 = "일반"
         embed.add_field(name=i2, value=value1)
     return embed
 
 
-async def except_error_information(inter, name):
+async def except_error_information(inter: SlashInteraction, name):
     response = None
     response2 = None
     try:
@@ -808,13 +790,13 @@ async def except_error_information(inter, name):
         response2: bool or None = HypixelAPI(
             playername=name).get_online(response)
     except UsernameNotValid:
-        await inter.reply("유저의 이름이 알맞지 않습니다.")
+        await inter.edit("유저의 이름이 알맞지 않습니다.")
     except YouAlreadylookedupthisnamerecently:
-        await inter.reply("이 플레이어를 최근에 누군가 검색했습니다.")
+        await inter.edit("이 플레이어를 최근에 누군가 검색했습니다.")
     except KeyLimit:
-        await inter.reply("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
+        await inter.edit("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
     except Exception as e:
-        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
     return Responses(response, response2)
 
@@ -835,14 +817,18 @@ async def except_error_history(inter: SlashInteraction, name: str):
     try:
         response: Information = HypixelAPI(playername=name).get_rankhistory()
     except UsernameNotValid:
-        await inter.reply("유저의 이름이 알맞지 않습니다.")
+        await inter.edit("유저의 이름이 알맞지 않습니다.")
     except YouAlreadylookedupthisnamerecently:
-        await inter.reply("이 플레이어를 최근에 누군가 검색했습니다.")
+        await inter.edit("이 플레이어를 최근에 누군가 검색했습니다.")
     except KeyLimit:
-        await inter.reply("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
+        await inter.edit("1분에 120번 이상 API를 사용했습니다. 잠시만 기다려주세요.")
     except Exception as e:
-        await inter.reply("클라이언트 안에서 알 수 없는 에러가 났습니다.")
+        await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
+    else:
+        if response is False:
+            await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
+            return False
     return response
 
 

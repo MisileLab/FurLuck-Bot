@@ -1,7 +1,8 @@
 import os
 import discord
 from discord.ext import commands
-from discord.ext.commands.errors import ExtensionAlreadyLoaded
+from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound, ExtensionNotLoaded
+from dislash.interactions.app_command_interaction import SlashInteraction
 import koreanbots
 from cogs.modules import module1 as md1
 from cogs.modules import module2 as md2
@@ -12,8 +13,9 @@ dotenvvalues = dotenv_values(".env")
 koreanbotstoken = dotenvvalues["koreanbotstoken"]
 token = dotenvvalues["token"]
 
+devserver = [812339145942237204, 635336036465246218, 863950154055155712]
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
-Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
+Client1 = koreanbots.Koreanbots(Client, koreanbotstoken, run_task=True)
 slash = slash_commands.SlashClient(Client)
 
 icecreamhappydiscord = [635336036465246218]
@@ -51,7 +53,7 @@ async def on_slash_command_error(inter, error):
 
 @Client.event
 async def on_member_join(member):
-    embed = md2.make_embed(member)
+    embed = md2.make_member_join_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
@@ -97,11 +99,11 @@ async def on_message_edit(before, after):
     if after.author.bot is True:
         return
     try:
-        after.attachments[0].url
+        attachmentsurl = after.attachments[0].url
     except IndexError:
         pass
     else:
-        if after.attachments[0].url is not None:
+        if attachmentsurl is not None:
             embed1 = md1.get_message_edit_embed(before, after)
             getchannel = md1.serverdata("logid", after.guild.id, 123, True)
             try:
@@ -116,12 +118,60 @@ async def on_message_edit(before, after):
 async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
     await ctx.send("Misile#1231")
 
-for file in os.listdir("cogs"):
-    if file.endswith(".py"):
-        try:
-            Client.load_extension(f"cogs.{file[:-3]}")
-        except ExtensionAlreadyLoaded:
-            break
-        print(f"cogs.{file[:-3]} Loaded")
+
+@slash.command(name="cogs", guild_ids=devserver)
+async def _cogs(inter: SlashInteraction):
+    pass
+
+unloadoption = md2.NoneSlashCommand()
+unloadoption.add_option(name="cogname", description="cog name", required=True)
+
+
+@_cogs.sub_command(name="unload", description="unload cog", options=unloadoption.options, guild_ids=devserver)
+async def _unloadcogs(inter: SlashInteraction):
+    cogname = inter.get_option("unload").get("cogname")
+    try:
+        Client.unload_extension(f"cogs.{cogname}")
+    except ExtensionNotFound:
+        await inter.reply("그 cogs는 없는 것 같습니다.")
+    except ExtensionNotLoaded:
+        await inter.reply("그 cogs는 이미 로드되지 않았습니다.")
+    except Exception:
+        print(f'cogs.{cogname} error')
+        raise
+    else:
+        await inter.reply("cogs가 정상 언로드되었습니다.")
+
+
+@_cogs.sub_command(name="load", description="load cog", options=unloadoption.options, guild_ids=devserver)
+async def _loadcogs(inter: SlashInteraction):
+    cogname = inter.get_option("load").get("cogname")
+    try:
+        Client.load_extension(f"cogs.{cogname}")
+    except ExtensionNotFound:
+        await inter.reply("그 cogs는 없는 것 같습니다.")
+    except ExtensionAlreadyLoaded:
+        await inter.reply("그 cogs는 이미 로드되었습니다.")
+    except Exception:
+        print(f'cogs.{cogname} error')
+        raise
+    else:
+        await inter.reply("cogs가 정상 로드되었습니다.")
+
+
+@_cogs.sub_command(name="reload", description="reload cogs", guild_ids=devserver)
+async def _reloadcogs(inter: SlashInteraction):
+    for file in os.listdir("cogs"):
+        if file.endswith(".py"):
+            try:
+                Client.unload_extension(f"cogs.{file[:-3]}")
+                Client.load_extension(f"cogs.{file[:-3]}")
+            except Exception:
+                print(f'cogs.{file[:-3]} error')
+                raise
+            else:
+                print(f"cogs.{file[:-3]} - 리로드 성공!")
+    await inter.reply("리로드 성공!")
+
 
 Client.run(token)
