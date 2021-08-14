@@ -15,7 +15,7 @@ token = dotenvvalues["token"]
 
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]
 Client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), help_command=None)
-Client1 = koreanbots.Koreanbots(Client, koreanbotstoken)
+Client1 = koreanbots.Koreanbots(Client, koreanbotstoken, run_task=True)
 slash = slash_commands.SlashClient(Client)
 
 icecreamhappydiscord = [635336036465246218]
