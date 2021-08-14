@@ -15,8 +15,10 @@ def get_true_member(member: discord.Member):
     return str(len([m for m in member.guild.members if not m.bot]))
 
 
-def make_embed(member: discord.Member):
-    embed = discord.Embed(title="멤버 입장", description=f'{member.name}님이 {member.guild.name}에 입장했어요!', color=0x00a352)
+def make_member_join_embed(member: discord.Member):
+    embed = discord.Embed(title="멤버 입장",
+                          description=f'{member.name}님이 {member.guild.name}에 입장했어요!',
+                          color=0x00a352)
     embed.add_field(name='현재 인원', value=get_true_member(member) + '명')
     embed.set_footer(text=md1.todaycalculate())
     embed.set_thumbnail(url=member.avatar_url)

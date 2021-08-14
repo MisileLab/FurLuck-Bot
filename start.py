@@ -53,7 +53,7 @@ async def on_slash_command_error(inter, error):
 
 @Client.event
 async def on_member_join(member):
-    embed = md2.make_embed(member)
+    embed = md2.make_member_join_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
         channel = await Client.fetch_channel(getchannel["insaname"])
@@ -99,11 +99,11 @@ async def on_message_edit(before, after):
     if after.author.bot is True:
         return
     try:
-        after.attachments[0].url
+        attachmentsurl = after.attachments[0].url
     except IndexError:
         pass
     else:
-        if after.attachments[0].url is not None:
+        if attachmentsurl is not None:
             embed1 = md1.get_message_edit_embed(before, after)
             getchannel = md1.serverdata("logid", after.guild.id, 123, True)
             try:
