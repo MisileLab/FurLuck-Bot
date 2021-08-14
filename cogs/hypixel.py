@@ -43,9 +43,7 @@ class hypixel(Cog):
         await inter.reply(type=5)
         name = inter.get_option("rankhistory").get("playername")
         response = await md1.except_error_history(inter, name)
-        if response is False:
-            await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
-        else:
+        if response is not False:
             components = md1.rankhistorycomponents(response)
             msg = await inter.edit(content=f"{name}의 랭크 기록입니다.", components=[ActionRow(components)])
             inter = await msg.wait_for_dropdown()

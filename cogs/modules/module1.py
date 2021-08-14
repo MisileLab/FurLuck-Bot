@@ -619,7 +619,6 @@ class UsernameNotValid(Exception):
 class HypixelRankHistory:
     def __init__(self, detectdict: dict):
         self.detectdict = detectdict
-        self.rankhistory = None
         self.lol()
         regular = True
 
@@ -826,6 +825,10 @@ async def except_error_history(inter: SlashInteraction, name: str):
     except Exception as e:
         await inter.edit("클라이언트 안에서 알 수 없는 에러가 났습니다.")
         raise e
+    else:
+        if response is False:
+            await inter.edit("서버 안에서 알 수 없는 에러가 났습니다.")
+            return False
     return response
 
 
