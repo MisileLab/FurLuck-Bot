@@ -527,7 +527,7 @@ class NewActionRow:
 
 class Vote:
     def __init__(self):
-        self.voteid = hashlib.sha512(
+        self.voteid = hashlib.sha3_512(
             str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
         self.mysql = connect_cursor()
         self.cursor = self.mysql.cursor(pymysql.cursors.DictCursor)
@@ -553,7 +553,7 @@ class Vote:
         for i1 in resultcursor:
             resultid = i1['voteid']
             if resultid == self.voteid:
-                self.voteid = hashlib.sha512(
+                self.voteid = hashlib.sha3_512(
                     str(secrets.SystemRandom().randint(1, 10000000)).encode('utf-8')).hexdigest()
 
     def close(self):  # sourcery no-metrics
