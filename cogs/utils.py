@@ -218,7 +218,19 @@ class utils(Cog):
         msg = await inter.edit(embed=embed, components=component.components)
         on_click: ClickListener = msg.create_click_listener(timeout=timeout)
         await md1.vote_listener(on_click, md1.Vote(), embed, inter)
+    
+    @slash.command(name="ticket")
+    async def _ticket(self, inter: SlashInteraction):
+        pass  # cause subcommand
 
+    @_ticket.sub_command(name="create", description="티켓을 만드는 명령어")
+    @slash.bot_has_guild_permissions(manage_channels=True)
+    @slash.has_guild_permissions(manage_channels=True)
+    async def _createticket(self, inter: SlashInteraction):
+        components = [ActionRow(Button(style=ButtonStyle.gray, label="티켓 만들기", custom_id="createticket"))]
+        msg = await inter.reply(content="티켓을 만들려면 버튼을 눌러주세요!", components=components)
+        clicklistener: ClickListener = msg.create_click_listener()
+        await md2.createticketlistener(clicklistener, inter)
 
 def setup(bot):
     bot.add_cog(utils(bot))

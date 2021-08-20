@@ -16,19 +16,6 @@ class dev(Cog):
     def __init__(self, bot):
         self.Client = bot
 
-    @slash_commands.command(name="ticket", guild_ids=devserver)
-    async def _ticket(self, inter: SlashInteraction):
-        pass  # cause subcommand
-
-    @_ticket.sub_command(name="create", description="티켓을 만드는 명령어", guild_ids=devserver)
-    @slash_commands.bot_has_guild_permissions(manage_channels=True)
-    @slash_commands.has_guild_permissions(manage_channels=True)
-    async def _createticket(self, inter: SlashInteraction):
-        components = [ActionRow(Button(style=ButtonStyle.gray, label="티켓 만들기", custom_id="createticket"))]
-        msg = await inter.reply(content="티켓을 만들려면 버튼을 눌러주세요!", components=components)
-        clicklistener: ClickListener = msg.create_click_listener()
-        await md2.createticketlistener(clicklistener, inter)
-
     @slash_commands.command(name="recaptcha")
     async def _recaptcha(self, inter: SlashInteraction):
         pass  # cause subcommand
