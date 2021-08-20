@@ -1,7 +1,5 @@
 import discord
-from dislash.application_commands.utils import ClickListener
 from dislash.interactions.application_command import OptionType
-from dislash.interactions.message_components import ActionRow, Button, ButtonStyle
 from dislash.interactions.slash_interaction import SlashInteraction
 from discord.ext.commands.cog import Cog
 from dislash import slash_commands
