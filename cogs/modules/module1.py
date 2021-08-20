@@ -482,8 +482,12 @@ def serverdata(name: str, guildid: int, modify, get: bool):
     if result is None:
         insertserverdataonce(cursor, guildid)
     if not get:
-        executecommand = "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s".replace("'", '')
-        cursor.execute(executecommand, (name, modify, guildid))
+        executecommand = "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s"
+        if name == 'recaptcha':
+            executecommand = "UPDATE serverfurluckbot SET recaptcha = %s WHERE serverid = %s"
+            cursor.execute(executecommand, (modify, guildid))
+        else:
+            cursor.execute(executecommand, (name, modify, guildid))
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     try:
