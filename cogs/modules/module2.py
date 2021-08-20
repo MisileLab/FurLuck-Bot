@@ -7,7 +7,7 @@ from dislash.interactions.message_components import ActionRow, Button, ButtonSty
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
 import discord
-from dislash import application_command as slash_commands, application_commands
+from dislash import application_command as application_commands
 from . import module1 as md1
 
 
