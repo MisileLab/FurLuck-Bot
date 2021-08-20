@@ -1,3 +1,4 @@
+import discord
 from dislash.application_commands.utils import ClickListener
 from dislash.interactions.application_command import OptionType
 from dislash.interactions.message_components import ActionRow, Button, ButtonStyle
@@ -6,7 +7,6 @@ from discord.ext.commands.cog import Cog
 from dislash import slash_commands
 from .modules import module2 as md2
 from .modules import module1 as md1
-import discord
 
 
 devserver = [812339145942237204, 635336036465246218, 863950154055155712]
