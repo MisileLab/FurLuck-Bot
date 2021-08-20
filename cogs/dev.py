@@ -41,9 +41,10 @@ class dev(Cog):
         await inter.reply("완료되었습니다!")
 
     recaptchaonoption = md2.NoneSlashCommand()
-    recaptchaonoption.add_option(name="role", description="성공할 시 줄 역할", type=OptionType.ROLE)
+    recaptchaonoption.add_option(name="role", description="성공할 시 줄 역할", type=OptionType.ROLE, required=True)
 
-    @_recaptcha.sub_command(name="on", guild_ids=devserver, description="auth 기능을 키는 명령어")
+    @_recaptcha.sub_command(name="on", guild_ids=devserver, description="auth 기능을 키는 명령어",
+                            options=recaptchaonoption.options)
     @slash_commands.has_guild_permissions(administrator=True)
     @slash_commands.bot_has_guild_permissions(administrator=True)
     async def _onrecaptcha(self, inter: SlashInteraction):
