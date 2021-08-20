@@ -31,7 +31,7 @@ for file in os.listdir("cogs"):
 
 
 @slash.event
-async def on_ready(ctx):
+async def on_ready():
     print("Slash Client Ready!")
 
 
