@@ -376,8 +376,8 @@ def insertmemberdataonce(cursor, memberid: int):
 
 
 def insertserverdataonce(cursor, guildid: int):
-    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid) VALUES (%s, %s, %s, %s)"
-    cursor.execute(sql, (guildid, 0, 0, 0))
+    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid, recaptcha, roleid) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(sql, (guildid, 0, 0, 0, 0, 0))
 
 
 class DontHaveMoney(Exception):
@@ -472,7 +472,7 @@ def miningmoney(memberid: int):
     return result1
 
 
-def serverdata(mode: str, guildid: int, channelid: int, get: bool):
+def serverdata(name: str, guildid: int, modify, get: bool):
     # sourcery no-metrics
     mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
@@ -483,7 +483,7 @@ def serverdata(mode: str, guildid: int, channelid: int, get: bool):
         insertserverdataonce(cursor, guildid)
     if not get:
         cursor.execute(
-            "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (mode, channelid, guildid))
+            "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (name, modify, guildid))
     sql = "SELECT * FROM `serverfurluckbot`;"
     cursor.execute(sql)
     resultcursor = cursor.fetchall()
@@ -949,3 +949,13 @@ async def mute_command(role1: discord.Role or None, inter: SlashInteraction, mem
         await inter.reply(f"<@{inter.author.id}>님이 <@{member.id}>님을 뮤트하였습니다!")
     else:
         await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
+
+
+def auth(id: int, contentmsg: str, recentcontentmsg: str):
+    mysql1 = connect_cursor()
+    cursor = mysql1.cursor(pymysql.cursors.DictCursor)
+    cursor.execute("SELECT * FROM `auth`;")
+    resultcursor = cursor.fetchall()
+    result = cursor_to_result(resultcursor, 'id', id)
+    cursor.close()
+    return result is not None and contentmsg == recentcontentmsg
