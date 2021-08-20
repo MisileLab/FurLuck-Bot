@@ -121,7 +121,7 @@ async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
 
 @slash.command(name="cogs", guild_ids=devserver)
 async def _cogs(inter: SlashInteraction):
-    pass
+    pass  # cause subcommand
 
 unloadoption = md2.NoneSlashCommand()
 unloadoption.add_option(name="cogname", description="cog name", required=True)
