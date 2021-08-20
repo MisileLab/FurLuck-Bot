@@ -2,14 +2,12 @@ import os
 import discord
 from discord.ext import commands
 from discord.ext.commands.errors import ExtensionAlreadyLoaded, ExtensionNotFound, ExtensionNotLoaded
-from discord.utils import get
 from dislash.interactions.app_command_interaction import SlashInteraction
 import koreanbots
 from cogs.modules import module1 as md1
 from cogs.modules import module2 as md2
 from dislash import slash_commands
 from dotenv import dotenv_values
-import time
 
 dotenvvalues = dotenv_values(".env")
 koreanbotstoken = dotenvvalues["koreanbotstoken"]
@@ -64,18 +62,7 @@ async def on_member_join(member: discord.Member):
     else:
         await channel.send(embed=embed)
     if getchannel["recaptcha"] != 0:
-        channel: discord.DMChannel = await member.create_dm()
-        msg: discord.Message = channel.send(f"이 링크에서 인증해서 key를 채팅에 쳐주세요! https://book.chizstudio.com/?id={member.id} (이 링크는 10분동안만 가능합니다. 10분이 지날 시 나갔다 들어오면 다시 하실 수 있습니다.)")
-        rollin: discord.Role = await member.guild.get_role(getchannel["recaptcha"])
-        for _i in range(600):
-            recentmsgcontent = await channel.fetch_message(channel.last_message_id).content
-            if md1.auth(id, msg.content, recentmsgcontent) is True:
-                await member.add_roles(rollin)
-                await channel.send("인증이 완료되었습니다!")
-                break
-            time.sleep(1)
-        await channel.send("인증 시간이 만료되었습니다. 재입장을 추천드립니다.")
-
+        await md1.auth_recaptcha(member, getchannel)
 
 
 @Client.event
@@ -134,7 +121,7 @@ async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
 
 @slash.command(name="cogs", guild_ids=devserver)
 async def _cogs(inter: SlashInteraction):
-    pass # empty cause this command is need to subcommand
+    pass  # empty cause this command is need to subcommand
 
 unloadoption = md2.NoneSlashCommand()
 unloadoption.add_option(name="cogname", description="cog name", required=True)

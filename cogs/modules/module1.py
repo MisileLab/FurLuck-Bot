@@ -1,7 +1,7 @@
 import json
 import secrets
 from datetime import datetime
-
+import time
 from discord.ext import commands
 from dislash.interactions.slash_interaction import SlashInteraction
 from . import module2 as md2
@@ -376,7 +376,8 @@ def insertmemberdataonce(cursor, memberid: int):
 
 
 def insertserverdataonce(cursor, guildid: int):
-    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid, recaptcha, roleid) VALUES (%s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid, recaptcha, roleid) VALUES \
+    (%s, %s, %s, %s, %s, %s)"
     cursor.execute(sql, (guildid, 0, 0, 0, 0, 0))
 
 
@@ -473,7 +474,6 @@ def miningmoney(memberid: int):
 
 
 def serverdata(name: str, guildid: int, modify, get: bool):
-    # sourcery no-metrics
     mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `serverfurluckbot`;")
@@ -484,8 +484,7 @@ def serverdata(name: str, guildid: int, modify, get: bool):
     if not get:
         cursor.execute(
             "UPDATE serverfurluckbot SET %s = %s WHERE serverid = %s", (name, modify, guildid))
-    sql = "SELECT * FROM `serverfurluckbot`;"
-    cursor.execute(sql)
+    cursor.execute("SELECT * FROM `serverfurluckbot`;")
     resultcursor = cursor.fetchall()
     try:
         result = cursor_to_result(resultcursor, 'serverid', guildid)
@@ -959,3 +958,18 @@ def auth(id: int, contentmsg: str, recentcontentmsg: str):
     result = cursor_to_result(resultcursor, 'id', id)
     cursor.close()
     return result is not None and contentmsg == recentcontentmsg
+
+
+async def auth_recaptcha(member: discord.Member, getchannel: tuple):
+    channel: discord.DMChannel = await member.create_dm()
+    msg: discord.Message = channel.send(f"이 링크에서 인증해서 key를 채팅에 쳐주세요! https://book.chizstudio.com/?id={member.id} (이 링크는 \
+                                        10분동안만 가능합니다. 10분이 지날 시 나갔다 들어오면 다시 하실 수 있습니다.)")
+    rollin: discord.Role = await member.guild.get_role(getchannel["recaptcha"])
+    for _i in range(600):
+        recentmsgcontent = await channel.fetch_message(channel.last_message_id).content
+        if auth(id, msg.content, recentmsgcontent) is True:
+            await member.add_roles(rollin)
+            await channel.send("인증이 완료되었습니다!")
+            break
+        time.sleep(1)
+    await channel.send("인증 시간이 만료되었습니다. 재입장을 추천드립니다.")
