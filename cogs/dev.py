@@ -1,7 +1,6 @@
 import discord
-from dislash import OptionType, SlashInteraction
+from dislash import application_commands, OptionType, SlashInteraction
 from discord.ext.commands.cog import Cog
-from dislash import application_commands
 from .modules import module2 as md2
 from .modules import module1 as md1
 
