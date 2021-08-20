@@ -7,7 +7,7 @@ from dislash.interactions.message_components import ActionRow, Button, ButtonSty
 from dislash.interactions.slash_interaction import SlashInteraction
 import psutil
 import discord
-from dislash import application_command as slash_commands
+from dislash import application_command as slash_commands, application_commands
 from . import module1 as md1
 
 
@@ -82,23 +82,23 @@ class sub_error_handler:
         self.inter = inter
 
     @staticmethod
-    async def MissingPermissonHandling(missing_perms, inter: SlashInteraction):
+    async def missingpermissionerrorhandling(missing_perms, inter: SlashInteraction):
         await inter.reply(f"권한이 부족해요! 부족한 권한 : {missing_perms}")
 
-    async def ErrorHandling(self):
-        if isinstance(self.error, slash_commands.MissingPermissions):
-            await self.MissingPermissonHandling(self.error.missing_perms, self.inter)
+    async def errorhandling(self):
+        if isinstance(self.error, application_commands.MissingPermissions):
+            await self.missingpermissionerrorhandling(self.error.missing_perms, self.inter)
 
-        elif isinstance(self.error, slash_commands.BotMissingPermissions):
+        elif isinstance(self.error, application_commands.BotMissingPermissions):
             await self.inter.reply(f"봇의 권한이 부족해요! 부족한 권한 : {self.error.missing_perms}")
 
-        elif isinstance(self.error, slash_commands.CommandOnCooldown):
+        elif isinstance(self.error, application_commands.CommandOnCooldown):
             await self.inter.reply(f"이 명령어는 {self.error.retry_after}초 뒤에 사용할 수 있어요!")
 
         elif isinstance(self.error, notadmin):
-            await self.MessageErrorHandling()
+            await self.messageerrorhandlinglol()
 
-    async def MessageErrorHandling(self):
+    async def messageerrorhandlinglol(self):
         if self.error.message is None:
             await self.inter.reply("이 명령어는 당신이 쓸 수 없어요!")
         else:

@@ -6,7 +6,7 @@ from dislash.interactions.app_command_interaction import SlashInteraction
 import koreanbots
 from cogs.modules import module1 as md1
 from cogs.modules import module2 as md2
-from dislash import slash_commands
+from dislash import application_commands, slash_commands
 from dotenv import dotenv_values
 
 dotenvvalues = dotenv_values(".env")
@@ -20,8 +20,8 @@ slash = slash_commands.SlashClient(Client)
 
 icecreamhappydiscord = [635336036465246218]
 ignore_error = commands.CommandNotFound, discord.errors.NotFound
-message_error = slash_commands.MissingPermissions, slash_commands.BotMissingPermissions, \
-                slash_commands.CommandOnCooldown
+message_error = application_commands.MissingPermissions, application_commands.BotMissingPermissions, \
+                application_commands.CommandOnCooldown
 
 
 for file in os.listdir("cogs"):
@@ -31,7 +31,7 @@ for file in os.listdir("cogs"):
 
 
 @slash.event
-async def on_ready():
+async def on_ready(ctx):
     print("Slash Client Ready!")
 
 
