@@ -33,7 +33,7 @@ class dev(Cog):
     @slash_commands.has_guild_permissions(administrator=True)
     @slash_commands.bot_has_guild_permissions(administrator=True)
     async def _onrecaptcha(self, inter: SlashInteraction):
-        role: discord.Role = inter.get('role')
+        role: discord.Role = inter.get_option("on").get("role")
         md1.serverdata('recaptcha', inter.author.guild.id, role.id, False)
         await inter.reply("완료되었습니다!")
 
