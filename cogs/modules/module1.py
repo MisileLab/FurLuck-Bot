@@ -950,12 +950,12 @@ async def mute_command(role1: discord.Role or None, inter: SlashInteraction, mem
         await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
 
 
-def auth(id: int, contentmsg: str, recentcontentmsg: str):
+def auth(memberid: int, contentmsg: str, recentcontentmsg: str):
     mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `auth`;")
     resultcursor = cursor.fetchall()
-    result = cursor_to_result(resultcursor, 'id', id)
+    result = cursor_to_result(resultcursor, 'id', memberid)
     cursor.close()
     return result is not None and contentmsg == recentcontentmsg
 
