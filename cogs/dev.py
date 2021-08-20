@@ -1,5 +1,6 @@
 import discord
-from dislash import application_commands, OptionType, SlashInteraction
+from dislash import application_commands, slash_command
+from dislash import OptionType, SlashInteraction
 from discord.ext.commands.cog import Cog
 from .modules import module2 as md2
 from .modules import module1 as md1
@@ -12,7 +13,7 @@ class dev(Cog):
     def __init__(self, bot):
         self.Client = bot
 
-    @application_commands.slash_command(name="recaptcha")
+    @slash_command(name="recaptcha")
     async def _recaptcha(self, inter: SlashInteraction):
         pass  # cause subcommand
 
