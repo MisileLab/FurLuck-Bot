@@ -1,8 +1,6 @@
 import discord
-from dislash.interactions.application_command import OptionType
-from dislash.interactions.slash_interaction import SlashInteraction
+from dislash import application_commands, OptionType, SlashInteraction
 from discord.ext.commands.cog import Cog
-from dislash import slash_commands
 from .modules import module2 as md2
 from .modules import module1 as md1
 
@@ -14,13 +12,13 @@ class dev(Cog):
     def __init__(self, bot):
         self.Client = bot
 
-    @slash_commands.command(name="recaptcha")
+    @application_commands.slash_command(name="recaptcha")
     async def _recaptcha(self, inter: SlashInteraction):
         pass  # cause subcommand
 
     @_recaptcha.sub_command(name="off", guild_ids=devserver, description="auth 기능을 끄는 명령어")
-    @slash_commands.has_guild_permissions(administrator=True)
-    @slash_commands.bot_has_guild_permissions(administrator=True)
+    @application_commands.has_guild_permissions(administrator=True)
+    @application_commands.bot_has_guild_permissions(administrator=True)
     async def _offrecaptcha(self, inter: SlashInteraction):
         md1.serverdata('recaptcha', inter.author.guild.id, 0, False)
         await inter.reply("완료되었습니다!")
@@ -30,8 +28,8 @@ class dev(Cog):
 
     @_recaptcha.sub_command(name="on", guild_ids=devserver, description="auth 기능을 키는 명령어",
                             options=recaptchaonoption.options)
-    @slash_commands.has_guild_permissions(administrator=True)
-    @slash_commands.bot_has_guild_permissions(administrator=True)
+    @application_commands.has_guild_permissions(administrator=True)
+    @application_commands.bot_has_guild_permissions(administrator=True)
     async def _onrecaptcha(self, inter: SlashInteraction):
         role: discord.Role = inter.get_option("on").get("role")
         md1.serverdata('recaptcha', inter.author.guild.id, role.id, False)

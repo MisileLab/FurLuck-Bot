@@ -1,11 +1,9 @@
 from discord.ext import commands
-from dislash.interactions.message_components import ActionRow, Button, ButtonStyle
 from .modules.module2 import NoneSlashCommand
 from dislash import OptionType as Type
-from dislash import slash_commands as slash
-from dislash.interactions import SlashInteraction
+from dislash import application_commands as slash
+from dislash import SlashInteraction, ActionRow, Button, ButtonStyle, ClickListener, slash_command
 from discord.ext.commands import Cog
-from dislash.slash_commands.utils import ClickListener
 import simpleeval
 import cpuinfo
 import discord
@@ -19,7 +17,7 @@ class utils(Cog):
     def __init__(self, bot):
         self.Client = bot
 
-    @slash.command(name="bot", description="봇의 정보를 알려주는 명령어")
+    @slash_command(name="bot", description="봇의 정보를 알려주는 명령어")
     async def _bot(self, inter: SlashInteraction):
         before = time.monotonic()
         await inter.reply(type=5)
@@ -28,14 +26,14 @@ class utils(Cog):
         embed1 = md1.make_embed_bot_information(inter, cpuinfo1, ping, self.Client)
         await inter.edit(content=None, embed=embed1)
 
-    @slash.command(name="feedback", description="피드백을 줄 수 있는 명령어")
+    @slash_command(name="feedback", description="피드백을 줄 수 있는 명령어")
     async def _feedback(self, inter: SlashInteraction):
         embed1 = discord.Embed(name="이 봇의 시스템 정보들", description="여러가지 링크들")
         embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
         embed1.add_field(name="Github", value="[링크](https://github.com/MisileLab/furluck-bot)")
         await inter.reply(embed=embed1)
 
-    @slash.command(name="specialthanks", description="Thank you for helping me")
+    @slash_command(name="specialthanks", description="Thank you for helping me")
     async def _specialthanks(self, inter: SlashInteraction):
         embed1 = discord.Embed(name="Helping hands", description="Thank you")
         embed1.set_author(name=inter.author.name, icon_url=inter.author.avatar_url)
@@ -51,7 +49,7 @@ class utils(Cog):
     calculateoption = NoneSlashCommand()
     calculateoption.add_option(name="calculate", description="계산할 식", required=True, type=Type.STRING)
 
-    @slash.command(name="calculate", description="계산을 할 수 있는 명령어", options=calculateoption.options)
+    @slash_command(name="calculate", description="계산을 할 수 있는 명령어", options=calculateoption.options)
     async def _calculate(self, inter: SlashInteraction):
         calculate = inter.get('calculate')
         try:
@@ -66,7 +64,7 @@ class utils(Cog):
     weatheroption = NoneSlashCommand()
     weatheroption.add_option(name="position", description="날씨를 알고 싶은 장소", required=False, type=Type.STRING)
 
-    @slash.command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=weatheroption.options)
+    @slash_command(name="weather", description="날씨를 알려주는 명령어 (네이버 날씨)", options=weatheroption.options)
     async def _weather(self, inter: SlashInteraction):
         await inter.reply(type=5)
         position = inter.get('position', None)
@@ -80,7 +78,7 @@ class utils(Cog):
     bitlyoption = NoneSlashCommand()
     bitlyoption.add_option(name="url", description="길지 않게 만들 링크", required=True, type=Type.STRING)
 
-    @slash.command(name="bitly", description="링크를 길지 않게 만들어주는 명령어", options=bitlyoption.options)
+    @slash_command(name="bitly", description="링크를 길지 않게 만들어주는 명령어", options=bitlyoption.options)
     async def _bitly(self, inter: SlashInteraction):
         longurl = inter.get('url')
         shorturl = md1.shortlink([longurl])
@@ -91,7 +89,7 @@ class utils(Cog):
     randomoption.add_option(name="min", description="최소 숫자", required=True, type=Type.INTEGER)
     randomoption.add_option(name="max", description="최대 숫자", required=True, type=Type.INTEGER)
 
-    @slash.command(name="random", description="랜덤으로 숫자를 굴려주는 명령어", options=randomoption.options)
+    @slash_command(name="random", description="랜덤으로 숫자를 굴려주는 명령어", options=randomoption.options)
     async def _random(self, inter: SlashInteraction):
         x = inter.get('min')
         y = inter.get('max')
@@ -100,7 +98,7 @@ class utils(Cog):
     userchannel = NoneSlashCommand()
     userchannel.add_option(name="user", description="호감도를 확인할 유저", required=False, type=Type.USER)
 
-    @slash.command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
+    @slash_command(name="helpingme", description="제작자가 직접 주는 호감도 확인용", options=userchannel.options)
     async def _helpinghands(self, inter: SlashInteraction):
         user = inter.get("user", inter.author)
         try:
@@ -117,7 +115,7 @@ class utils(Cog):
     noticeother = NoneSlashCommand()
     noticeother.add_option(name="description", description="설명", required=True, type=Type.STRING)
 
-    @slash.command(name="noticeother", description="공지를 하는 명령어", options=noticeother.options)
+    @slash_command(name="noticeother", description="공지를 하는 명령어", options=noticeother.options)
     async def _notice(self, inter: SlashInteraction, description: str):
         md2.detect_admin(inter)
         await inter.reply(type=5)
@@ -134,7 +132,7 @@ class utils(Cog):
                 await inter.edit(content="공지를 성공적으로 전달했어요!")
 
     @slash.cooldown(10, 600)
-    @slash.command(name="mining", description="How to 얻는다, 600초 당 10번 씩 가능")
+    @slash_command(name="mining", description="How to 얻는다, 600초 당 10번 씩 가능")
     async def _mining(self, inter: SlashInteraction):
         md1.miningmoney(inter.author.id)
         random1 = secrets.SystemRandom().randint(1, 20)
@@ -143,7 +141,7 @@ class utils(Cog):
         else:
             await inter.reply(f"<@{inter.author.id}>님에게 돈을 줬어요. ㅠㅠ")
 
-    @slash.command(name='getmoney', description='자신의 돈을 확인하는 명령어')
+    @slash_command(name='getmoney', description='자신의 돈을 확인하는 명령어')
     async def _getmoney(self, inter: SlashInteraction):
         getmoney = md1.getmoney(inter.author.id)
         await inter.reply(f"<@{inter.author.id}>님의 돈 : {getmoney}원")
@@ -151,7 +149,7 @@ class utils(Cog):
     dobak = NoneSlashCommand()
     dobak.add_option(name="money", description="도박할 돈", required=True, type=Type.INTEGER)
 
-    @slash.command(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님", options=dobak.options)
+    @slash_command(name='dobak', description="도박하는 명령어, 확률은 50%, 메이플이 아님", options=dobak.options)
     async def _dobak(self, inter: SlashInteraction, money: int):
         try:
             md1.dobakmoney(inter.author.id, money)
@@ -165,7 +163,7 @@ class utils(Cog):
     logoption = NoneSlashCommand()
     logoption.add_option(name="channel", description="로그 채널", type=Type.CHANNEL, required=True)
 
-    @slash.command(name="log", description="로그 채널을 지정하는 재밌는 명령어", options=logoption.options)
+    @slash_command(name="log", description="로그 채널을 지정하는 재밌는 명령어", options=logoption.options)
     async def _log(self, inter: SlashInteraction):
         channel = inter.get("channel")
         md1.serverdata('logid', inter.author.guild.id, channel.id, False)
@@ -174,7 +172,7 @@ class utils(Cog):
     serverinfo = NoneSlashCommand()
     serverinfo.add_option(name="serverid", description="서버 ID", type=Type.STRING, required=False)
 
-    @slash.command(name="serverinfo", description="서버 정보를 알려주는 명령어", options=serverinfo.options)
+    @slash_command(name="serverinfo", description="서버 정보를 알려주는 명령어", options=serverinfo.options)
     async def _serverinfo(self, inter: SlashInteraction):
         await inter.reply("서버의 정보를 찾고 있어요!")
         guildid = inter.get("serverid", inter.author.guild.id)
@@ -185,7 +183,7 @@ class utils(Cog):
     userinfo = NoneSlashCommand()
     userinfo.add_option(name="userid", description="유저 ID", type=Type.STRING, required=False)
 
-    @slash.command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo.options)
+    @slash_command(name="userinfo", description="유저의 정보를 알려주는 명령어", options=userinfo.options)
     async def _userinfo(self, inter: SlashInteraction):
         userid = inter.get("serverid", inter.author.id)
         await inter.reply("유저를 찾는 중이에요!")
@@ -204,9 +202,9 @@ class utils(Cog):
     createvoteoption.add_option(name="description", description="설명", required=False, type=Type.STRING)
     createvoteoption.add_option(name="timeout", description="투표 만료 단위 : 초", required=False, type=Type.INTEGER)
 
-    @slash.command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options)
-    @commands.guild_only()
-    @commands.cooldown(10, 600)
+    @slash_command(name="createvote", description="투표를 만드는 명령어", options=createvoteoption.options)
+    @slash.guild_only()
+    @slash.cooldown(10, 600)
     async def _createvote(self, inter: SlashInteraction):  # sourcery no-metrics
         await inter.reply(type=5)
         name = inter.get("name")
@@ -219,7 +217,7 @@ class utils(Cog):
         on_click: ClickListener = msg.create_click_listener(timeout=timeout)
         await md1.vote_listener(on_click, md1.Vote(), embed, inter)
 
-    @slash.command(name="ticket")
+    @slash_command(name="ticket")
     async def _ticket(self, inter: SlashInteraction):
         pass  # cause subcommand
 
