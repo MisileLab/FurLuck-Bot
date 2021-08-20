@@ -52,7 +52,7 @@ async def on_slash_command_error(inter, error):
 
 
 @Client.event
-async def on_member_join(member):
+async def on_member_join(member: discord.Member):
     embed = md2.make_member_join_embed(member)
     getchannel = md1.serverdata("insaname", member.guild.id, 123, True)
     try:
@@ -61,8 +61,8 @@ async def on_member_join(member):
         pass
     else:
         await channel.send(embed=embed)
-        if member.guild.id == 635336036465246218:
-            await member.add_roles(member.guild.get_role(826962501097881620))
+    if getchannel["recaptcha"] != 0:
+        await md1.auth_recaptcha(member, getchannel)
 
 
 @Client.event
@@ -121,7 +121,7 @@ async def oneforgottendiscordslashcommandkoreanbotlistnoslashcommandlol(ctx):
 
 @slash.command(name="cogs", guild_ids=devserver)
 async def _cogs(inter: SlashInteraction):
-    pass
+    pass  # empty cause this command is need to subcommand
 
 unloadoption = md2.NoneSlashCommand()
 unloadoption.add_option(name="cogname", description="cog name", required=True)
