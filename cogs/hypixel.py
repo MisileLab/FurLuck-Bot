@@ -1,7 +1,6 @@
 from discord.ext import commands
-from dislash.interactions.message_components import ActionRow
-from dislash.interactions.slash_interaction import SlashInteraction
-from dislash import slash_commands as slash
+from dislash import slash_command, ActionRow, SlashInteraction
+from dislash import application_commands as slash
 from dislash import OptionType as Type
 from .modules import module1 as md1
 from discord.ext.commands import Cog
@@ -16,8 +15,8 @@ class hypixel(Cog):
         self.Client = bot
 
     # noinspection PyUnusedLocal
-    @slash.command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들")
-    @commands.guild_only()
+    @slash_command(name="hypixel", description="하이픽셀 api를 사용하는 엄청난 명령어들")
+    @slash.guild_only()
     async def _hypixel(self, inter: SlashInteraction):
         pass
 
