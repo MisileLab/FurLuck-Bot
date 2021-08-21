@@ -61,8 +61,8 @@ async def on_member_join(member: discord.Member):
         pass
     else:
         await channel.send(embed=embed)
-    if getchannel["recaptcha"] != 0:
-        await md1.auth_recaptcha(member, getchannel)
+        if getchannel["recaptcha"] != 0:
+            await md1.auth_recaptcha(member, getchannel)
 
 
 @Client.event

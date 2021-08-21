@@ -954,26 +954,31 @@ async def mute_command(role1: discord.Role or None, inter: SlashInteraction, mem
         await inter.reply(f"<@{inter.author.id}>님이 {reason}이라는 이유로 <@{member.id}>님을 뮤트하였습니다!")
 
 
-def auth(memberid: int, contentmsg: str, recentcontentmsg: str):
+def auth(memberid: int, recentcontentmsg: str):
     mysql1 = connect_cursor()
     cursor = mysql1.cursor(pymysql.cursors.DictCursor)
     cursor.execute("SELECT * FROM `auth`;")
     resultcursor = cursor.fetchall()
     result = cursor_to_result(resultcursor, 'id', memberid)
     cursor.close()
-    return result is not None and contentmsg == recentcontentmsg
+    return result is not None and recentcontentmsg == result["key"]
 
 
 async def auth_recaptcha(member: discord.Member, getchannel: tuple):
+    successauth = None
     channel: discord.DMChannel = await member.create_dm()
-    msg: discord.Message = channel.send(f"이 링크에서 인증해서 key를 채팅에 쳐주세요! https://book.chizstudio.com/?id={member.id} (이 링크는 \
-                                        10분동안만 가능합니다. 10분이 지날 시 나갔다 들어오면 다시 하실 수 있습니다.)")
-    rollin: discord.Role = await member.guild.get_role(getchannel["recaptcha"])
+    msgcontent = f"이 링크에서 인증해서 key를 채팅에 쳐주세요! https://book.chizstudio.com/?id={member.id}"
+    msgcontent2 = " (이 링크는 10분동안만 가능합니다. 10분이 지날 시 나갔다 들어오면 다시 하실 수 있습니다."
+    await channel.send(content=(msgcontent + msgcontent2))
+    rollin: discord.Role = member.guild.get_role(getchannel["recaptcha"])
     for _i in range(600):
-        recentmsgcontent = await channel.fetch_message(channel.last_message_id).content
-        if auth(id, msg.content, recentmsgcontent) is True:
-            await member.add_roles(rollin)
-            await channel.send("인증이 완료되었습니다!")
-            break
+        async for msg2 in channel.history(limit=1):
+            if auth(member.id, msg2.content) is True:
+                await member.add_roles(rollin)
+                await channel.send("인증이 완료되었습니다!")
+                successauth = True
         time.sleep(1)
-    await channel.send("인증 시간이 만료되었습니다. 재입장을 추천드립니다.")
+        if successauth:
+            break
+    if successauth is None:
+        await channel.send("인증 시간이 만료되었습니다. 재입장을 추천드립니다.")
