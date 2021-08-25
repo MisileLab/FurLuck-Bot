@@ -376,9 +376,9 @@ def insertmemberdataonce(cursor, memberid: int):
 
 
 def insertserverdataonce(cursor, guildid: int):
-    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid, recaptcha, roleid) VALUES \
+    sql = "INSERT INTO `serverfurluckbot` (serverid, insaname, gongjiid, logid, recaptcha) VALUES \
     (%s, %s, %s, %s, %s, %s)"
-    cursor.execute(sql, (guildid, 0, 0, 0, 0, 0))
+    cursor.execute(sql, (guildid, 0, 0, 0, 0))
 
 
 class DontHaveMoney(Exception):
