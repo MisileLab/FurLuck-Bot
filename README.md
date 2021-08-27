@@ -1,3 +1,6 @@
+# Warning
+FurLuck Bot will change lang python to rust.
+
 # FurLuck-Bot
 bot using slash command
 
