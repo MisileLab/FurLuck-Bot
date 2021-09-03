@@ -1,5 +1,6 @@
 # FurLuck-Bot
 bot using slash command
+[![Python](https://img.shields.io/badge/python-latest-blue.svg?logo=python)](https://python.org)
 
 ## Donate
 Patreon : https://patreon.com/MisileLab   
